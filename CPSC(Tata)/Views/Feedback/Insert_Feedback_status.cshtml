@@ -1,0 +1,186 @@
+﻿
+@{
+    Layout = null;
+}
+
+@using System.Data;
+@using System.Data.SqlClient;
+@using System.Globalization;
+@using System.Web;
+@using DataUtilityLayer;
+@using System.Configuration;
+@{
+
+    SqlCommand cmdObj1 = new SqlCommand();
+    string CS11 = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
+
+    DataTable dtfdeal;
+    string _sqldeal = string.Empty;
+    _sqldeal = @"procGetDashboard";
+    using (SqlConnection cn1 = new SqlConnection(CS11))
+    {
+        DataTable dt1 = new DataTable();
+        //var cmd = new SqlCommand(_sql, cn);
+        var daCampus1 = new SqlDataAdapter(_sqldeal, cn1);
+        daCampus1.SelectCommand.CommandType = CommandType.StoredProcedure;
+        daCampus1.SelectCommand.Parameters.AddWithValue("@uid", Session["Uid"].ToString());
+        daCampus1.Fill(dt1);
+        dtfdeal = dt1;
+    }
+
+}
+
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Feedback Status | TATA Motors</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv='X-Frame-Options' content='allow' />
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <meta content="Preview page of Metronic Admin Theme #1 for " name="description" />
+    <meta content="" name="author" />
+
+    <!-- BEGIN GLOBAL MANDATORY STYLES -->
+
+    <link href="../assets/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/global/css/components.min.css" rel="stylesheet" id="style_components" type="text/css" />
+    <link rel="shortcut icon" href="favicon.ico" />
+    <script type="text/javascript">
+   function preventBack(){window.history.forward();}
+    setTimeout("preventBack()", 0);
+    window.onunload = function () { null };
+    history.pushState(null, null, document.URL);
+    window.addEventListener('popstate', function () {
+        history.pushState(null, null, document.URL);
+    });
+
+    </script>
+    <style type="text/css">
+        td, th {
+            padding: 10px;
+        }
+
+        table.table-bordered > thead > tr > th {
+            border: 1.5px solid #3598dc;
+        }
+
+        table.table-bordered > tbody > tr > td {
+            border: 1.5px solid #3598dc;
+        }
+
+        table.table-bordered {
+            border: 1.5px solid #3598dc;
+        }
+    </style>
+
+    <script src="~/Scripts/jquery3_1.js"></script>
+   
+</head>
+
+@{ Session["sflag"] = 0; }
+
+<body>
+   
+        <div class="container-fluid">
+            <div class="row">
+                <div class="navbar navbar-fixed-top col-lg-12 col-md-12 col-xs-12 col-sm-12" style="min-height:42px; border:1px solid #eee; background:#f0f0f0;">
+                    <div style="margin-top: 0.6%;margin-left: 2%; font-weight: bold; font-family: times new roman; color: red; float:left;">
+                        <span><img src="~/assets/logo/tata-logo.png" /></span>
+                    </div>
+
+                    <div style="margin-top: 0.2%;margin-left: 2%; font-weight: bold; font-family: times new roman; color: red; float:right;height:34px; width:34px;">
+                        <a href='~/PDF/read.pdf' target='_blank' style="color:#3598dc;"><img src="~/assets/Dealer_Home/TATA_dashboard_qes.png" style="height:24px; width:24px; margin-left:17%; margin-top:17%;" title="To know more about the parameters,please click" /></a>
+                    </div>
+
+
+
+                    <div style="margin-top: 0.2%;margin-left: 2%; font-weight: bold; font-family: times new roman; color: red; float:right; height:34px; width:34px;">
+                        <a href="@Url.Action("Login", "Login")"><img src="~/assets/Dealer_Home/TATA_dashboard_Logout.png" style="height:24px; width:24px; margin-left:100%; margin-top:17%;" title="Logout" /></a>
+                    </div>
+
+                    <div style="margin-top: 0.2%;margin-left: 2%; font-weight: bold; font-family: times new roman; color: red; float:right; height:34px; width:34px;">
+                        <a href="@Url.Action("Insert_Feedback", "Feedback")"><img src="~/assets/Dealer_Home/TATA_dashboard_FD.png" style="height:24px; width:24px; margin-left:178%; margin-top:17%;" title="Feedback" /></a>
+                    </div>
+
+                    <div style="margin-top: 0.2%;margin-left: 2%; font-weight: bold; font-family: times new roman; color: red; float:right;height:34px; width:34px;">
+                        <a href="@Url.Action("Insert_Feedback_Status","Feedback")"><img src="~/assets/Dealer_Home/TATA_dashboard_FDS.png" style="height:24px; width:24px; margin-left:256%; margin-top:17%;" title="Feedback Status" /></a>
+                    </div>
+
+                    <div style="margin-top: 0.2%;margin-left: 2%; font-weight: bold; font-family: times new roman; color: red; float:right;
+					height:34px; width:34px;">
+                        <a href="@Url.Action("Dealer_Home", "Login")"><img src="~/assets/Dealer_Home/TATA_dashboard_home.png" style="height:24px; width:24px; margin-left:335%; margin-top:17%;" title="Home" /></a>
+                    </div>
+
+
+                </div>
+
+
+
+
+                <div class="col-lg-12 col-md-12 col-xs-12 col-sm-12 container-fluid" style="background-color:#fff;text-align:left;margin-top:-1px;min-height:663px;">
+
+                    <div class="row" style="margin-top:10%">
+                        <div class="col-md-4">
+                            &nbsp;
+                        </div>
+                        <div class="col-md-4">
+                            <div class="table-responsive">
+                                <input type="hidden" id="row_count" value="" name="row_count" />
+                                <table class="table table-bordered" cellspacing="0" cellpadding="0">
+
+                                    <thead>
+                                        <tr>
+
+                                            <th style="color:#3598dc;"> Dashboard </th>
+                                            <th style="color:#3598dc;"> Feedback </th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody id="x">
+                                        @{
+                                            if (dtfdeal.Rows.Count > 0)
+                                            {
+                                                for (int i = 0; i < dtfdeal.Rows.Count; i++)
+                                                {
+                                                    <tr>
+                                                        <td style="padding-top:30px;"><label for="@dtfdeal.Rows[i]["Dash"].ToString()" id="dash@{@i}" style="color:#3598dc;">@dtfdeal.Rows[i]["Dash"].ToString()</label><input type="hidden" id="dash@{@i}" value="@dtfdeal.Rows[i]["Dash"].ToString()" name="dash@{@i}" /></td>
+                                                        <td><textarea class="form-control" rows="3" id="feed@{@i}" name="feed@{@i}" disabled>@dtfdeal.Rows[i]["Feed"].ToString()</textarea></td>
+                                                    </tr>
+        }
+    }
+                                        }
+
+
+                                    </tbody>
+                                </table>
+                            </div>
+                           
+                        </div>
+
+                        <div class="col-md-4">
+                            &nbsp;
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    
+    <!-- Pop up -->
+    <a class="btn purple btn-outline sbold" data-toggle="modal" href="#success_msg_popup" id="success_msg" style="display:none;"></a>
+    <div id="success_msg_popup" class="modal fade" tabindex="-1" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog" style="border:2px solid #3598dc; width:30%;">
+            <div class="modal-content">
+                <div class="modal-body" style="overflow:auto;max-height:400px;">
+                    <p id="para" style="margin:0px; color:green; text-align:center; font-weight:bold; font-size:14px;">Data has been Sucessfully Submitted.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../assets/global/plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+</body>
+</html>

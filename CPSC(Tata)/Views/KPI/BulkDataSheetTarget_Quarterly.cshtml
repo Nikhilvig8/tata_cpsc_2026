@@ -1,0 +1,1371 @@
+﻿
+@{
+    ViewBag.Title = "BulkDataSheetTarget_Quarterly";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@{
+    string result_data = string.Empty;
+    if (Session["result"] != null)
+    {
+        result_data = Session["result"].ToString();
+    }
+    Session["result"] = string.Empty;
+}
+
+@{ string cn1h = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
+    string typeTSM1 = Session["Type"].ToString();
+                                            <!-- Pending Inputs -->
+
+    DataTable dtfHy;
+    string _sqlHy = string.Empty;
+
+    _sqlHy = "getHygienList";
+    //var cmdTSM = new SqlCommand(_sqlTSM, cn);
+    using (var cnHy = new SqlConnection(cn1h))
+    {
+        var daCampusHy = new SqlDataAdapter(_sqlHy, cnHy);
+        DataTable dtHy = new DataTable();
+        daCampusHy.SelectCommand.CommandType = CommandType.StoredProcedure;
+
+        //else { daCampusTSM.SelectCommand.Parameters.AddWithValue("@TSM_CSM_Code", Session["Uid"].ToString()); }
+        //daCampusTSM.SelectCommand.Parameters.AddWithValue("@Dealer_Code", Model.Trans.Dealer);
+        //daCampusTSM.SelectCommand.Parameters.AddWithValue("@Division_Id", Model.Trans.Out);
+        //daCampusTSM.SelectCommand.Parameters.AddWithValue("@LOB", Model.Trans.LOB);
+
+        daCampusHy.Fill(dtHy);
+
+        dtfHy = dtHy;
+    }
+
+
+}
+
+
+<script src="~/Scripts/jquery3_1.js"></script>
+<script type="text/javascript">
+    $(document).ready(function ()//When the dom is ready
+    {
+        //alert('hello');
+        //$(".input").popover({ trigger: 'focus' });
+        //$("#input09").popover({
+        //    trigger: 'hover',
+        //    html: true,
+        //    placement: 'right'
+
+        //});
+
+        var result_data = '@result_data';
+        //alert(result_data);
+        if (result_data == 'succ') {
+            $("#success_msg").trigger('click');
+            setTimeout(function () {
+                $('#success_msg_popup').modal('hide')
+            }, 5000);
+            // result_data = '';
+            // SetUserName();
+        }
+
+        $('#Month_main').change(function (e) {
+            // Your event handler
+            $('#Dealer_main').trigger('change');
+        });
+
+
+
+
+        //put Dealer city name in city span
+        var Dealer_name1 = $("#Dealer_main :selected").text();
+        var dealer_split = Dealer_name1.split("-");
+        var dealer_city = dealer_split[1];
+        //alert(dealer_city);
+        $("#dealer_city").html(dealer_city);
+
+
+        $("#Dealer_main").bind('change', function () {
+            $('#tableHeader').html("");
+            $('#tableData').html("");
+            //alert('hello');
+            var user1 = '@Session["Uid"].ToString()';//Get the value in the username textbox
+            var dealer = $("#Dealer_main").val();
+            var month = $("#Month_main").val();
+            var year_txt = $("#Month_main option:selected").text();
+            var year_splt = year_txt.split("-");
+            var year = year_splt[0];
+            $("#year").val(year);
+            //var year = '2016';
+            var url = '@Url.Action("GetBulkDataTargetQuarterly", "DropDown")';
+
+            var url_com = url + "?user=" + user1 + "&month=" + month + "&dealer=" + dealer + "&year=" + year;
+             //alert(url_com);
+
+            var jsonComp = $.getJSON(url_com, function (result) {
+                //alert(result);
+
+                var split_res = result.split("^");
+
+                var data = split_res[0];
+                var column = split_res[1];
+                //alert(data);
+
+                var html = "";
+                var columnCount = "";
+                $.each(eval(column.replace(/[\r\n]/, "")), function (i, item) {
+                    if (item.Column_Name == 'Dealer_Code' || item.Column_Name == 'LOB_ID' || item.Column_Name == 'Division_Id' || item.Column_Name == 'Order_Level' || item.Column_Name == 'Dealer_Level' || item.Column_Name == 'Division_Level' || item.Column_Name == 'LOB_Level') { }
+                    else
+                    {
+                        if (item.Column_Name == "Division_Name")
+                        { html += ('<td id="DivisionRow">Division Name <input type="hidden" id="column_count" name="column_count" value="' + item.Count + '" /></td>'); }
+                        else if (item.Column_Name == "LOB")
+                        { html += ('<td id="DivisionRow">Product Line</td>'); }
+                        else
+                        {
+                            var kpi_col = item.Column_Name;
+                            if (kpi_col.includes("<<>>"))
+                            {
+                                var kpi = kpi_col.split("<<>>");
+                                var kpi_name = kpi[0];
+                                var kpi_id = kpi[1];
+                                html += ('<td id="DivisionRow">' + kpi_name + '  </td>');
+                            }
+                            else
+                            {
+                                html += ('<td id="DivisionRow">' + item.Column_Name + '</td>');
+                            }
+                        }
+                    }
+                   columnCount = item.Count;
+                });
+                $('#tableHeader').html(html);
+                //alert(columnCount);
+                //Data
+
+                var htmlData = "";
+                var s = "0";
+                $.each(eval(data.replace(/[\r\n]/, "")), function (ii, itemi) {
+
+                    htmlData += "<tr>";
+
+                    var t = "0";
+                    for (p in itemi)
+                    {
+
+
+                        if (t == "0" || t == "1" || t == "2" || t == "4" || t == "6" || t == "7" || t == "8")
+                        {
+                            htmlData += "<input type='hidden' id='" + p + "" + ii + "" + t + "' name='" + p + "" + ii + "" + t + "' value='" + itemi[p] + "' />";
+                        }
+                        else if(t == "3" || t == "5")
+                        {
+                            htmlData += "<td id='row' style='width:10%;'>" + itemi[p] + "</td>";
+                            htmlData += "<input type='hidden' id='" + p + "" + ii + "" + t + "' name='" + p + "" + ii + "" + t + "' value='" + itemi[p] + "' />";
+                        }
+                        else
+                        {
+                            //alert(itemi[p]);
+                            if (itemi[p] == null) { htmlData += "<td id='row' style='width:10%;'>&nbsp;</td>"; }
+                            else
+                            {
+
+                                var kpi_data_to_split = itemi[p];
+                                var split_kpi_data = kpi_data_to_split.split("<<>>");
+                                var kpi_id_split = split_kpi_data[0];
+                                var kpi_val_split = split_kpi_data[1];
+                                var kpi_tooltip_split = split_kpi_data[2];
+                                var kpi_input_type = split_kpi_data[3];
+                                var kpi_input_pattern = split_kpi_data[4];
+                                var kpi_input_keypress = split_kpi_data[5];
+                                var kpi_input_popup = split_kpi_data[6];
+                                var kpi_input_enble = split_kpi_data[7];
+                                //alert(kpi_input_popup);
+
+                                if (kpi_val_split == "NULL") { kpi_val_split = ""; }
+
+                                var dealer_code_fn = itemi["Dealer_Code"];
+                                //alert(dealer_code_fn);
+                                var division_code_fn = itemi["Division_Id"];
+                                var lob_code_fn = itemi["LOB_ID"];
+                                var input_id_fn = 'input' + ii + "" + t;
+
+                                if (kpi_input_type == "inputlink")
+                                {
+                                    if (kpi_input_popup == "hygienelist")
+                                    {
+                                        htmlData += '<td id="row" style="width:10%;"><input type="hidden" name="kpi_id' + ii + '' + t + '" id="kpi_id' + ii + '' + t + '" value="' + kpi_id_split + '" /><input ' + kpi_input_enble + ' id="input' + ii + "" + t + '" class="input DTE ' + kpi_input_popup + '" type="' + kpi_input_type + '" onclick="javascript:' + kpi_input_popup + '(\'' + dealer_code_fn + '\', \'' + division_code_fn + '\', \'' + lob_code_fn + '\', \'' + input_id_fn + '\', \'' + kpi_id_split + '\')"   onkeypress="' + kpi_input_keypress + '" data-toggle="modal" href="#' + kpi_input_popup + '" name="target' + ii + '' + t + '"  value="' + kpi_val_split + '" data-toggle="popover" data-trigger="focus" data-placement="bottom" data-html="true" data-content="' + kpi_tooltip_split + '"  /><br><span style="font-size:10px; color:red;">Please Click</span> </td>';
+                                    }
+                                    else
+                                    {
+                                        htmlData += '<td id="row" style="width:10%;"><input type="hidden" name="kpi_id' + ii + '' + t + '" id="kpi_id' + ii + '' + t + '" value="' + kpi_id_split + '" /><input ' + kpi_input_enble + ' id="input' + ii + "" + t + '" class="input DTE ' + kpi_input_popup + '" type="' + kpi_input_type + '" onclick="javascript:' + kpi_input_popup + '(\'' + dealer_code_fn + '\', \'' + division_code_fn + '\', \'' + lob_code_fn + '\', \'' + input_id_fn + '\', \'' + kpi_id_split + '\')"  onkeypress="' + kpi_input_keypress + '" data-toggle="modal" href="#' + kpi_input_popup + '" name="target' + ii + '' + t + '"  value="' + kpi_val_split + '" data-toggle="popover" data-trigger="focus" data-placement="bottom" data-html="true" data-content="' + kpi_tooltip_split + '"  /> <br><span style="font-size:10px; color:red;">Please Click</span> </td>';
+                                    }
+                                }
+                                else
+                                {
+                                    htmlData += '<td id="row" style="width:10%;"><input type="hidden" name="kpi_id' + ii + '' + t + '" id="kpi_id' + ii + '' + t + '" value="' + kpi_id_split + '" /><input ' + kpi_input_enble + ' id="input' + ii + "" + t + '" class="input DTE" type="' + kpi_input_type + '"  onkeypress="' + kpi_input_keypress + '" name="target' + ii + '' + t + '"  value="' + kpi_val_split + '" data-toggle="popover" data-trigger="focus" data-placement="bottom" data-html="true" data-content="' + kpi_tooltip_split + '"  /> </td>';
+                                }
+                                //htmlData += '<td id="row" style="width:10%;"><input type="hidden" name="kpi_id' + ii + '' + t + '" id="kpi_id' + ii + '' + t + '" value="' + kpi_id_split + '" /><input id="input' + ii + "" + t + '" class="input" type="number" min="0" data-toggle="modal" href="#hygienelist" name="target' + ii + '' + t + '"  value="' + kpi_val_split + '" data-toggle="popover" data-trigger="focus" data-placement="bottom" data-html="true" data-content="' + kpi_tooltip_split + '"  /> </td>';
+
+                                //htmlData += "<td id='row' style='width:10%;'><input type='hidden' name='kpi_id" + ii + "" + t + "' id='kpi_id" + ii + "" + t + "' value='" + kpi_id_split + "' /><input id='input' type='number' name='target" + ii + "" + t + "'  value='" + kpi_val_split + "' data-toggle='popover' data-trigger='focus' data-placement='bottom' data-html='true' data-content='" + kpi_tooltip_split + "'  /> </td>";
+
+                            }
+
+                        }
+
+                        t++;
+                    }
+                    s++;
+                    htmlData += "</tr>";
+
+                });
+                $("#row_count").val(s);
+                $('#tableData').html(htmlData);
+                $('[data-toggle="popover"]').popover({ trigger: 'focus' });
+
+                // click function start
+                $("#clickButton").click(function () {
+                    //alert("hello");
+                    var retflag = true;
+                    $('.DTE').each(function (index, value) {
+
+
+                        var input_val = $(this).val();
+                        console.log(input_val);
+                        if (isNaN(parseInt(input_val))) {
+                            $(this).css("border", "2px solid red");
+                            retflag = false;
+                        }
+                        else if (parseInt(input_val) < 0) {
+                            $(this).css("border", "2px solid red");
+                            retflag = false;
+                        }
+                        else {
+                            $(this).css("border", "1px solid gray");
+
+                        }
+                    });
+                    return retflag;
+                });
+                //var s1 = "0";
+                //$.each(eval(data.replace(/[\r\n]/, "")), function (iii, itemii) {
+                //    var t1 = "0";
+                //    for (p1 in itemii)
+                //    {
+                //        if (t1 == "0" || t1 == "1" || t1 == "3" || t1 == "5" || t1 == "6" || t1 == "7" || t1 == "2" || t1 == "4" || t1 == "8") {
+                //            }
+                //        else {
+                            //alert(itemi[p]);
+
+                                //if (itemii[p1] == null) { return (true); }
+                                // on click function start
+
+                            //            if (itemii[p1] == null) {  }
+                            //            else if (t1 == "14") // || t1 == "9" || t1 == "10" || t1 == "11" || t1 == "12"
+                            //            {
+
+
+                            //            //var input_val = $("#input" + ii + "" + t).val();
+                            //            var input_val = $("#input" + iii + "14").val();
+                            //            console.log(input_val);
+                            //            //return (false);
+                            //            if (isNaN(parseInt(input_val)))
+                            //            {
+                            //                $("#input" + iii + "14").css("border", "2px solid red");   return (false);
+                            //            }
+                            //            else if (parseInt(input_val) < 0)
+                            //            {
+                            //                $("#input" + iii + "14").css("border", "2px solid red");   return (false);
+                            //            }
+                            //            else
+                            //            {
+                            //                $("#input" + iii + "14").css("border", "1px solid gray");   return (true);
+                            //            }
+
+                            //        //});
+                            //    // on click function end
+                            //}
+                            //else if (t1 == "9")
+                            //{
+                            //    // on click function start
+                            //    $("#clickButton").click(function () {
+                            //        //var input_val = $("#input" + ii + "" + t).val();
+                            //        var input_val = $("#input" + iii + "9").val();
+                            //        console.log(input_val);
+                            //        //return (false);
+                            //        if (isNaN(parseInt(input_val)))
+                            //        {
+                            //            $("#input" + iii + "9").css("border", "2px solid red");
+                            //            return (false);
+                            //        }
+                            //        else if (parseInt(input_val) < 0)
+                            //        {
+                            //            $("#input" + iii + "9").css("border", "2px solid red");
+                            //            return (false);
+                            //        }
+                            //        else {
+                            //            $("#input" + iii + "9").css("border", "1px solid gray");
+                            //            return (true);
+                            //        }
+
+                            //    });
+                            //    // on click function end
+                            //}
+                            //else if (t1 == "10")
+                            //{
+                            //    // on click function start
+                            //    $("#clickButton").click(function () {
+                            //        //var input_val = $("#input" + ii + "" + t).val();
+                            //        var input_val = $("#input" + iii + "10").val();
+                            //        console.log(input_val);
+                            //        //return (false);
+                            //        if (isNaN(parseInt(input_val)))
+                            //        {
+                            //            $("#input" + iii + "10").css("border", "2px solid red");  return (false);
+                            //        }
+                            //        else if (parseInt(input_val) < 0)
+                            //        {
+                            //            $("#input" + iii + "10").css("border", "2px solid red");  return (false);
+                            //        }
+                            //        else
+                            //        {
+                            //            $("#input" + iii + "10").css("border", "1px solid gray");  return (true);
+                            //        }
+
+                            //    });
+                            //    // on click function end
+                            //}
+                            //else if (t1 == "11")
+                            //{
+                            //    // on click function start
+                            //    $("#clickButton").click(function () {
+                            //        //var input_val = $("#input" + ii + "" + t).val();
+                            //        var input_val = $("#input" + iii + "11").val();
+                            //        console.log(iii);
+
+                            //        if (isNaN(parseInt(input_val)))
+                            //        {
+                            //            $("#input" + iii + "11").css("border", "2px solid red"); alert("#input" + iii + "11"); return (false);
+                            //        }
+                            //        else if (parseInt(input_val) < 0)
+                            //        {
+                            //            $("#input" + iii + "11").css("border", "2px solid red");  return (false);
+                            //        }
+                            //        else
+                            //        {
+                            //            $("#input" + iii + "11").css("border", "1px solid gray");  return (true);
+                            //        }
+
+                            //    });
+                            //    // on click function end
+                            //}
+                            //else if (t1 == "12")
+                            //{
+                            //    // on click function start
+                            //    $("#clickButton").click(function () {
+                            //        //var input_val = $("#input" + ii + "" + t).val();
+                            //        var input_val = $("#input" + iii + "12").val();
+                            //        console.log(input_val);
+
+                            //        if (isNaN(parseInt(input_val)))
+                            //        {
+                            //            $("#input" + iii + "12").css("border", "2px solid red");  return (false);
+                            //        }
+                            //        else if (parseInt(input_val) < 0)
+                            //        {
+                            //            $("#input" + iii + "12").css("border", "2px solid red"); return (false);
+                            //        }
+                            //        else
+                            //        {
+                            //            $("#input" + iii + "12").css("border", "1px solid gray");  return (true);
+                            //        }
+
+                            //    });
+                            //    // on click function end
+                            //}
+                            //else if (t1 == "13") {
+                            //    // on click function start
+                            //    $("#clickButton").click(function () {
+                            //        //var input_val = $("#input" + ii + "" + t).val();
+                            //        var input_val = $("#input" + iii + "13").val();
+                            //        console.log(input_val);
+
+                            //        if (isNaN(parseInt(input_val)))
+                            //        {
+                            //            $("#input" + iii + "13").css("border", "2px solid red");  return (false);
+                            //        }
+                            //        else if (parseInt(input_val) < 0)
+                            //        {
+                            //            $("#input" + iii + "13").css("border", "2px solid red");  return (false);
+                            //        }
+                            //        else
+                            //        {
+                            //            $("#input" + iii + "13").css("border", "1px solid gray");  return (true);
+                            //        }
+
+                            //    });
+                            //    // on click function end
+                            //}
+                            //else  {}
+                //        }
+                //        t1++;
+                //    }
+                //    s1++;
+                //});
+                // click function
+            });
+            return false;
+        }).trigger('change');
+
+
+    });
+</script>
+<script>
+
+    function hygienelist(dealer, division, lob, input_id_hy, kpi_id_hy)
+    {
+        $('#hyModelBody').html("");
+        var url1 = '@Url.Action("GetHyList", "DropDown")';
+        var month_hy = $("#Month_main").val();
+        var year_hy_txt = $("#Month_main option:selected").text();
+        var year_hy_splt = year_hy_txt.split("-");
+        var year_hy = year_hy_splt[0];
+        var url_com1 = url1 + "?month=" + month_hy + "&year=" + year_hy + "&dealer=" + dealer + "&division=" + division + "&lob=" + lob;
+        //alert(url_com1);
+
+
+        $.getJSON(url_com1, function (result) {
+
+            var data = result;
+            //alert(data);
+            var html = '<table class="table"><thead><tr><th class="col-md-1">No.</th><th class="col-md-8">Description</th><th class="col-md-3">&nbsp;</th></tr></thead><tbody><input type="hidden" name="input_id" id="input_id" value="' + input_id_hy + '" />';
+
+            $.each(eval(data.replace(/[\r\n]/, "")), function (i, item) {
+
+                if (item["Selection"] == "NO") {
+                    html += ('<tr><td class="col-md-1">' + item["SerialNo"] + '</td><td class="col-md-8"><span style="">' + item["Description"] + '</span><td class="col-md-3"><select id="Select_Value" name="Select_Value" class="form-control Select_Value hygiene ' + input_id_hy + '" style="margin-bottom:2px;"><option value="' + item["SerialNo"] + '<<>>' + item["Description"] + '" selected>No</option><option value="' + item["SerialNo"] + '<<>>' + item["Description"] + '" >Yes</option></select></td></tr>');
+                }
+                else if (item["Selection"] == "YES") {
+                    html += ('<tr><td class="col-md-1">' + item["SerialNo"] + '</td><td class="col-md-8"><span style="">' + item["Description"] + '</span><td class="col-md-3"><select id="Select_Value" name="Select_Value" class="form-control Select_Value hygiene ' + input_id_hy + '" style="margin-bottom:2px;"><option value="' + item["SerialNo"] + '<<>>' + item["Description"] + '" >No</option><option value="' + item["SerialNo"] + '<<>>' + item["Description"] + '" selected>Yes</option></select></td></tr>');
+                }
+                else {
+                    html += ('<tr><td class="col-md-1">' + item["SerialNo"] + '</td><td class="col-md-8"><span style="">' + item["Description"] + '</span><td class="col-md-3"><select id="Select_Value" name="Select_Value" class="form-control Select_Value hygiene ' + input_id_hy + '" style="margin-bottom:2px;"><option value="' + item["SerialNo"] + '<<>>' + item["Description"] + '">No</option><option value="' + item["SerialNo"] + '<<>>' + item["Description"] + '" >Yes</option></select></td></tr>');
+                }
+
+
+            });
+            html += '</tbody></table>';
+            html += '</div><div class="modal-footer"><a class="btn green button-submit" onclick="onhygienelistclose(\'' + input_id_hy + '\', \'' + month_hy + '\', \'' + year_hy + '\', \'' + dealer + '\', \'' + division + '\', \'' + lob + '\', \'' + kpi_id_hy + '\')">Submit</a></div>';
+            //alert(html);
+            $('#hyModelBody').append(html);
+        });
+        //var submit_hy = '<a class="btn green button-submit" onclick="onhygienelistclose(\'' + input_id_hy + '\', \'' + month_hy + '\', \'' + year_hy + '\', \'' + dealer + '\', \'' + division + '\', \'' + lob + '\', \'' + kpi_id_hy + '\')">Submit</a>';
+        //$('#hygieneSubmit').append(submit_hy);
+    }
+
+    function dselist(dealer, division, lob, input_id_dse, kpi_id_dse)
+    {
+        //alert(dealer + ', '+ division +', '+ lob);
+        $('#dseModelBody').html("");
+        var url1 = '@Url.Action("GetDSEList", "DropDown")';
+        var month_dse = $("#Month_main").val();
+        var year_des_txt = $("#Month_main option:selected").text();
+        var year_splt = year_des_txt.split("-");
+        var year_dse = year_splt[0];
+        var url_com1 = url1 + "?month=" + month_dse + "&year=" + year_dse + "&dealer=" + dealer + "&division=" + division + "&lob=" + lob;
+        //alert(url_com1);
+
+        $.getJSON(url_com1, function (result) {
+
+            var data = result;
+            //alert(data);
+            var html = '<table class="table"><thead><tr><th class="col-md-1">Id</th><th class="col-md-8">Description</th><th class="col-md-3">&nbsp;</th></tr></thead><tbody><input type="hidden" name="input_id" id="input_id" value="' + input_id_dse + '" />';
+
+            $.each(eval(data.replace(/[\r\n]/, "")), function (i, item) {
+
+                if (item["Selection"] == "NO")
+                {
+                    html += ('<tr><td class="col-md-3">' + item["DSE_ID"] + '</td><td class="col-md-6"><span style="">' + item["DSE_Name"] + '</span><td class="col-md-3"><select id="Select_Value" name="Select_Value" class="form-control Select_Value ' + input_id_dse + '" style="margin-bottom:2px;"><option value="' + item["DSE_ID"] + '<<>>' + item["DSE_Name"] + '" selected>No</option><option value="' + item["DSE_ID"] + '<<>>' + item["DSE_Name"] + '" >Yes</option></select></td></tr>');
+                }
+                else if(item["Selection"] == "YES")
+                {
+                    html += ('<tr><td class="col-md-3">' + item["DSE_ID"] + '</td><td class="col-md-6"><span style="">' + item["DSE_Name"] + '</span><td class="col-md-3"><select id="Select_Value" name="Select_Value" class="form-control Select_Value ' + input_id_dse + '" style="margin-bottom:2px;"><option value="' + item["DSE_ID"] + '<<>>' + item["DSE_Name"] + '" >No</option><option value="' + item["DSE_ID"] + '<<>>' + item["DSE_Name"] + '" selected>Yes</option></select></td></tr>');
+                }
+                else
+                {
+                    html += ('<tr><td class="col-md-3">' + item["DSE_ID"] + '</td><td class="col-md-6"><span style="">' + item["DSE_Name"] + '</span><td class="col-md-3"><select id="Select_Value" name="Select_Value" class="form-control Select_Value ' + input_id_dse + '" style="margin-bottom:2px;"><option value="' + item["DSE_ID"] + '<<>>' + item["DSE_Name"] + '">No</option><option value="' + item["DSE_ID"] + '<<>>' + item["DSE_Name"] + '" >Yes</option></select></td></tr>');
+                }
+
+
+            });
+            html += '</tbody></table>';
+            html += '</div><div class="modal-footer"><a class="btn green button-submit" onclick="javascript:onDselistclose(\'' + input_id_dse + '\', \'' + month_dse + '\', \'' + year_dse + '\', \'' + dealer + '\', \'' + division + '\', \'' + lob + '\', \'' + kpi_id_dse + '\')">Submit</a></div>';
+            //alert(html);
+            $('#dseModelBody').append(html);
+
+        });
+
+        //return false;
+    }
+
+    function dsmlist(dealer, division, lob, input_id, kpi_id) {
+        //alert(dealer + ', ' + division + ', ' + lob);
+        $('#dsmModelBody').html("");
+        var url1 = '@Url.Action("GetDSMList", "DropDown")';
+        var month_dsm = $("#Month_main").val();
+        var year_dem_txt = $("#Month_main option:selected").text();
+        var year_splt_dsm = year_dem_txt.split("-");
+        var year_dsm = year_splt_dsm[0];
+        var url_com1 = url1 + "?month=" + month_dsm + "&year=" + year_dsm + "&dealer=" + dealer + "&division=" + division + "&lob=" + lob;
+        //alert(url_com1);
+
+        $.getJSON(url_com1, function (result) {
+
+            var data = result;
+            //alert(data);
+            var html = '<table class="table"><thead><tr><th class="col-md-1">Id</th><th class="col-md-8">Description</th><th class="col-md-3">&nbsp;</th></tr></thead><tbody><input type="hidden" name="input_id" id="input_id" value="' + input_id + '" />';
+
+            $.each(eval(data.replace(/[\r\n]/, "")), function (i, item) {
+
+                if (item["Selection"] == "NO")
+                {
+                    html += ('<tr><td class="col-md-3">' + item["DSM_ID"] + '</td><td class="col-md-6"><span style="">' + item["DSM_Name"] + '</span><td class="col-md-3"><select id="Select_Value" name="Select_Value" class="form-control Select_Value ' + input_id + '" style="margin-bottom:2px;"><option value="' + item["DSM_ID"] + '<<>>' + item["DSM_Name"] + '" selected>No</option><option value="' + item["DSM_ID"] + '<<>>' + item["DSM_Name"] + '" >Yes</option></select></td></tr>');
+                }
+                else if(item["Selection"] == "YES")
+                {
+                    html += ('<tr><td class="col-md-3">' + item["DSM_ID"] + '</td><td class="col-md-6"><span style="">' + item["DSM_Name"] + '</span><td class="col-md-3"><select id="Select_Value" name="Select_Value" class="form-control Select_Value ' + input_id + '" style="margin-bottom:2px;"><option value="' + item["DSM_ID"] + '<<>>' + item["DSM_Name"] + '" >No</option><option value="' + item["DSM_ID"] + '<<>>' + item["DSM_Name"] + '" selected>Yes</option></select></td></tr>');
+                }
+                else
+                {
+                    html += ('<tr><td class="col-md-3">' + item["DSM_ID"] + '</td><td class="col-md-6"><span style="">' + item["DSM_Name"] + '</span><td class="col-md-3"><select id="Select_Value" name="Select_Value" class="form-control Select_Value ' + input_id + '" style="margin-bottom:2px;"><option value="' + item["DSM_ID"] + '<<>>' + item["DSM_Name"] + '">No</option><option value="' + item["DSM_ID"] + '<<>>' + item["DSM_Name"] + '" >Yes</option></select></td></tr>');
+                }
+
+
+            });
+            html += '</tbody></table>';
+            html += '</div><div class="modal-footer"><a class="btn green button-submit" onclick="javascript:onDsmlistclose(\'' + input_id + '\', \'' + month_dsm + '\', \'' + year_dsm + '\', \'' + dealer + '\', \'' + division + '\', \'' + lob + '\', \'' + kpi_id + '\')">Submit</a></div>';
+            //alert(html);
+            $('#dsmModelBody').append(html);
+
+            //return false;
+        });
+    }
+
+    function salesactivitylist(dealer, division, lob, input_id_sal,kpi_id_sal) {
+        //alert(dealer + ', ' + division + ', ' + lob);
+        $('#salModelBody').html("");
+        var url1 = '@Url.Action("GetSalesActivityList", "DropDown")';
+        var month_sal = $("#Month_main").val();
+        var year_sal_txt = $("#Month_main option:selected").text();
+        var year_splt_sal = year_sal_txt.split("-");
+        var year_sal = year_splt_sal[0];
+        var url_com1 = url1 + "?month=" + month_sal + "&year=" + year_sal + "&dealer=" + dealer + "&division=" + division + "&lob=" + lob;
+        //alert(url_com1);
+
+        $.getJSON(url_com1, function (result) {
+
+            var data = result;
+            //alert(data);
+            var html = '<table class="table"><thead><tr><th class="col-md-1">DSE Name</th><th class="col-md-8">Event</th><th class="col-md-3">&nbsp;</th></tr></thead><tbody><input type="hidden" name="input_id" id="input_id" value="' + input_id_sal + '" />';
+
+            $.each(eval(data.replace(/[\r\n]/, "")), function (i, item) {
+
+                if (item["Selection"] == "NO") {
+                    html += ('<tr><td class="col-md-3">' + item["DSE_Name"] + '</td><td class="col-md-6"><span style="">' + item["Event"] + '</span><td class="col-md-3"><select id="Select_Value" name="Select_Value" class="form-control Select_Value ' + input_id_sal + '" style="margin-bottom:2px;"><option value="' + item["DSE_Name"] + '<<>>' + item["Event"] + '" selected>No</option><option value="' + item["DSE_Name"] + '<<>>' + item["Event"] + '" >Yes</option></select></td></tr>');
+                }
+                else if (item["Selection"] == "YES") {
+                    html += ('<tr><td class="col-md-3">' + item["DSE_Name"] + '</td><td class="col-md-6"><span style="">' + item["Event"] + '</span><td class="col-md-3"><select id="Select_Value" name="Select_Value" class="form-control Select_Value ' + input_id_sal + '" style="margin-bottom:2px;"><option value="' + item["DSE_Name"] + '<<>>' + item["Event"] + '" >No</option><option value="' + item["DSE_Name"] + '<<>>' + item["Event"] + '" selected>Yes</option></select></td></tr>');
+                }
+                else {
+                    html += ('<tr><td class="col-md-3">' + item["DSE_Name"] + '</td><td class="col-md-6"><span style="">' + item["Event"] + '</span><td class="col-md-3"><select id="Select_Value" name="Select_Value" class="form-control Select_Value ' + input_id_sal + '" style="margin-bottom:2px;"><option value="' + item["DSE_Name"] + '<<>>' + item["Event"] + '">No</option><option value="' + item["DSE_Name"] + '<<>>' + item["Event"] + '" >Yes</option></select></td></tr>');
+                }
+
+
+            });
+            html += '</tbody></table>';
+            html += '</div><div class="modal-footer"><a class="btn green button-submit" onclick="javascript:onSallistclose(\'' + input_id_sal + '\', \'' + month_sal + '\', \'' + year_sal + '\', \'' + dealer + '\', \'' + division + '\', \'' + lob + '\', \'' + kpi_id_sal + '\')">Submit</a></div>';
+            //alert(html);
+            $('#salModelBody').append(html);
+
+            //return false;
+        });
+    }
+</script>
+@using System.Data;
+@using System.Data.SqlClient;
+@using System.Globalization;
+@using System.Web;
+@using DataUtilityLayer;
+@using System.Configuration;
+@{
+    SqlCommand cmdObj = new SqlCommand();
+    string uid2 = Session["Uid"].ToString();
+    string CS1 = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
+
+    string typeTSM = Session["Type"].ToString();
+    string type = string.Empty;
+    string OpMode = string.Empty;
+    if (typeTSM == "AM" || typeTSM == "TSM" || typeTSM == "RM" || typeTSM == "SLM")
+    {
+        OpMode = "1";
+
+    }
+    else
+    {
+        OpMode = "2";
+    }
+
+    //DataTable dtf21;
+    //string _sql2 = string.Empty;
+    //_sql2 = @"getBulkEntryActual";
+    //using (SqlConnection cn = new SqlConnection(CS1))
+    //{
+    //    DataTable dt = new DataTable();
+    //    //var cmd = new SqlCommand(_sql, cn);
+    //    var daCampus = new SqlDataAdapter(_sql2, cn);
+    //    daCampus.SelectCommand.CommandType = CommandType.StoredProcedure;
+    //    daCampus.SelectCommand.Parameters.AddWithValue("@User_Id", Session["Uid"].ToString());
+
+    //    daCampus.Fill(dt);
+    //    dtf21 = dt;
+    //}
+
+}
+
+@{
+    SqlCommand cmdObj1 = new SqlCommand();
+    string CS11 = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
+
+    DataTable dtfdeal;
+    string _sqldeal = string.Empty;
+    _sqldeal = @"procGetDealer";
+    using (SqlConnection cn1 = new SqlConnection(CS11))
+    {
+        DataTable dt1 = new DataTable();
+        //var cmd = new SqlCommand(_sql, cn);
+        var daCampus1 = new SqlDataAdapter(_sqldeal, cn1);
+        daCampus1.SelectCommand.CommandType = CommandType.StoredProcedure;
+        daCampus1.SelectCommand.Parameters.AddWithValue("@OpMOde", OpMode);
+        if (typeTSM == "AM" || typeTSM == "ASM" || typeTSM == "SSM" || typeTSM=="SLM")
+        {
+            daCampus1.SelectCommand.Parameters.AddWithValue("@TSM_CSM_Code", "%");
+            daCampus1.SelectCommand.Parameters.AddWithValue("@AM_ASM_Code", Session["Uid"].ToString());
+
+        }
+        else
+        {
+            daCampus1.SelectCommand.Parameters.AddWithValue("@TSM_CSM_Code", Session["Uid"].ToString());
+            daCampus1.SelectCommand.Parameters.AddWithValue("@AM_ASM_Code", "%");
+        }
+
+        daCampus1.Fill(dt1);
+        dtfdeal = dt1;
+    }
+
+}
+
+<div id="row" style="min-height:565px; max-height:565px;">
+    @using (Html.BeginForm("BulkDataSheetTarget_Quarterly", "KPI", FormMethod.Post))
+    {
+        <div class="col-md-12" style="min-height:565px; max-height:565px;">
+
+            <div class="portlet light bordered" id="form_wizard_1" style="min-height:565px; max-height:565px; margin-bottom:0px; padding-bottom:0px;">
+                <div class="portlet-title" style="min-height:30px; margin-bottom:0px;">
+                    <div class="caption" style="padding:0px 0; width:54.5%; float:left;">
+                        <i class="icon-layers font-blue"></i>
+                        <span class="caption-subject font-blue bold uppercase">
+                            Target - Bulk Entry
+                        </span>
+                    </div>
+
+                    <div style="width:13%; float:left;">
+                        <input type="hidden" id="year" value="" name="year" />
+                        <select id="Month_main" name="Month" class="form-control" style="padding:0px 12px; height:25px;">
+                            <option value="">Month</option>
+                            @{
+                                DateTime RTarget_date = Convert.ToDateTime(Session["Target_date"].ToString());
+                                string RYear = RTarget_date.AddMonths(0).Year.ToString();
+                                string Rmonth = RTarget_date.ToString("MMM");
+
+                                string Ym = RYear + "-" + Rmonth;
+
+                                SqlCommand cmdObj2 = new SqlCommand();
+                                string CS12 = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
+
+                                DataTable dtfMonth;
+                                string _sql22 = string.Empty;
+                                _sql22 = @"getDataEntryMonths";
+                                using (SqlConnection cn2 = new SqlConnection(CS12))
+                                {
+                                    var daCampusMonth = new SqlDataAdapter(_sql22, cn2);
+                                    DataTable dtMonth = new DataTable();
+                                    daCampusMonth.SelectCommand.CommandType = CommandType.StoredProcedure;
+                                    daCampusMonth.SelectCommand.Parameters.AddWithValue("@CalledFor", "Target");
+                                    daCampusMonth.Fill(dtMonth);
+
+                                    dtfMonth = dtMonth;
+                                }
+
+                            }
+                            @{ if (dtfMonth.Rows.Count > 0)
+                                {
+                                    for (int i = 0; i < dtfMonth.Rows.Count; i++)
+                                    {
+                                        <option value="@dtfMonth.Rows[i]["ForDataEntryMonthValue"]" @(@dtfMonth.Rows[i]["MonthDesc"].ToString() == @Ym ? "Selected" : " ")>@dtfMonth.Rows[i]["MonthDesc"] </option>
+                                    }
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div style="width:13%; float:left; margin-left:1%;">
+                        <select id="Dealer_main" name="Dealer" class="form-control" style="padding:0px 12px; height:25px;">
+                            <option value="">Dealer</option>
+                            @{
+                                //string FYear = DateTime.Now.Year.ToString();
+                                DateTime target_date = Convert.ToDateTime(Session["Target_date"].ToString());
+                                string FYear = target_date.AddMonths(0).Year.ToString();
+                                string Fmonth = target_date.AddMonths(0).Month.ToString();
+                                SqlCommand cmdObj3 = new SqlCommand();
+                                string CS13 = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
+
+                                DataTable dtfsel;
+                                string _sql3 = string.Empty;
+                                _sql3 = @"getFirstBulkEntryPoint";
+                                using (SqlConnection cn3 = new SqlConnection(CS13))
+                                {
+                                    var daCampussel = new SqlDataAdapter(_sql3, cn3);
+                                    DataTable dtsel = new DataTable();
+                                    daCampussel.SelectCommand.CommandType = CommandType.StoredProcedure;
+                                    daCampussel.SelectCommand.Parameters.AddWithValue("@ForYear", FYear);
+                                    daCampussel.SelectCommand.Parameters.AddWithValue("@ForMonth", Fmonth);
+                                    daCampussel.SelectCommand.Parameters.AddWithValue("@UserId", Session["Uid"].ToString());
+                                    daCampussel.SelectCommand.Parameters.AddWithValue("@Target_Actual", "Target");
+
+                                    daCampussel.Fill(dtsel);
+
+                                    dtfsel = dtsel;
+                                }
+
+                            }
+                            @{
+                                if (dtfsel.Rows.Count > 0)
+                                {
+
+                                    for (int k = 0; k < dtfdeal.Rows.Count; k++)
+                                    {
+                                        <option value="@dtfdeal.Rows[k]["Dealer_Code"].ToString()" @(@dtfsel.Rows[0]["Dealer_Code"].ToString() == @dtfdeal.Rows[k]["Dealer_Code"].ToString() ? "Selected" : " ")>@dtfdeal.Rows[k]["Dealer_Name"].ToString()</option>
+                                    }
+                                }
+                                else
+                                {
+                                    for (int k = 0; k < dtfdeal.Rows.Count; k++)
+                                    {
+                                        <option value="@dtfdeal.Rows[k]["Dealer_Code"].ToString()">@dtfdeal.Rows[k]["Dealer_Name"].ToString()</option>
+                                    }
+                                }
+                            }
+                        </select>
+                    </div>
+                    <!--<div style="width:17%; float:left; margin-left:1%; margin-top:0.4%;"><b>City</b> : <span id="dealer_city"></span></div>-->
+                </div>
+                <div class="portlet-body form" style="overflow:auto; max-height:523px; min-height:523px;">
+
+
+                    <div class="form-horizontal" style="min-height:521px; max-height:521px;">
+                        <div class="form-wizard" style=" min-height:476px;">
+                            <div class="form-body" style="padding:5px;">
+
+                                <div class="tab-pane active" id="tab1">
+                                    <!--h3 class="block">Provide your account details</h3-->
+
+                                    <style>
+                                        #DivisionRow {
+                                            font-size: 13px;
+                                            width: 10%;
+                                            font-weight: bold;
+                                            padding: 2px;
+                                        }
+
+                                        #LOBRow {
+                                            font-size: 12px;
+                                            width: 10%;
+                                            padding: 2px;
+                                        }
+
+                                        #KPIRow {
+                                            font-size: 12px;
+                                            width: 13%;
+                                            padding: 2px;
+                                        }
+
+                                        #row {
+                                            font-size: 12px;
+                                            padding: 2px;
+                                        }
+
+                                        #input {
+                                            width: 125px;
+                                        }
+                                    </style>
+                                    <input type="hidden" name="row_count" id="row_count" value="" />
+                                    <table class="table table-bordered" style="margin-bottom:0px;">
+                                        <thead>
+                                            <tr id="tableHeader">
+                                                @*@{if (dtf21.Columns.Count > 0)
+                                                        {
+                                                            for (int j = 0; j < dtf21.Columns.Count; j++)
+                                                            {
+                                                                if (j == 0 || j == 2) { }
+                                                                else
+                                                                {
+                                                                    <th id="DivisionRow">@dtf21.Columns[j].ToString()</th>
+                                                                }
+                                                            }
+                                                        }
+                                                    }*@
+
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tableData">
+
+
+                                            @*@{if (dtf21.Rows.Count > 0)
+                                                    {
+                                                        for (int i = 0; i < dtf21.Rows.Count; i++)
+                                                        {
+                                                            <tr>
+                                                                @if (dtf21.Columns.Count > 0)
+                                                                {
+                                                                    for (int j = 0; j < dtf21.Columns.Count; j++)
+                                                                    {
+                                                                        if (j == 0 || j == 2) { }
+                                                                        else if (j == 1 || j == 3)
+                                                                        { <td id="row" style="width:10%;"> @dtf21.Rows[i][j].ToString() </td> }
+                                                                        else
+                                                                        {
+                                                                            <td id="row" style="width:10%;"><input id="input" type="text" value="@dtf21.Rows[i][j].ToString()" /></td>
+                                                                        }
+                                                                    }
+                                                                }
+
+
+
+                                                                @*<th scope="row" id="row" style="width:10%;">@dtf21.Rows[i]["Division_Id"].ToString()</th>
+                                                                <td id="row" style="width:10%;">@dtf21.Rows[i]["LOB"].ToString()</td>
+                                                                <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                                <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                                <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                                <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                                <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                                <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                            </tr>
+                                                        }
+                                                    }
+                                                }*@
+                                        </tbody>
+                                    </table>
+
+                                    @*<div class="form-group">
+                                            <label class="control-label col-md-1" style="font-weight:bold;">&nbsp;</label>
+                                            <label class="control-label col-md-3" style="font-weight:bold;">Parameter</label>
+                                            <label class="control-label col-md-2" style="font-weight:bold;">Actual</label>
+                                            <label class="control-label col-md-2" style="font-weight:bold;">Target</label>
+                                            <label class="control-label col-md-2" style="font-weight:bold;">Last Month Target</label>
+                                            <label class="control-label col-md-2" style="font-weight:bold;">Last Month Actual</label>
+                                            <!--label class="control-label col-md-2" style="font-weight:bold;">Last 12 Month Min.</label>
+                                            <label class="control-label col-md-2" style="font-weight:bold;">Last 12 Month Max.</label>
+                                            <label class="control-label col-md-2" style="font-weight:bold;">&nbsp;</label-->
+                                        </div>
+                                        <!-- row 1 start-->
+
+                                        @using System.Data;
+                                        @using System.Data.SqlClient;
+                                        @using System.Globalization;
+                                        @using System.Web;
+                                        @using DataUtilityLayer;
+                                        @using System.Configuration;
+
+                                        @{
+                                            SqlCommand cmdObj=new SqlCommand();
+                                            string uid2 = Session["Uid"].ToString();
+                                            string CS1 = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
+                                            DataTable dtf21;
+                                            string _sql2 = string.Empty;
+                                            _sql2 = @"getPendingInputData";
+                                            using (SqlConnection cn = new SqlConnection(CS1))
+                                            {
+                                                DataTable dt = new DataTable();
+                                                //var cmd = new SqlCommand(_sql, cn);
+                                                var daCampus = new SqlDataAdapter(_sql2, cn);
+                                                daCampus.SelectCommand.CommandType = CommandType.StoredProcedure;
+                                                daCampus.SelectCommand.Parameters.AddWithValue("@FW", Session["Uid"].ToString());
+
+                                                daCampus.Fill(dt);
+                                                dtf21 = dt;
+                                            }
+
+                                        }
+
+
+                                        @{if (dtf21.Rows.Count > 0)
+                                            {
+                                                for (int i = 0; i < dtf21.Rows.Count; i++)
+                                                {
+
+
+                                            <div class="form-group">
+                                                    <!--label class="control-label col-md-1" style="font-weight:bold;">&nbsp;</label-->
+                                                    <div class="col-md-1">&nbsp;</div>
+                                                    <div class="col-md-3">
+                                                            <label class="control-label" name="KPI">
+                                                        @dtf21.Rows[i]["KPI_Name"].ToString()
+                                                            </label>
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <input type="text" class="form-control" id="Actual_main" name="Actual" data-required="1" value="@dtf21.Rows[i]["Actual_Value"].ToString()"  disabled="disabled">
+                                                        <span id="error" style="color:red;display:none;">This Field is Required</span>
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <input type="text" class="form-control" name="Target" value="@dtf21.Rows[i]["Target_Value"].ToString()" disabled="disabled" />
+                                                        <!--span class="help-block"> Provide your username </span-->
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <input type="text" class="form-control" name="L_M_T" value="@dtf21.Rows[i]["Last_M_T"].ToString()" disabled="disabled" />
+                                                        <!--span class="help-block"> Provide your username </span-->
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <input type="text" class="form-control" name="L_M_A" value="@dtf21.Rows[i]["Last_M_A"].ToString()" disabled="disabled" />
+                                                        <!--span class="help-block"> Provide your username </span-->
+                                                    </div>
+                                                    <!--div class="col-md-2">&nbsp;</div-->
+                                            </div>
+                                        <!-- row 1 end-->
+                                        <!-- row 2 start-->
+                                                    }
+                                                }
+                                            }*@
+
+                                </div>
+
+
+
+                            </div>
+                        </div>
+                        <!--col-md-offset-7 -->
+                        <div class="form-actions" style="padding:5px;">
+                            <div id="row" style="margin:0px;">
+                                <div class="col-md-8">&nbsp;</div>
+                                <div class="col-md-4">
+                                    <input type="button" value="Cancel" name="CancelButton" class="btn green button-submit" />
+
+                                    <input type="Submit" value="Submit" name="SubmitButton" class="btn green button-submit" data-toggle="modal" href="#static" id="clickButton" />
+                                    <!--input type="submit" value="Submit" name="submitButton" class="btn green button-submit" / -->
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    <!-- Pop up start -->
+                    <!--a class="btn purple btn-outline sbold" data-toggle="modal" href="#static" id="clickButton"></a-->
+                    <div id="hygienelist" class="modal fade" tabindex="-1" data-backdrop="static" data-keyboard="false">
+                        <div class="modal-dialog" style="border:2px solid #3598dc; width:75%;">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                                    <h4 class="modal-title">Service Hygiene Checklist (Yes/No)</h4>
+                                </div>
+                                <div class="modal-body" id="hyModelBody" style="overflow:auto;max-height:400px;">
+
+                                    <!-- Pop up body start-->
+                                    @*<table class="table">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="col-md-1">No.</th>
+                                                        <th class="col-md-8">Description</th>
+                                                        <th class="col-md-3">&nbsp;</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <input type="hidden" name="count" id="count" value="@dtfHy.Rows.Count" />
+                                                    @{
+                                                        if (dtfHy.Rows.Count > 0)
+                                                        {
+                                                            for (int i = 0; i < dtfHy.Rows.Count; i++)
+                                                            {
+                                                                <tr>
+                                                                    <td class="col-md-1">&nbsp;@dtfHy.Rows[i]["SerialNo"].ToString() <input type="hidden" name="no@(i)" value="@dtfHy.Rows[i]["SerialNo"].ToString()" /></td>
+                                                                    <td class="col-md-8">
+                                                                        @{
+                                                                        string fontWeight = "";
+                                                                        if (string.IsNullOrEmpty(@dtfHy.Rows[i]["Selection"].ToString()))
+                                                                        {
+                                                                            fontWeight = "font-weight:bold";
+                                                                        }
+                                                                        else { fontWeight = ""; }
+                                                                    }
+                                                                    <span style="@fontWeight">
+                                                                        @dtfHy.Rows[i]["Description"].ToString()
+                                                                    </span>
+                                                                    <input type="hidden" name="des@(i)" value="@dtfHy.Rows[i]["Description"].ToString()" />
+                                                                </td>
+                                                                <td class="col-md-3">
+                                                                    @{
+                                                                        if (string.IsNullOrEmpty(@dtfHy.Rows[i]["Selection"].ToString()))
+                                                                        {
+                                                                            <input type="hidden" name="Select_Value@(i)" value="NULL" />
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <select id="Select_Value" name="Select_Value@(i)" class="form-control Select_Value hygiene" style="margin-bottom:2px;">
+                                                                                <option value="@dtfHy.Rows[i]["SerialNo"].ToString()<<>>@dtfHy.Rows[i]["Description"].ToString()" @("NO" == @dtfHy.Rows[i]["Selection"].ToString() ? "Selected" : " ")>No</option>
+                                                                                <option value="@dtfHy.Rows[i]["SerialNo"].ToString()<<>>@dtfHy.Rows[i]["Description"].ToString()" @("YES" == @dtfHy.Rows[i]["Selection"].ToString() ? "Selected" : " ")>Yes</option>
+                                                                            </select>
+                                                                        }
+                                                                    }
+                                                                </td>
+                                                            </tr>
+                                                                            }
+                                                                        }
+                                                    }
+                                                </tbody>
+                                            </table>
+
+
+                                            <div class="form-group">
+                                                <div class="col-md-1">
+                                                    <label class="control-label" name="premise">
+                                                        &nbsp;
+                                                    </label>
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <label class="control-label" name="KPI">
+                                                        <b>Net Score {Out of 100}</b>
+                                                    </label>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="control-label" name="premise" id="total_val_view" style="font-weight:bold;">&nbsp;</label>
+                                                    <input type="hidden" name="total_val" id="total_val" value="" />
+                                                </div>
+                                            </div>
+                                            <!-- row 1 end-->
+                                            <!-- Pop up body end-->
+
+                                        </div>
+                                        <div class="modal-footer"  id="hygieneSubmit">
+                                            @*<input type="submit" value="Submit" name="submitButton" class="btn green button-submit" onclick="onhygienelistclose()" />*@
+                                    @*</div>*@
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Pop up end -->
+                    <!-- DSE Pop up start -->
+                    <!--a class="btn purple btn-outline sbold" data-toggle="modal" href="#static" id="clickButton"></a-->
+                    <div id="dselist" class="modal fade" tabindex="-1" data-backdrop="static" data-keyboard="false">
+                        <div class="modal-dialog" style="border:2px solid #3598dc; width:75%;">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                                    <h4 class="modal-title">DSE List (Yes/No)</h4>
+                                </div>
+                                <div class="modal-body" id="dseModelBody" style="overflow:auto;max-height:400px;">
+
+                                    <!-- Pop up body start-->
+
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Pop up end -->
+                    <!-- DSM Pop up start -->
+                    <!--a class="btn purple btn-outline sbold" data-toggle="modal" href="#static" id="clickButton"></a-->
+                    <div id="dsmlist" class="modal fade" tabindex="-1" data-backdrop="static" data-keyboard="false">
+                        <div class="modal-dialog" style="border:2px solid #3598dc; width:75%;">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                                    <h4 class="modal-title">DSM List (Yes/No)</h4>
+                                </div>
+                                <div class="modal-body" id="dsmModelBody" style="overflow:auto;max-height:400px;">
+
+                                    <!-- Pop up body start-->
+
+
+
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Pop up end -->
+                    <!-- Sales Activity Pop up start -->
+                    <!--a class="btn purple btn-outline sbold" data-toggle="modal" href="#static" id="clickButton"></a-->
+                    <div id="salesactivitylist" class="modal fade" tabindex="-1" data-backdrop="static" data-keyboard="false">
+                        <div class="modal-dialog" style="border:2px solid #3598dc; width:75%;">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                                    <h4 class="modal-title">Sales Activity List (Yes/No)</h4>
+                                </div>
+                                <div class="modal-body" id="salModelBody" style="overflow:auto;max-height:400px;">
+
+                                    <!-- Pop up body start-->
+
+
+
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Pop up end -->
+                    <a class="btn purple btn-outline sbold" data-toggle="modal" href="#success_msg_popup" id="success_msg" style="display:none;"></a>
+                    <div id="success_msg_popup" class="modal fade" tabindex="-1" data-backdrop="static" data-keyboard="false">
+                        <div class="modal-dialog" style="border:2px solid #3598dc; width:30%;">
+                            <div class="modal-content">
+                                <div class="modal-body" style="overflow:auto;max-height:400px;">
+                                    <p style="margin:0px; color:green; text-align:center; font-weight:bold; font-size:14px;">Data has been Sucessfully Submit.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+
+            </div>
+        </div>
+                                }
+</div>
+
+<script>
+    function onhygienelistclose(input_id_hy,month_hy,year_hy,dealer_hy,division_hy,lob_hy,kpi_hy) {
+        var AllSelectCount = 0; //$(".Select_Value").length;
+        var YesSelectCount = 0;
+        //alert($('#' + input_id_hy).val());
+        $('#' + input_id_hy).val("");
+        //alert(input_id_hy);
+        $('.hygiene').each(function (index, value) {
+            //console.log('div' + index + ':' + $(this).attr('id'));
+            //alert($(this).val);
+            AllSelectCount++;
+            if ($(this).find('option:selected').text()=='Yes')
+            {
+
+                var hy_details = $(this).find('option:selected').val();
+                var hy_details_split = hy_details.split("<<>>");
+                var hy_id_hy = hy_details_split[0];
+                var hy_name_hy = hy_details_split[1];
+                //alert(month_dse + "," + year_dse + "," + dealer_dse + "," + division_dse + "," + lob_dse + "," + kpi_dse + "," + DES_id_dse + "," + DES_name_dse +", YES");
+
+                var url_hy = '@Url.Action("TempHyListData", "DropDown")';
+                //month, string year, string dealer_code, string division_id, string lob_id,string KPI,string DSE_id,string DSE_name,string Selection
+                var url_com_hy = url_hy + "?month=" + month_hy + "&year=" + year_hy + "&dealer_code=" + dealer_hy + "&division_id=" + division_hy + "&lob_id=" + lob_hy + "&KPI=" + kpi_hy + "&Serial_No=" + hy_id_hy + "&Desc=" + hy_name_hy + "&Selection=YES";
+
+                var jsonComp_dse = $.getJSON(url_com_hy, function (result) {
+                    //alert(result);
+                });
+
+                ///alert($(this).find('option:selected').text());
+                YesSelectCount++;
+            }
+        });
+        //$("#ddlid option:selected").text();
+        var value_hy = Math.round((YesSelectCount / AllSelectCount)*100);
+        //var value_hy = Math.round((YesSelectCount));
+        $('#'+input_id_hy).val(value_hy);
+
+
+        $('#hygienelist').modal('hide');
+    }
+    function onDselistclose(input_id_val_dse,month_dse,year_dse,dealer_dse,division_dse,lob_dse,kpi_dse) {
+        var AllSelectCount = 0; //$(".Select_Value").length;
+        var YesSelectCount = 0;
+
+        //var input_id_val_dse = $("#input_id").val();
+        $('#' + input_id_val_dse).val("");
+        //alert(input_id_val_dse);
+        $('.' + input_id_val_dse).each(function (index, value) {
+            //console.log('div' + index + ':' + $(this).attr('id'));
+            //alert($(this).val);
+            AllSelectCount++;
+            if ($(this).find('option:selected').text() == 'Yes')
+            {
+                var DSE_details = $(this).find('option:selected').val();
+                var dse_details_split = DSE_details.split("<<>>");
+                var DES_id_dse = dse_details_split[0];
+                var DES_name_dse = dse_details_split[1];
+                //alert(month_dse + "," + year_dse + "," + dealer_dse + "," + division_dse + "," + lob_dse + "," + kpi_dse + "," + DES_id_dse + "," + DES_name_dse +", YES");
+
+                var url_dse = '@Url.Action("TempDSEData", "DropDown")';
+                //month, string year, string dealer_code, string division_id, string lob_id,string KPI,string DSE_id,string DSE_name,string Selection
+                var url_com_dse = url_dse + "?month=" + month_dse + "&year=" + year_dse + "&dealer_code=" + dealer_dse + "&division_id=" + division_dse + "&lob_id=" + lob_dse + "&KPI=" + kpi_dse + "&DSE_id=" + DES_id_dse + "&DSE_name=" + DES_name_dse + "&Selection=YES";
+
+                var jsonComp_dse = $.getJSON(url_com_dse, function (result)
+                {
+                    //alert(result);
+                });
+
+                YesSelectCount++;
+            }
+        });
+        //$("#ddlid option:selected").text();
+        var value_hy = (YesSelectCount);
+        //$(".dselist").val(value_hy);
+        $('#' + input_id_val_dse).val(value_hy);
+
+        $('#dselist').modal('hide');
+    }
+    function onDsmlistclose(input_id_val,month_dsm,year_dsm,dealer_dsm,division_dsm,lob_dsm,kpi_dsm) {
+        var AllSelectCount = 0; //$(".Select_Value").length;
+        var YesSelectCount = 0;
+        //var input_id_val = $("#input_id").val();
+        $('#' + input_id_val).val("");
+        //alert(input_id_val);
+        $('.' + input_id_val).each(function (index, value) {
+            //console.log('div' + index + ':' + $(this).attr('id'));
+            //alert($(this).val);
+            AllSelectCount++;
+            if ($(this).find('option:selected').text() == 'Yes')
+            {
+                var DSM_details = $(this).find('option:selected').val();
+                var dsm_details_split = DSM_details.split("<<>>");
+                var DEM_id_dsm = dsm_details_split[0];
+                var DEM_name_dsm = dsm_details_split[1];
+                //alert(month_dsm + "," + year_dsm + "," + dealer_dsm + "," + division_dsm + "," + lob_dsm + "," + kpi_dsm + "," + DEM_id_dsm + "," + DEM_name_dsm + ", YES");
+
+                var url_dsm = '@Url.Action("TempDSMData", "DropDown")';
+                //month, string year, string dealer_code, string division_id, string lob_id,string KPI,string DSE_id,string DSE_name,string Selection
+                var url_com_dsm = url_dsm + "?month=" + month_dsm + "&year=" + year_dsm + "&dealer_code=" + dealer_dsm + "&division_id=" + division_dsm + "&lob_id=" + lob_dsm + "&KPI=" + kpi_dsm + "&DSM_id=" + DEM_id_dsm + "&DSM_name=" + DEM_name_dsm + "&Selection=YES";
+
+                var jsonComp_dsm = $.getJSON(url_com_dsm, function (result) {
+                    //alert(result);
+                });
+
+                YesSelectCount++;
+            }
+        });
+        //$("#ddlid option:selected").text();
+        var value_hy = (YesSelectCount);
+        $('#'+input_id_val).val(value_hy);
+
+
+        $('#dsmlist').modal('hide');
+    }
+    function onSallistclose(input_id_val, month_sal, year_sal, dealer_sal, division_sal, lob_sal, kpi_sal) {
+        var AllSelectCount = 0; //$(".Select_Value").length;
+        var YesSelectCount = 0;
+        //var input_id_val = $("#input_id").val();
+        $('#' + input_id_val).val("");
+        //alert(input_id_val);
+        $('.' + input_id_val).each(function (index, value) {
+            //console.log('div' + index + ':' + $(this).attr('id'));
+            //alert($(this).val);
+            AllSelectCount++;
+            if ($(this).find('option:selected').text() == 'Yes') {
+                ///alert($(this).find('option:selected').text());
+
+                var SAL_details = $(this).find('option:selected').val();
+                var SAL_details_split = SAL_details.split("<<>>");
+                var SAL_id_sal = SAL_details_split[0];
+                var SAL_name_sal = SAL_details_split[1];
+                //alert(month_sal + "," + year_sal + "," + dealer_sal + "," + division_sal + "," + lob_sal + "," + kpi_sal + "," + SAL_id_sal + "," + SAL_name_sal + ", YES");
+
+                var url_sal = '@Url.Action("TempActivityData", "DropDown")';
+                //month, string year, string dealer_code, string division_id, string lob_id,string KPI,string DSE_id,string DSE_name,string Selection
+                var url_com_sal = url_sal + "?month=" + month_sal + "&year=" + year_sal + "&dealer_code=" + dealer_sal + "&division_id=" + division_sal + "&lob_id=" + lob_sal + "&KPI=" + kpi_sal + "&DSE_name=" + SAL_id_sal + "&DSE_Activity=" + SAL_id_sal + "&Selection=YES";
+
+                var jsonComp_sal = $.getJSON(url_com_sal, function (result) {
+                    //alert(result);
+                });
+
+                YesSelectCount++;
+            }
+        });
+        //$("#ddlid option:selected").text();
+        var value_hy = (YesSelectCount);
+        $('#' + input_id_val).val(value_hy);
+
+
+        $('#salesactivitylist').modal('hide');
+    }
+
+
+    // auto Submit data start
+
+    setInterval(function () { redirect() }, 60000);
+    function redirect() {
+        var column_count = $("#column_count").val();
+        var row_count = $("#row_count").val();
+        var row_count_1 = row_count - 1;
+        var dealer_at = $("#Dealer_main").val();
+        var month_at = $("#Month_main").val();
+        //alert(column_count + "," + row_count);
+
+        for (var o = 0; o < row_count_1; o++) {
+            for (var p = 0; p < column_count; p++) {
+                if (p == 2) { var division_at = $("#Division_Id" + o + p).val(); }
+                else if (p == 4) { var lob_at = $("#LOB_ID" + o + p).val(); }
+                else if (p == 0 || p == 1 || p == 3 || p == 5 || p == 6 || p == 7 || p == 8) { }
+                else
+                {
+                    var target_at = $("#input" + o + p).val();
+                    var KPI_at = $("#kpi_id" + o + p).val();
+
+                    if (target_at == "" || target_at === undefined) { target_at = 'NULL'; }
+                    if (KPI_at === undefined || KPI_at == "") { }
+                    else
+                    {
+                        //alert(dealer_at + "," + month_at + "," + lob_at + "," + KPI_at + "," + actual_at + "," + division_at);
+                        var url_at = '@Url.Action("autoSubmitDataTarget", "DropDown")';
+
+                        var url_com_at = url_at + "?dealer=" + dealer_at + "&month=" + month_at + "&lob=" + lob_at + "&kpi=" + KPI_at + "&target=" + target_at + "&division=" + division_at;
+
+                        var jsonComp_at = $.getJSON(url_com_at, function (result) {
+                            //alert(result);
+                        });
+                    }
+
+                }
+            }
+        }
+    }
+
+
+    // auto Submit data end
+
+
+</script>
+
+@*<script>
+        function onhygienelistclose() {
+            var AllSelectCount = 0; //$(".Select_Value").length;
+            var YesSelectCount = 0;
+            $('.Select_Value').each(function (index, value) {
+                //console.log('div' + index + ':' + $(this).attr('id'));
+                //alert($(this).val);
+                AllSelectCount++;
+                if ($(this).find('option:selected').text()=='Yes')
+                {
+                    ///alert($(this).find('option:selected').text());
+                    YesSelectCount++;
+                }
+            });
+            //$("#ddlid option:selected").text();
+            var value_hy = (YesSelectCount / AllSelectCount).toFixed(2);
+            $("input[type=inputlink]").val(value_hy);
+
+
+            $('#hygienelist').modal('hide');
+        }
+    </script>*@
+
+<!--pop up -->
+<script src="../assets/pages/scripts/ui-modals.min.js" type="text/javascript"></script>
+<!--pop up -->
+<script src="../assets/pages/scripts/form-validation.min.js" type="text/javascript"></script>
+<script src="../assets/global/plugins/jquery-validation/js/jquery.validate.min.js" type="text/javascript"></script>
+<script src="../assets/global/plugins/jquery-validation/js/additional-methods.min.js" type="text/javascript"></script>
+

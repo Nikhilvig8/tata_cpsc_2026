@@ -1,0 +1,523 @@
+﻿
+@{
+    ViewBag.Title = "AMActualIndex";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@*<script type="text/javascript">
+
+    function SelectedIndexChanged()
+    {
+        //Form post
+        document.AMActual.submit();
+    }
+</script>*@
+<script src="~/Scripts/jquery3_1.js"></script>
+<script type="text/javascript">
+$(document).ready(function()//When the dom is ready
+{
+    var month_as = $("#Month").val();
+    var year_as = "@DateTime.Now.Year.ToString()";
+    var user_id_as = "@Session["Uid"].ToString()";
+    var sheet_as = "Actual";
+    var url_as = '@Url.Action("GetDataEntryPoint", "DropDown")';
+
+    var url_com_as = url_as + "?month_as=" + month_as + "&year_as=" + year_as + "&user_id_as=" + user_id_as + "&sheet_as=" + sheet_as;
+    //alert(url_com_as);
+
+    $.getJSON(url_com_as, function (result_as)
+    {
+        var data_as = result_as;
+        var dealer_as = "";
+        var division_as = "";
+        var lob_as = "";
+        $.each(eval(data_as.replace(/[\r\n]/, "")), function (i, item) {
+
+            dealer_as += "<option value='" + item.Dealer_Code + "' selected='selected'>" + item.Dealer_Name + "</option>";
+            division_as += "<option value='" + item.Division_Id + "/" + item.Dealer_Code + "' selected='selected'>" + item.Division_Name + "</option>";
+            lob_as += "<option value='" + item.LOB_ID + "' selected='selected'>" + item.LOB + "</option>";
+
+            //$('#Dealer').val(item.Dealer_Code);
+            //$('#Out').val(item.Division_Id + "/" + item.Dealer_Code);
+            //$('#lob').val(item.LOB_ID);
+            //alert(dealer_as);
+            $('#Dealer').html(dealer_as);
+            $('#Out').html(division_as);
+            $('#lob').html(lob_as);
+            document.AMActual.submit();
+        });
+
+
+
+
+    });
+
+
+
+    @*$("#Month").bind('change', function () {
+        //alert('hello');
+        var user1 = '@Session["Uid"].ToString()';//Get the value in the username textbox
+        var Month = $("#Month").val();
+        var url = '@Url.Action("GetDealer", "DropDown")';
+
+        var url_com = url + "?user=" + user1 + "&Month=" + Month;
+        // alert(url_com);
+
+        $.getJSON(url_com, function (result) {
+
+            var ddl = $('#Dealer');
+            var data = result;
+            ddl.empty();
+            ddl.append(
+                       $('<option/>', {
+                           value: ''
+                       }).html('Dealer'));
+            $.each(eval(data.replace(/[\r\n]/, "")), function (i, item) {
+                ddl.append(
+                      $('<option/>', {
+                          value: item.Dealer_Code
+                      }).html(item.Dealer_Name));
+                //dealer.val(item.Dealer_id);
+            });
+
+        });
+
+        return false;
+    });
+
+
+        // fetch Division
+
+
+    $("#Dealer").bind('change', function () {
+        //alert('hello');
+        var user1 = '@Session["Uid"].ToString()';//Get the value in the username textbox
+        var Dealer = $("#Dealer").val();
+        var url = '@Url.Action("GetDivision", "DropDown")';
+
+        var url_com = url + "?user=" + user1 + "&Dealer=" + Dealer;
+       // alert(url_com);
+
+        $.getJSON(url_com, function (result) {
+
+            var ddl = $('#Out');
+            var data = result;
+            ddl.empty();
+            ddl.append(
+                       $('<option/>', {
+                           value: ''
+                       }).html('Division'));
+            $.each(eval(data.replace(/[\r\n]/, "")), function (i, item) {
+                ddl.append(
+                      $('<option/>', {
+                          value: item.Division_Id+"/"+item.Dealer_Code
+                      }).html(item.Division_Name));
+                //dealer.val(item.Dealer_id);
+            });
+
+        });
+
+        return false;
+    });
+
+    // fetch LOB
+
+    $("#Out").bind('change', function () {
+        var d_id = $("#Out").val();//Get the value in the username textbox
+
+        var res = d_id.split("/");
+        //alert(res[0]);
+        //alert(res[1]);
+        var out_special = res[0].split("&")
+        var out_id1 = out_special[0];
+        var out_id2 = out_special[1];
+
+        var url = '@Url.Action("GetLOB", "DropDown")';
+
+        if (out_id2 == undefined) {
+            var url_com = url + "?d_id1=" + out_id1 + "&d_id2=";
+        }
+        else {
+            var url_com = url + "?d_id1=" + out_id1 + "&d_id2=" + out_id2;
+        }
+
+
+        //var url = '@Url.Action("GetLOB", "DropDown")';
+
+        //var url_com = url + "?d_id=" + res[0];
+        //alert(url_com);
+
+        $.getJSON(url_com, function (result) {
+
+            var ddl = $('#lob');
+            var data = result;
+            ddl.empty();
+            ddl.append(
+                       $('<option/>', {
+                           value: ''
+                       }).html('LOB'));
+            $.each(eval(data.replace(/[\r\n]/, "")), function (i, item) {
+                ddl.append(
+                      $('<option/>', {
+                          value: item.LOB_ID
+                      }).html(item.LOB));
+            });
+
+        });
+
+        return false;
+    });*@
+
+});
+
+</script>
+@using System.Data;
+@using System.Data.SqlClient;
+@using System.Globalization;
+@using System.Web;
+@using System.Configuration;
+
+@{ string cn = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
+    string typeTSM = Session["Type"].ToString();
+    string type = string.Empty;
+    string OpMode = string.Empty;
+    if (typeTSM == "AM" || typeTSM=="TSM" || typeTSM =="SLM" )
+    {
+        type = "TSM";
+        OpMode = "1";
+
+    }
+    else {
+
+        type = "CSM";
+        OpMode = "2"; }
+
+}
+
+<!-- Pending Inputs -->
+<div class="row">
+    <div class="col-md-12">
+
+        <div class="portlet light bordered" id="form_wizard_1">
+            <div class="portlet-title" style="min-height:30px; margin-bottom:0px;">
+                <div class="caption" style="padding:0px 0;">
+                    <i class="icon-layers font-blue"></i>
+                    <span class="caption-subject font-blue bold uppercase">
+                        Actual
+                    </span>
+                </div>
+
+            </div>
+            <div class="portlet-body form">
+
+                @using (Html.BeginForm("AMActual", "KPI", FormMethod.Post, new { id = "AMActual", name = "AMActual" }))
+                {
+                    <div class="form-horizontal">
+                        <div class="form-wizard">
+                            <div class="form-body"  style="padding:5px;">
+                                <ul class="nav nav-pills nav-justified steps" style="display:none;">
+                                    <li>
+                                        <a href="#tab1" data-toggle="tab" class="step">
+                                            <span class="number"> 1 </span>
+                                            <span class="desc">
+                                                <i class="fa fa-check"></i> Account Setup
+                                            </span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#tab2" data-toggle="tab" class="step">
+                                            <span class="number"> 2 </span>
+                                            <span class="desc">
+                                                <i class="fa fa-check"></i> Profile Setup
+                                            </span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#tab3" data-toggle="tab" class="step active">
+                                            <span class="number"> 3 </span>
+                                            <span class="desc">
+                                                <i class="fa fa-check"></i> Billing Setup
+                                            </span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#tab4" data-toggle="tab" class="step">
+                                            <span class="number"> 4 </span>
+                                            <span class="desc">
+                                                <i class="fa fa-check"></i> Confirm
+                                            </span>
+                                        </a>
+                                    </li>
+                                </ul>
+                                <div id="bar" class="progress progress-striped" role="progressbar" style="display:none;">
+                                    <div class="progress-bar progress-bar-success"> </div>
+                                </div>
+                                <div class="tab-content">
+                                    <div class="alert alert-danger display-none">
+                                        <button class="close" data-dismiss="alert"></button> You have some form errors. Please check below.
+                                    </div>
+                                    <div class="alert alert-success display-none">
+                                        <button class="close" data-dismiss="alert"></button> Your form validation is successful!
+                                    </div>
+                                    <div class="tab-pane active" id="tab1">
+                                        <!--h3 class="block">Provide your account details</h3-->
+                                        <input type="hidden" name="SheetFlag" id="SheetFlag" value="Actual" />
+
+                                        <div class="form-group">
+                                            @*<div class="col-md-2">&nbsp;</div>*@
+                                            <div class="col-md-2">
+                                                <select id="Month" name="Month" class="form-control">
+                                                    @*<option value="">Month</option>*@
+                                                    @using System.Data;
+                                                    @using System.Data.SqlClient;
+                                                    @using System.Globalization;
+                                                    @using System.Web;
+                                                    <!-- Pending Inputs -->
+                                                    @{
+
+                                                        DataTable dtfMonth;
+                                                        string _sqlMonth = string.Empty;
+
+                                                        _sqlMonth = "getDataEntryMonths";
+                                                        //var cmdTSM = new SqlCommand(_sqlTSM, cn);
+                                                        using (var cnMonth = new SqlConnection(cn))
+                                                        {
+                                                            var daCampusMonth = new SqlDataAdapter(_sqlMonth, cnMonth);
+                                                            DataTable dtMonth = new DataTable();
+                                                            daCampusMonth.SelectCommand.CommandType = CommandType.StoredProcedure;
+                                                            daCampusMonth.SelectCommand.Parameters.AddWithValue("@CalledFor", "Actual");
+                                                            daCampusMonth.Fill(dtMonth);
+
+                                                            dtfMonth = dtMonth;
+                                                        }
+                                                    }
+                                                    @{ if (dtfMonth.Rows.Count > 0)
+                                                        {
+                                                            string month_curr = DateTime.Now.Month.ToString();
+                                                            for (int i = 0; i < dtfMonth.Rows.Count; i++)
+                                                            {
+                                                                <option value="@dtfMonth.Rows[i]["ForDataEntryMonthValue"]" @(month_curr == dtfMonth.Rows[i]["ForDataEntryMonthValue"].ToString() ? "Selected" : " ")>@dtfMonth.Rows[i]["MonthDesc"] </option>
+                                                            }
+                                                        }
+                                                    }
+                                                    @*<option value="10">October</option>
+                <option value="11" >November</option>
+                <option value="12" >December</option>
+                <option value="1" >January</option>
+                <option value="2" >February</option>
+                <option value="3" >March</option>*@
+
+
+                                                </select>
+                                                <!--input type="text" class="form-control" name="username" /-->
+                                                <!--span class="help-block"> Provide your username </span-->
+                                            </div>
+                                            @*@{ string prop;
+        if (Session["Type"].ToString() == "AM" || Session["Type"].ToString() == "ASM")
+        { prop = ""; }
+        else { prop = "hidden"; }
+    }
+    <div class="col-md-2" @prop>
+        <select id="User" name="User_id" class="form-control">
+            @if (Session["Type"].ToString() == "AM")
+            { <option value="">TSM</option> }
+            else
+            { <option value="">CSM</option> }
+
+            @using System.Data;
+            @using System.Data.SqlClient;
+            @using System.Globalization;
+            @using System.Web;
+            <!-- Pending Inputs -->
+            @{
+
+                DataTable dtfTSM;
+                string _sqlTSM = string.Empty;
+
+                _sqlTSM = "procGetTSM_CSM";
+                //var cmdTSM = new SqlCommand(_sqlTSM, cn);
+                using (var cnTSM = new SqlConnection(cn))
+                {
+                    var daCampusTSM = new SqlDataAdapter(_sqlTSM, cnTSM);
+                    DataTable dtTSM = new DataTable();
+                    daCampusTSM.SelectCommand.CommandType = CommandType.StoredProcedure;
+                    daCampusTSM.SelectCommand.Parameters.AddWithValue("@OpMode", OpMode);
+                    daCampusTSM.SelectCommand.Parameters.AddWithValue("@AM_ASM_Code", Session["Uid"].ToString());
+                    daCampusTSM.Fill(dtTSM);
+
+                    dtfTSM = dtTSM;
+                }
+            }
+            @{ if (dtfTSM.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dtfTSM.Rows.Count; i++)
+                    {
+                        <option value="@dtfTSM.Rows[i]["TSM_LOGIN"]" >@dtfTSM.Rows[i]["TSM_Fst_Name"] &nbsp; @dtfTSM.Rows[i]["TSM_Last_Name"]</option>
+                    }
+                }
+            }
+        </select>
+        <!--input type="text" class="form-control" name="username" /-->
+        <!--span class="help-block"> Provide your username </span-->
+    </div>*@
+
+                                            <div class="col-md-2">
+                                                <select id="Dealer" name="Dealer_id" class="form-control">
+
+                                                    @*<option value="">Dealer</option>*@
+
+
+                                                </select>
+                                                <!--input type="text" class="form-control" name="username" /-->
+                                                <!--span class="help-block"> Provide your username </span-->
+                                            </div>
+
+
+                                            <div class="col-md-2">
+                                                <select id="Out" name="OUT" class="form-control">
+                                                    
+                                                       
+                                                        @*<option value="">Division</option>*@
+
+                                                    
+                                                </select>
+
+                                            </div>
+                                              <div class="col-md-2">
+                                                <select id="lob" name="LOB" class="form-control" >
+                                                    @*<option value="">LOB</option>*@
+                                                   
+                                                </select>
+                                                <!--input type="text" class="form-control" name="username" /-->
+                                                <!--span class="help-block"> Provide your username </span-->
+                                            </div>
+                                            <div class="col-md-4">&nbsp;</div>
+                                        </div>
+
+
+                                        <div class="form-group" style="font-size:12px;">
+                                            <label class="control-label col-md-4" style="font-weight:bold; font-size:14px;">Parameter</label>
+                                            @*<label class="control-label col-md-2" style="font-weight:bold;">TSM</label>*@
+                                            <label class="control-label col-md-2" style="font-weight:bold; font-size:14px;">Last Month Target</label>
+                                            <label class="control-label col-md-2" style="font-weight:bold; font-size:14px;">Last Month Actual</label>
+                                            <label class="control-label col-md-2" style="font-weight:bold; font-size:14px;">Target</label>
+                                            <label class="control-label col-md-2" style="font-weight:bold; font-size:14px;">Actual</label>
+                                            <!--label class="control-label col-md-2" style="font-weight:bold;">Last 12 Month Min.</label>
+                                        <label class="control-label col-md-2" style="font-weight:bold;">Last 12 Month Max.</label-->
+                                            @*<label class="control-label col-md-2" style="font-weight:bold;">&nbsp;</label>*@
+                                        </div>
+                                        @*<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+                                        <script>
+                                            $(document).ready(function () {
+                                                $("#tooltip1").hide();
+                                                $("#target1").focus(function () {
+                                                    //alert('hello');
+                                                    $("#tooltip1").show();
+                                                });
+                                                $(".close_hide1").click(function () {
+                                                    //alert('hello');
+                                                    $("#tooltip1").hide();
+                                                });
+
+                                                $("#tooltip2").hide();
+                                                $("#target2").focus(function () {
+                                                    //alert('hello');
+                                                    $("#tooltip2").show();
+                                                });
+                                                $(".close_hide2").click(function () {
+                                                    //alert('hello');
+                                                    $("#tooltip2").hide();
+                                                });
+
+                                                $("#tooltip3").hide();
+                                                $("#target3").focus(function () {
+                                                    //alert('hello');
+                                                    $("#tooltip3").show();
+                                                });
+                                                $(".close_hide3").click(function () {
+                                                    //alert('hello');
+                                                    $("#tooltip3").hide();
+                                                });
+
+                                                $("#tooltip4").hide();
+                                                $("#target4").focus(function () {
+                                                    //alert('hello');
+                                                    $("#tooltip4").show();
+                                                });
+                                                $(".close_hide4").click(function () {
+                                                    //alert('hello');
+                                                    $("#tooltip4").hide();
+                                                });
+
+                                            });
+                                            //.fadeOut( 1000 )
+                                        </script>*@
+                                        <!-- row 1 start-->
+                                        <!-- Tooltip start -->
+
+                                        @*<div class="form-group col-md-12" style="margin-top:-7%;">
+                                            <div class="col-md-4">&nbsp;</div>
+                                            <div class="col-md-2" id="tooltip1" style="border:1px solid #ccc;text-align:center; background-color:#ccc;">
+                                                <div style="text-align:right; margin-right:-10%;">
+                                                    <i class="fa fa-close close_hide1" aria-hidden="true"></i> <br>
+                                                </div>
+                                                <div style=" float:left; margin-bottom:6%; margin-top -7%; font-size:11px;">
+                                                    <br />
+                                                    <i class="fa fa-thumbs-o-up" aria-hidden="true" style=" font-size:15px;line-height:20px;"></i>
+                                                </div>
+                                                <div style="float:left; margin-left:20px;margin-top: -7%; margin-bottom:6%; font-size:11px;">
+                                                    <br />
+                                                    <i class="fa fa-smile-o" aria-hidden="true" style=" font-size:15px;line-height:20px;"></i>
+                                                </div>
+                                                <div style="float:left; margin-left:20px;margin-top: -7%; margin-bottom:6%; font-size:11px;">
+                                                    <br />
+                                                    <i class="fa fa-frown-o" aria-hidden="true" style=" font-size:15px;line-height:20px;"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">&nbsp;</div>
+                                        </div>*@
+                                        <!-- Tooltip end -->
+                                        @*<div class="form-group">
+                                            <label class="control-label col-md-2" style="font-weight:bold;">&nbsp;</label>
+                                            <label class="control-label col-md-2" name="KPI">
+
+                                                <span class="required"> * </span>
+                                            </label>
+                                            <div class="col-md-2">
+                                                <input type="text" class="form-control" id="target1" name="Target" value="" />
+                                                <!--span class="help-block"> Provide your username </span-->
+                                            </div>
+                                            <div class="col-md-2">
+                                                <input type="text" class="form-control" name="L_M_T" value="" disabled="disabled" />
+                                                <!--span class="help-block"> Provide your username </span-->
+                                            </div>
+                                            <div class="col-md-2">
+                                                <input type="text" class="form-control" name="L_M_A" value="" disabled="disabled" />
+                                                <!--span class="help-block"> Provide your username </span-->
+                                            </div>
+                                            <div class="col-md-4">&nbsp;</div>
+                                        </div>*@
+
+                                        <!-- row 1 end-->
+
+
+
+
+
+
+
+                                    </div>
+
+
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                                                }
+            </div>
+        </div>
+    </div>
+</div>
+

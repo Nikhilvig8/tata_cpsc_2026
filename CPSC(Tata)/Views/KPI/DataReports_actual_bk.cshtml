@@ -1,0 +1,238 @@
+﻿
+@model InputOutput.Models.TransactionViewModel
+@{
+    ViewBag.Title = "DataReports_actual";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="row">
+    <div class="col-md-12">
+
+        <div class="portlet light bordered" id="form_wizard_1">
+            <div class="portlet-title" style="min-height:30px; margin-bottom:0px;">
+                <div class="caption" style="padding:0px 0;">
+                    <i class="icon-layers font-blue"></i>
+                    <span class="caption-subject font-blue bold uppercase">
+                        Input Pending - Actual
+                    </span>
+                </div>
+
+            </div>
+            <div class="portlet-body form" style="overflow:auto; max-height:425px;">
+
+                
+                    <div class="form-horizontal">
+                        <div class="form-wizard" style="width:99%;">
+                            <div class="form-body" style="padding:5px;">
+
+                                <div class="tab-pane active" id="tab1">
+                                    <!--h3 class="block">Provide your account details</h3-->
+
+                                        
+
+                                    <div class="col-md-12">&nbsp;</div>
+                                    <div class="col-md-12">&nbsp;</div>
+
+
+                                    <div class="form-group" style="font-size:11px;">
+                                        <label class="control-label col-md-2" style="font-weight:bold;font-size:14px;">Dealer</label>
+                                        <label class="control-label col-md-2" style="font-weight:bold;font-size:14px;">Division</label>
+                                        <label class="control-label col-md-1" style="font-weight:bold;font-size:14px;">LOB</label>
+                                        <label class="control-label col-md-3" style="font-weight:bold;font-size:14px;">Parameter</label>
+                                        
+                                        <label class="control-label col-md-1" style="font-weight:bold;font-size:14px;">Last Month Target</label>
+                                        <label class="control-label col-md-1" style="font-weight:bold;font-size:14px;">Last Month Actual</label>
+                                        <label class="control-label col-md-1" style="font-weight:bold;font-size:14px;">Target (Feb'17)</label>
+                                        <label class="control-label col-md-1" style="font-weight:bold;font-size:14px;">Actual (Jan'17)</label>
+                                        <!--label class="control-label col-md-2" style="font-weight:bold;">Last 12 Month Min.</label>
+                                        <label class="control-label col-md-2" style="font-weight:bold;">Last 12 Month Max.</label>
+                                        <label class="control-label col-md-2" style="font-weight:bold;">&nbsp;</label-->
+                                    </div>
+                                    <!-- row 1 start-->
+                                    
+                                    @using System.Data;
+                                    @using System.Data.SqlClient;
+                                    @using System.Globalization;
+                                    @using System.Web;
+                                    @using DataUtilityLayer;
+                                    @using System.Configuration;
+                                    @{
+                                        SqlCommand cmdObj = new SqlCommand();
+                                        string uid2 = Session["Uid"].ToString();
+                                        string sheet = "Actual";
+                                        string CS1 = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
+                                        DataTable dtf2;
+                                        string _sql2 = string.Empty;
+                                        _sql2 = @"getPendingInputData";
+                                        using (SqlConnection cn = new SqlConnection(CS1))
+                                        {
+                                            DataTable dt = new DataTable();
+                                            //var cmd = new SqlCommand(_sql, cn);
+                                            var daCampus = new SqlDataAdapter(_sql2, cn);
+                                            daCampus.SelectCommand.CommandType = CommandType.StoredProcedure;
+                                            daCampus.SelectCommand.Parameters.AddWithValue("@FW", Session["Uid"].ToString());
+                                            daCampus.SelectCommand.Parameters.AddWithValue("@ForActual_Target", sheet);
+                                            daCampus.Fill(dt);
+                                            dtf2 = dt;
+                                        }
+
+                                    }
+
+
+                                    @{if (dtf2.Rows.Count > 0)
+                                        {
+                                            for (int i = 0; i < dtf2.Rows.Count; i++)
+                                            {
+
+
+                                        <div class="form-group" style="font-size:11px;">
+                                                <!--label class="control-label col-md-1" style="font-weight:bold;">&nbsp;</label-->
+                                                <div class="col-md-2">
+                                                    <label class="control-label" name="KPI">
+                                                        @dtf2.Rows[i]["Dealer_Name"].ToString() - @dtf2.Rows[i]["City"].ToString()
+                                                    </label>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <label class="control-label" name="KPI">
+                                                        @dtf2.Rows[i]["Division_Id"].ToString()
+                                                    </label>
+                                                </div>
+                                            
+                                            <div class="col-md-1">
+                                                <label class="control-label" name="KPI">
+                                                    @dtf2.Rows[i]["LOB"].ToString()
+                                                </label>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="control-label" name="KPI">
+                                                    @dtf2.Rows[i]["KPI_NAME"].ToString()
+                                                </label>
+                                            </div>
+                                                @{
+                                                    string value_act = ""; string hide_act = "";
+                                                    if (dtf2.Rows[i]["Actual_Value"].ToString() == "") { value_act = "NULL"; } else if (dtf2.Rows[i]["Actual_Value"].ToString() == "hidden") { hide_act = "display:none;"; } else { value_act = dtf2.Rows[i]["Actual_Value"].ToString(); }
+                                                    string value_tar = ""; string hide_tar = "";
+                                                    if (dtf2.Rows[i]["Target_Value"].ToString() == "") { value_tar = "NULL"; } else if (dtf2.Rows[i]["Target_Value"].ToString() == "hidden") { hide_tar = "display:none;"; } else { value_tar = dtf2.Rows[i]["Target_Value"].ToString(); }
+                                                    string value_tar_T = ""; string hide_act_T = "";
+                                                    if (dtf2.Rows[i]["Last_M_T"].ToString() == "") { value_tar_T = "NULL"; } else if (dtf2.Rows[i]["Last_M_T"].ToString() == "hidden") { hide_act_T = "display:none;"; } else { value_tar_T = dtf2.Rows[i]["Last_M_T"].ToString(); }
+                                                    string value_tar_A = ""; string hide_act_A = "";
+                                                    if (dtf2.Rows[i]["Last_M_A"].ToString() == "") { value_tar_A = "NULL"; } else if (dtf2.Rows[i]["Last_M_A"].ToString() == "hidden") { hide_act_A = "display:none;"; } else { value_tar_A = dtf2.Rows[i]["Last_M_A"].ToString(); }
+                                                }
+                                            <script src="~/Scripts/jquery3_1.js"></script>
+                                            <script>
+                                                $(document).ready(function () {
+                                                    var row_no1 = '@(i)';
+                                                    var lastRowNo1 = row_no1;
+
+                                                    var target_main1 = parseInt($("#Actual_main" + lastRowNo1).val());
+                                                    var target_main12 = parseInt($("#Target" + lastRowNo1).val());
+
+                                                    if (isNaN(target_main12))
+                                                    { $("#Target" + lastRowNo1).css("border", "2px solid red"); }
+                                                    else
+                                                    {
+                                                        if (isNaN(target_main1))
+                                                        { $("#Actual_main" + lastRowNo1).css("border", "2px solid red"); }
+                                                        else
+                                                        {
+                                                            
+                                                        }
+                                                        
+                                                    }
+
+
+                                                    //var L12M_Min1 = $("#L_M_A" + lastRowNo1).val();
+                                                    //var L12M_Max1 = $("#L_M_A" + lastRowNo1).val();
+                                                    //var target_main1 = parseInt($("#Actual_main" + lastRowNo1).val());
+                                                    ////alert(target_main1);
+                                                    //if (isNaN(target_main1))
+                                                    //{ $("#Actual_main" + lastRowNo1).css("border-color", ""); }
+                                                    //else
+                                                    //{
+                                                    //    //alert(target_main1);
+                                                    //    var L12M_min_ten_per1 = parseInt(L12M_Min1) - parseInt((10 / 100) * L12M_Min1);
+                                                    //    var L12M_max_ten_per1 = parseInt(L12M_Max1) + parseInt(((10 / 100) * L12M_Max1));
+
+                                                    //    if (target_main1 < L12M_min_ten_per1 || target_main1 > L12M_max_ten_per1) {
+                                                    //        //$("#suspect" + lastRowNo).css("display", "");
+                                                    //        $("#Actual_main" + lastRowNo1).css("border", "2px solid #CC4700");
+                                                    //    }
+                                                    //    else {
+                                                    //        //$("#suspect" + lastRowNo).css("display", "none");
+                                                    //        $("#Actual_main" + lastRowNo1).css("border", "2px solid #84B761");
+                                                    //    }
+                                                    //}
+
+                                                    ////target
+
+                                                    //var L12M_Min12 = $("#L_M_T" + lastRowNo1).val();
+                                                    //var L12M_Max12 = $("#L_M_T" + lastRowNo1).val();
+                                                    //var target_main12 = parseInt($("#Target" + lastRowNo1).val());
+                                                    //if (isNaN(target_main12))
+                                                    //{ $("#Target" + lastRowNo1).css("border-color", ""); }
+                                                    //else
+                                                    //{
+                                                    //    //alert(target_main12);
+                                                    //    var L12M_min_ten_per12 = parseInt(L12M_Min12) - parseInt((10 / 100) * L12M_Min12);
+                                                    //    var L12M_max_ten_per12 = parseInt(L12M_Max12) + parseInt(((10 / 100) * L12M_Max12));
+
+                                                    //    if (target_main12 < L12M_min_ten_per12 || target_main12 > L12M_max_ten_per12) {
+                                                    //        //$("#suspect" + lastRowNo).css("display", "");
+                                                    //        $("#Target" + lastRowNo1).css("border", "2px solid #CC4700");
+                                                    //    }
+                                                    //    else {
+                                                    //        //$("#suspect" + lastRowNo).css("display", "none");
+                                                    //        $("#Target" + lastRowNo1).css("border", "2px solid #84B761");
+                                                    //    }
+                                                    //}
+                                                });
+                                            </script>
+
+                                            <div class="col-md-1">
+                                                <input type="text" style="font-size:11px;@hide_act_T" class="form-control" id="L_M_T@(i)" name="L_M_T" value="@value_tar_T" disabled="disabled" />
+                                                <!--span class="help-block"> Provide your username </span-->
+                                            </div>
+                                            <div class="col-md-1">
+                                                <input type="text" style="font-size:11px;@hide_act_A" class="form-control" id="L_M_A@(i)" name="L_M_A" value="@value_tar_A" disabled="disabled" />
+                                                <!--span class="help-block"> Provide your username </span-->
+                                            </div>
+                                            <div class="col-md-1">
+                                                <input type="text" style="font-size:11px;@hide_tar" class="form-control" id="Target@(i)" name="Target" value="@value_tar" disabled="disabled" />
+                                                <!--span class="help-block"> Provide your username </span-->
+                                            </div>
+                                            <div class="col-md-1">
+                                                <input type="text" style="font-size:11px;@hide_act" class="form-control" id="Actual_main@(i)" name="Actual" data-required="1" value="@value_act" disabled="disabled">
+                                                <span id="error" style="color:red;display:none;">This Field is Required</span>
+                                            </div>
+                                                <!--div class="col-md-2">&nbsp;</div-->
+                                        </div>
+                                    <!-- row 1 end-->
+                                    <!-- row 2 start-->
+                                                }
+                                            }
+                                        }
+
+                        </div>
+
+
+
+                            </div>
+                        </div>
+                        <!--col-md-offset-7 -->
+                        
+                        
+
+                    </div>
+
+
+                                        
+            </div>
+        </div>
+    </div>
+</div>
+<!--pop up -->
+<script src="../assets/pages/scripts/ui-modals.min.js" type="text/javascript"></script>
+<script src="../assets/pages/scripts/form-validation.min.js" type="text/javascript"></script>
+<script src="../assets/global/plugins/jquery-validation/js/jquery.validate.min.js" type="text/javascript"></script>
+<script src="../assets/global/plugins/jquery-validation/js/additional-methods.min.js" type="text/javascript"></script>

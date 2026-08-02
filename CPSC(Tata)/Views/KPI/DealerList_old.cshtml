@@ -1,0 +1,88 @@
+﻿
+@{
+    ViewBag.Title = "DealerList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@using System.Data;
+@using System.Data.SqlClient;
+@using System.Globalization;
+@using System.Web;
+@using System.Configuration;
+<!-- Pending Inputs -->
+@{
+    string uidPI = Session["Uid"].ToString();
+
+    DataTable dtfBox;
+    DataTable dtfDealer;
+    string _sqlPI = string.Empty;
+    string CS_index = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
+
+    using (SqlConnection cnPI = new SqlConnection(CS_index))
+    {
+        SqlDataAdapter da1 = new SqlDataAdapter("getDivWisePendingData", cnPI); // Using a Store Procedure.
+                                                                                //SqlDataAdapter da = new SqlDataAdapter("SELECT 'this is a test text' as test", con); To use a hard coded query.
+        da1.SelectCommand.CommandType = CommandType.StoredProcedure; // Comment if using hard coded query.
+        DataSet ds = new DataSet(); // Definition: Memory representation of the database.
+        da1.SelectCommand.Parameters.AddWithValue("@Uid", uidPI); // Repeat for each parameter present in the Store Procedure.
+
+        da1.Fill(ds); // Fill the dataset with the query data
+        dtfBox = ds.Tables[0];
+        dtfDealer = ds.Tables[1];
+
+    }
+}
+
+
+<div class="row">
+    <div class="col-md-12">
+
+        <div class="portlet light bordered" id="form_wizard_1">
+            <div class="portlet-title" style="min-height:30px; margin-bottom:0px;">
+                <div class="caption" style="padding:0px 0;">
+                    @*<i class="icon-layers font-blue"></i>*@
+                    <i class="glyphicon glyphicon-list-alt font-blue"></i>
+                    <span class="caption-subject font-blue bold uppercase">
+                        Division List
+                    </span>
+                </div>
+                </div>
+                <div class="portlet-body form">
+
+                    <div class="portlet-body"  >
+
+                        <style>
+                            #td {font-size: 11px;}
+                            #th {font-size: 12px;}
+                        </style>
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr style="background-color:#ccc;">
+                                    <th id="th">Dealer Code</th>
+                                    <th id="th">Dealer Name</th>
+                                    <th id="th">Division</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                
+                                    @{
+                                        for (int i = 0; i < dtfDealer.Rows.Count; i++)
+                                        {
+                                            <tr>
+                                                <td id="td">@dtfDealer.Rows[i]["DEALER_CODE"].ToString()</td>
+                                                <td id="td">@dtfDealer.Rows[i]["DEALER"].ToString()</td>
+                                                <td id="td">@dtfDealer.Rows[i]["Division"].ToString()</td>
+                                            </tr>
+                                        }
+                                     }
+                            </tbody>
+                        </table>
+                        
+                    </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+    
+

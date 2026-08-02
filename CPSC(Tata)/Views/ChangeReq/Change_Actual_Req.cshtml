@@ -1,0 +1,233 @@
+﻿
+@{
+    ViewBag.Title = "Change_Actual_Req";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    string monthDesc = Request.QueryString["monthdesc"];//string.Empty;
+    string month_id = Request.QueryString["month"];//string.Empty;
+    string year = Request.QueryString["year"];
+    string dealer_id = Request.QueryString["dealer"];//string.Empty;
+    string dealer_name = Request.QueryString["dealer_name"];//string.Empty;
+    string flag = Request.QueryString["Flag"];
+    string Un_id = Request.QueryString["Uid"];
+    string LOB = Request.QueryString["LOB"];
+    string Div = Request.QueryString["o"];
+    string fromwhom = Request.QueryString["fromwhom"];
+    string app_disapp_flag = Request.QueryString["app_disapp_flag"];
+    string Notification_id = Request.QueryString["Notification_id"];
+    string remarks_value = Request.QueryString["remarks_out"];
+    string msg = Request.QueryString["msg"];
+    string emp_name = Request.QueryString["emp_name"];
+    string binding_key = Request.QueryString["binding_key"];
+
+}
+
+<script type="text/javascript">
+    $(document).ready(function ()//When the dom is ready
+    {
+        //alert('Hi');
+        $("#SPM_SSM").text('@emp_name');
+        $("#M_Y").text('@monthDesc');
+        $("#msg").text('@msg');
+        $("#remark").text('@remarks_value');
+
+        //--Submit data--//
+
+        $('#update').click(function () {
+            //alert('Hi');
+
+            var FromWhom = '@fromwhom';
+            var Dealer_code = '@dealer_id';
+            var remark = $("#remark").val();
+            var Notifi_id = '@Notification_id';
+            var month = '@month_id'
+            var year = '@year';
+            var un_id = '@Un_id';
+            var binding_key = '@binding_key';
+            var op = $("input[name='app']:checked").val();
+            var flag = '';
+            var msg = '';
+            //alert(op);
+
+            if (/^[a-zA-Z0-9- \n]*$/.test(remark) == false) {
+                $("#remark").css("border-color", "red");
+                $("#remark").focus();
+                $("#msg_2").html("<span style='color:green;'>Special characters are not allowed.</span>");
+                var data1 = "<span style='color:green;'>Special characters are not allowed.</span>";
+                $('#msg_click').click();
+                setTimeout(function () { $('#user_msg').modal('hide'); }, 5000);
+
+                return (false);
+            }
+            else {
+                $("#remark").css("border-color", "gray");
+            }
+
+            if (op == '') {
+                $("#app").css("border-color", "red");
+                $("#app").focus();
+                return (false);
+            } else
+            {
+                if (op == 'Approve')
+                {
+                    flag = 1;
+                    msg = 'Approved';
+                }
+                else
+                {
+                    flag = 0;
+                    msg = op;
+                }
+
+            }
+
+                var url_at = '@Url.Action("Update_Change_Actual_Notifi", "ChangeReq")';
+
+            var url_com_at = url_at + "?fromwhom=" + FromWhom + "&Dealer_code=" + Dealer_code + "&remark=" + remark + "&month=" + month + "&Noti_id=" + Notifi_id + "&flag=" + flag+"&Unid="+un_id+"&binding_Key="+binding_key +"&year="+year;
+                //alert(url_com_at);
+                var jsonComp_at = $.getJSON(url_com_at, function (result) {
+                    if (result == true) {
+                        $("#msg_2").html("<span style='color:green;'>Request has been "+msg+".</span>");
+                        var data1 = "<span style='color:green;'>Request has been " + msg + ".</span>";
+
+
+
+
+
+                        $('#msg_click').click();
+                        setTimeout(function () { $('#user_msg').modal('hide'); }, 5000);
+                        //$('#msg').hide().html(data1).fadeIn('slow').delay(5000).hide(1);
+
+                        window.location = '@Url.Action("Index","Home")'
+
+                    }
+                    else {
+                        $("#msg_2").html("<span style='color:red;'>Something went wrong.</span>");
+                        var data1 = "<span style='color:red;'>Something went wrong.</span>";
+                        $('#msg_click').click();
+                        setTimeout(function () { $('#user_msg').modal('hide'); }, 5000);
+                        //$('#msg').hide().html(data1).fadeIn('slow').delay(5000).hide(1);
+                    }
+
+                });
+
+                return (true);
+
+
+
+
+        });
+
+
+        $('#cancel').click(function () {
+            //alert('Hi');
+            window.location.href = '@Url.Action("Index","Home")';
+
+        });
+
+
+    });
+</script>
+
+<div class="row" style="min-height: 560px;max-height: 560px;">
+    <div class="col-md-12" style="min-height: 560px;max-height: 560px;">
+
+        <div class="portlet light bordered" id="form_wizard_1" style="min-height: 560px;max-height: 560px; margin-bottom:0px;">
+            <div class="portlet-title" style="min-height:30px; margin-bottom:0px;">
+                <div class="caption" style="padding:0px 0;">
+                    <i class="icon-layers font-blue"></i>
+                    <span class="caption-subject font-blue bold uppercase">
+                        Request for Change Actual
+                    </span>
+                </div>
+
+            </div>
+            <div class="portlet-body form" style="overflow:auto; max-height:515px; min-height:515px;">
+
+                @*using (Html.BeginForm("AMActual", "KPI", FormMethod.Post, new { id = "AMActual", name = "AMActual" }))
+                    {*@
+                <div class="form-horizontal">
+                    <div class="form-wizard" style="width:99%;">
+                        <div class="form-body" style="padding:5px;">
+                            <!-- BEGIN FORM-->
+                            <div class="form-body" style="padding-top: 48px;">
+
+                                <div class="form-group">
+                                    <div class="col-md-2"></div>
+                                    <label class="control-label col-md-2">
+                                        For Month-Year
+                                        <span class="required"> * </span>
+                                    </label>
+                                    <div class="col-md-4">
+                                        <label class="control-label" id="M_Y" name="M_Y"></label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="col-md-2"></div>
+                                    <label class="control-label col-md-2">
+                                        Request From
+                                        <span class="required"> * </span>
+                                    </label>
+                                    <div class="col-md-4">
+                                        <label class="control-label" id="SPM_SSM" name="SPM_SSM"></label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-md-2"></div>
+                                    <label class="control-label col-md-2">
+                                        Request
+                                        <span class="required"> * </span>
+                                    </label>
+                                    <div class="col-md-4">
+                                        <label id="msg" name="msg"></label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="col-md-2"></div>
+                                    <label class="control-label col-md-2">Remark</label>
+                                    <div class="col-md-7">
+                                        <textarea name="remark" id="remark" rows="7" style="width:325px;"></textarea>
+
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-md-4"></div>
+
+                                    <div class="col-md-7">
+                                        <label class="radio-inline"><input type="radio" name="app" id="app" value="Approve">Approve</label>
+                                        <label class="radio-inline"><input type="radio" name="app" id="app" value="Reject">Reject</label>
+                                    </div>
+                                </div>
+
+                                <div class="form-actions">
+                                    <div class="row">
+
+                                        <div class="col-md-offset-4 col-md-8">
+                                            <button type="submit" class="btn green" id="update" name="update">Submit</button>
+                                            <button type="button" class="btn default" style="background-color: #3598dc;border-color: #3598dc;color: #ffffff;" id="cancel" name="cancel">Cancel</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- END FORM-->
+
+
+
+                            </div>
+                        </div>
+                        <!--col-md-offset-7 -->
+
+
+
+
+                    </div>
+
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

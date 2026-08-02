@@ -1,0 +1,299 @@
+﻿
+@{
+    ViewBag.Title = "Change_Target";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+   
+
+    DateTime T_d = Convert.ToDateTime(Session["Target_Date"].ToString());
+    string Target_Month = T_d.Month.ToString();
+}
+
+@using System.Data;
+@using System.Data.SqlClient;
+@using System.Globalization;
+@using System.Web;
+@using DataUtilityLayer;
+@using System.Configuration;
+<script type="text/javascript">
+    $(document).ready(function ()//When the dom is ready
+    {
+        $("#Month_main option:contains('2018-Apr')").remove();
+        $("#Month_main option:contains('2018-May')").remove();
+        $("#Month_main option:contains('2018-Jun')").remove();
+        $("#Month_main option:contains('2018-Jul')").remove();
+        $("#Month_main option:contains('2018-Aug')").remove();
+		$("#Month_main option:contains('2018-Sep')").remove();
+		$("#Month_main option:contains('2018-Oct')").remove();
+		$("#Month_main option:contains('2018-Nov')").remove();
+		$("#Month_main option:contains('2018-Dec')").remove();
+		$("#Month_main option:contains('2019-Jan')").remove();
+		$("#Month_main option:contains('2019-Feb')").remove();
+        $("#Month_main option:contains('2019-Mar')").remove();
+
+
+        //-------Fill the Dealer--//
+        $('#Month_main').change(function (e) {
+
+
+
+            var SPM_SSM = '@Session["Uid"].ToString()';
+
+            var url = '@Url.Action("GetDealer", "DropDown")';
+
+
+
+            var m = $("#Month_main").val();
+           // alert(m);
+
+            var url_com = url + "?user=" + SPM_SSM + "&Month=" + m;
+            //alert(url_com);
+
+            $.getJSON(url_com, function (result) {
+
+                var ddl = $('#Dealer');
+                var data = result;
+
+                ddl.empty();
+                ddl.append(
+                           $('<option/>', {
+                               value: ''
+                           }).html('Select..'));
+                $.each(eval(data.replace(/[\r\n]/, "")), function (i, item) {
+                    ddl.append(
+                          $('<option/>', {
+                              value: item.Dealer_Code
+                          }).html(item.Dealer_Name));
+                    //dealer.val(item.Dealer_id);
+                });
+
+
+            return false;
+        });
+
+        });
+        //--Submit data--//
+
+        $('#create').click(function () {
+            //alert('Hi');
+
+            var SPM_SSM = '@Session["Uid"].ToString()';
+            var Dealer_code = $("#Dealer").val();
+            var remark = $("#remark").val();
+            var Div_id = '%';
+            var LOB = '%';
+           var month = $("#Month_main").val();
+            var year_txt = $("#Month_main option:selected").text();
+            var year_splt = year_txt.split("-");
+            var year = year_splt[0];
+            $("#year").val(year);
+
+            if (/^[a-zA-Z0-9- \n]*$/.test(remark) == false) {
+                $("#remark").css("border-color", "red");
+                $("#remark").focus();
+                $("#msg_2").html("<span style='color:green;'>Special characters are not allowed.</span>");
+                var data1 = "<span style='color:green;'>Special characters are not allowed.</span>";
+                $('#msg_click').click();
+                setTimeout(function () { $('#user_msg').modal('hide'); }, 5000);
+
+                return (false);
+            }
+            else {
+                $("#remark").css("border-color", "gray");
+            }
+           
+            if (month == '') {
+                $("#Month_main").css("border-color", "red");
+                $("#Month_main").focus();
+                return (false);
+            }
+            else {
+                $("#Month_main").css("border-color", "gray");
+            }
+
+
+            if (Dealer_code == '') {
+                $("#Dealer").css("border-color", "red");
+                $("#Dealer").focus();
+                return (false);
+            } else {
+                $("#Dealer").css("border-color", "gray");
+
+                var url_at = '@Url.Action("Insert_ChangeReq_Target_Notifi", "ChangeReq")';
+
+                var url_com_at = url_at + "?SPM_SSM=" + SPM_SSM + "&Dealer_code=" + Dealer_code + "&Division_id=" + Div_id + "&LOB=" + LOB + "&remark=" + remark + "&month=" + month+"&year="+year;
+                //alert(url_com_at);
+                var jsonComp_at = $.getJSON(url_com_at, function (result) {
+                    if (result == true)
+                    {
+                        $("#msg_2").html("<span style='color:green;'>Notification for change request of Target has been sent to Your Head.</span>");
+                        var data1 = "<span style='color:green;'>Notification for change request of Target has been sent to Your Head.</span>";
+
+
+
+                        $("#Dealer").css("border", "1px solid #c2cad8");
+                        $("#remark").css("border", "1px solid #c2cad8");
+                        $("#Month_main").css("border", "1px solid #c2cad8");
+
+                        $("#Dealer").val('');
+                        $("#remark").val('');
+                        $("#Month_main").val('');
+
+
+                        $('#msg_click').click();
+                        setTimeout(function () { $('#user_msg').modal('hide'); }, 5000);
+                        //$('#msg').hide().html(data1).fadeIn('slow').delay(5000).hide(1);
+
+                    }
+                    else
+                    {
+                        $("#msg_2").html("<span style='color:red;'>Something went wrong.</span>");
+                        var data1 = "<span style='color:red;'>Something went wrong.</span>";
+                        $('#msg_click').click();
+                        setTimeout(function () { $('#user_msg').modal('hide'); }, 5000);
+                        //$('#msg').hide().html(data1).fadeIn('slow').delay(5000).hide(1);
+                    }
+
+                });
+
+                return (true);
+
+
+            }
+
+        });
+
+        $('#cancel').click(function () {
+            //alert('Hi');
+            window.location.href = '@Url.Action("Index","Home")';
+
+        });
+
+
+    });
+
+   
+</script>
+<div class="row" style="min-height: 560px;max-height: 560px;">
+    <div class="col-md-12" style="min-height: 560px;max-height: 560px;">
+
+        <div class="portlet light bordered" id="form_wizard_1" style="min-height: 560px;max-height: 560px; margin-bottom:0px;">
+            <div class="portlet-title" style="min-height:30px; margin-bottom:0px;">
+                <div class="caption" style="padding:0px 0;">
+                    <i class="icon-layers font-blue"></i>
+                    <span class="caption-subject font-blue bold uppercase">
+                        Request for Change Target
+                    </span>
+                </div>
+
+            </div>
+            <div class="portlet-body form" style="overflow:auto; max-height:515px; min-height:515px;">
+
+                @*using (Html.BeginForm("AMActual", "KPI", FormMethod.Post, new { id = "AMActual", name = "AMActual" }))
+                    {*@
+                <div class="form-horizontal">
+                    <div class="form-wizard" style="width:99%;">
+                        <div class="form-body" style="padding:5px;">
+                            <!-- BEGIN FORM-->
+                            <div class="form-body" style="padding-top: 140px;">
+
+
+                                <div class="form-group">
+                                    <div class="col-md-2"></div>
+                                    <label class="control-label col-md-2">
+                                        Month
+                                        <span class="required"> * </span>
+                                    </label>
+                                    <div class="col-md-4">
+                                        <input type="hidden" id="year" value="" name="year" />
+                                        
+                                        <select id="Month_main" name="Month" class="form-control select2me">
+                                            <option value="">Select..</option>
+
+                                            @{
+                                               
+
+                                                SqlCommand cmdObj2 = new SqlCommand();
+                                                string CS12 = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
+
+                                                DataTable dtfMonth;
+                                                string _sql22 = string.Empty;
+                                                _sql22 = @"getDataEntryMonths";
+                                                using (SqlConnection cn2 = new SqlConnection(CS12))
+                                                {
+                                                    var daCampusMonth = new SqlDataAdapter(_sql22, cn2);
+                                                    DataTable dtMonth = new DataTable();
+                                                    daCampusMonth.SelectCommand.CommandType = CommandType.StoredProcedure;
+                                                    daCampusMonth.SelectCommand.Parameters.AddWithValue("@CalledFor", "Target");
+                                                    daCampusMonth.Fill(dtMonth);
+
+                                                    dtfMonth = dtMonth;
+                                                }
+
+                                            }
+                                            @{ if (dtfMonth.Rows.Count > 0)
+                                                {
+                                                    for (int i = 0; i < dtfMonth.Rows.Count; i++)
+                                                    {
+                                                        <option value="@dtfMonth.Rows[i]["ForDataEntryMonthValue"]">@dtfMonth.Rows[i]["MonthDesc"] </option>
+                                                    }
+                                                }
+                                            }
+
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="col-md-2"></div>
+                                    <label class="control-label col-md-2">
+                                        Dealer
+                                        <span class="required"> * </span>
+                                    </label>
+                                    <div class="col-md-4">
+                                        <select class="form-control select2me" name="Dealer" id="Dealer">
+                                            <option value="">Select..</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                            
+
+                                <div class="form-group">
+                                    <div class="col-md-2"></div>
+                                    <label class="control-label col-md-2">Remark</label>
+                                    <div class="col-md-7">
+                                        <textarea name="remark" id="remark" rows="7" style="width:325px;"></textarea>
+
+                                    </div>
+                                </div>
+
+                                <div class="form-actions">
+                                    <div class="row">
+
+                                        <div class="col-md-offset-4 col-md-8">
+                                            <button type="submit" class="btn green" id="create" name="create">Submit</button>
+                                            <button type="button" class="btn default" style="background-color: #3598dc;border-color: #3598dc;color: #ffffff;" id="cancel" name="cancel">Cancel</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- END FORM-->
+
+
+
+                            </div>
+                        </div>
+                        <!--col-md-offset-7 -->
+
+
+
+
+                    </div>
+
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

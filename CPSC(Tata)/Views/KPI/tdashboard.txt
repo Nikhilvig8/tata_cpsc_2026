@@ -1,0 +1,240 @@
+@model InputOutput.Models.Users
+@{
+    Layout = null;
+
+    string ticket = Session["ticket"].ToString();
+    string dashtype = Session["dashtype"].ToString();
+}
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Tableau Dashboard | TATA Motors</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv='X-Frame-Options' content='allow' />
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <meta content="Preview page of Metronic Admin Theme #1 for " name="description" />
+    <meta content="" name="author" />
+
+    <!-- BEGIN GLOBAL MANDATORY STYLES -->
+
+    <link href="../assets/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+
+    <link rel="shortcut icon" href="favicon.ico" />
+    <script type="text/javascript">
+        function preventBack() { window.history.forward(); }
+        setTimeout("preventBack()", 0);
+        window.onunload = function () { null };
+        history.pushState(null, null, document.URL);
+        window.addEventListener('popstate', function () {
+            history.pushState(null, null, document.URL);
+        });
+
+    </script>
+
+</head>
+<body>
+    <div class="page-content-wrapper">
+        <div class="row">
+            <div class="navbar navbar-fixed-top col-lg-12 col-md-12 col-xs-12 col-sm-12" style="min-height:42px; border:1px solid #eee; background:#f0f0f0;">
+                <div style="margin-top: 0.6%;margin-left: 2%; font-weight: bold; font-family: times new roman; color: red; float:left;">
+                    <span><img src="~/assets/logo/tata-logo.png" /></span>
+                </div>
+
+                <div style="margin-top: 0.2%;margin-left: 2%; font-weight: bold; font-family: times new roman; color: red; float:right;height:34px; width:34px;">
+                    <a href='~/PDF/read.pdf' target='_blank' style="color:#3598dc;"><img src="~/assets/Dealer_Home/TATA_dashboard_qes.png" style="height:24px; width:24px; margin-left:17%; margin-top:17%;" title="To know more about the parameters,please click" /></a>
+                </div>
+
+
+
+                <div style="margin-top: 0.2%;margin-left: 2%; font-weight: bold; font-family: times new roman; color: red; float:right; height:34px; width:34px;">
+                    <a href="@Url.Action("Login", "Login")"><img src="~/assets/Dealer_Home/TATA_dashboard_Logout.png" style="height:24px; width:24px; margin-left:100%; margin-top:17%;" title="Logout" /></a>
+                </div>
+                @{
+                    if (Session["Type"].ToString() == "DL")
+                    {
+
+                        <div style="margin-top: 0.2%;margin-left: 2%; font-weight: bold; font-family: times new roman; color: red; float:right; height:34px; width:34px;">
+                            <a href="@Url.Action("Insert_Feedback","Feedback")"><img src="~/assets/Dealer_Home/TATA_dashboard_FD.png" style="height:24px; width:24px; margin-left:178%; margin-top:17%;" title="Feedback" /></a>
+                        </div>
+
+                        <div style="margin-top: 0.2%;margin-left: 2%; font-weight: bold; font-family: times new roman; color: red; float:right;height:34px; width:34px;">
+                            <a href="@Url.Action("Insert_Feedback_Status","Feedback")"><img src="~/assets/Dealer_Home/TATA_dashboard_FDS.png" style="height:24px; width:24px; margin-left:256%; margin-top:17%;" title="Feedback Status" /></a>
+                        </div>
+                    }
+                }
+                @{
+                    if (Session["Type"].ToString() != "DL")
+                    {
+                        <div style="margin-top: 0.2%;margin-left: 2%; font-weight: bold; font-family: times new roman; color: red; float:right;
+					      height:34px; width:34px;">
+
+                            <a href="@Url.Action("Index", "Home")"><img src="~/assets/Dealer_Home/TATA_dashboard_home.png" style="height:24px; width:24px; margin-left:178%; margin-top:17%;" title="DCL" /></a>
+                        </div>
+                    }                    
+                    else
+                    {
+                        <div style="margin-top: 0.2%;margin-left: 2%; font-weight: bold; font-family: times new roman; color: red; float:right;
+
+                          height:34px; width:34px;">
+                            <a href="@Url.Action("Dealer_Home", "Login")"><img src="~/assets/Dealer_Home/TATA_dashboard_home.png" style="height:24px; width:24px; margin-left:335%; margin-top:17%;" title="Home" /></a>
+                        </div>
+
+                    }
+                }
+
+            </div>
+            <div class="page-content-wrapper">
+
+            </div>
+            <div src="" style="width:100%; height:668px; border:0px;margin-top:50px">
+
+                @if (Session["Type"].ToString() == "DL" && dashtype == "Con")
+                {
+                    <tableau-viz id='tableau-viz' src='https://infoviz.tatamotors.com/t/CPSCTMLSite/views/ConcurrentDashboard/ConcurrentDealerScorecard'
+                                 token="@ticket" toolbar='bottom'></tableau-viz>
+
+                }
+                @if (Session["Type"].ToString() == "DL" && dashtype == "June15")
+                {
+
+                    <tableau-viz id='tableau-viz' src='https://infoviz.tatamotors.com/t/CPSCTMLSite/views/Monthlydealerdashboardswith3LOB/ActualTarget'
+                                 token="@ticket" toolbar='bottom'></tableau-viz>
+                }
+                @if (Session["Type"].ToString() == "DL" && dashtype == "July17")
+                {
+
+                    <tableau-viz id='tableau-viz' src='https://infoviz.tatamotors.com/t/CPSCTMLSite/views/DealerScorecard-Aug17-Dec17_OnlyforGaurav/Overalldealerscorecard'
+                                 token="@ticket" toolbar='bottom'></tableau-viz>
+                }
+
+                @if (Session["Type"].ToString() == "DL" && dashtype == "April18")
+                {
+
+                    <tableau-viz id='tableau-viz' src='https://infoviz.tatamotors.com/t/CPSCTMLSite/views/DealerScorecardApr18toJun19/OverallDealerScorecard'
+                                 token="@ticket" toolbar='bottom'></tableau-viz>
+
+                }
+
+                @if (Session["Type"].ToString() == "DL" && dashtype == "Jul19Onward")
+                {
+
+                    <tableau-viz id='tableau-viz' src='https://infoviz.tatamotors.com/t/CPSCTMLSite/views/DealerScorecardJul19Onward/OverallDealerScorecard'
+                                 token="@ticket" toolbar='bottom'></tableau-viz>
+                }
+
+                @if (Session["Type"].ToString() == "DL" && dashtype == "Jul21Onward")
+                {
+
+                    <tableau-viz id='tableau-viz' src='https://infoviz.tatamotors.com/t/CPSCTMLSite/views/DealerScorecardJul21Onward/OverallDealerScorecard'
+                                 token="@ticket" toolbar='bottom'></tableau-viz>
+                }
+
+
+                @if (Session["Type"].ToString() == "DL" && dashtype == "Qtr")
+                {
+
+                    <tableau-viz id='tableau-viz' src='https://infoviz.tatamotors.com/t/CPSCTMLSite/views/DealerScoreCard/CPSC'
+                                 token="@ticket" toolbar='bottom'></tableau-viz>
+                }
+                @if (Session["Type"].ToString() == "DL" && dashtype == "Qtr24")
+                {
+
+                    <tableau-viz id='tableau-viz' src='https://infoviz.tatamotors.com/t/CPSCTMLSite/views/DealerScoreCard_16836965938590/CPSC'
+                                 token="@ticket" toolbar='bottom'></tableau-viz>
+                }
+                @if (Session["Type"].ToString() == "DL" && dashtype == "SCVQtr24")
+                {
+                    //?:origin=card_share_link&:embed=y
+                    <tableau-viz id='tableau-viz' src='https://infoviz.tatamotors.com/t/CPSCTMLSite/views/DealerScoreCardSCV/CPSC'
+                                 token="@ticket" toolbar='bottom'></tableau-viz>
+                                @*<tableau-viz id = 'tableau-viz' src='https://infoviz.tatamotors.com/t/CPSCTMLSite/views/DealerScoreCard_16989062751180/CPSC'
+                        token="@ticket" toolbar='bottom' ></tableau-viz>*@
+                }
+                @if (dashtype == "User" && Session["dash_type_tml"].ToString() == "MonthlyApril")
+                {
+
+
+                    if (Session["Type"].ToString() == "SuperAdmin" || Session["Type"].ToString() == "RSNM" || Session["Type"].ToString() == "RM")
+                    {
+
+                        <tableau-viz id='tableau-viz' src='https://infoviz.tatamotors.com/t/CPSCTMLSite/views/TMLScorecardApr18toJun19Superadmin/ChannelPartnerScorecard'
+                                     token="@ticket" toolbar='bottom'></tableau-viz>
+                    }
+                    //  newURL ="https://infoviz.tatamotors.com/trusted/" + ticket + "/views/TMLScorecardRevised/ChannelPartnerScorecard";
+                    else
+                    {
+
+                        <tableau-viz id='tableau-viz' src='https://infoviz.tatamotors.com/t/CPSCTMLSite/views/TML-DealerScorecardApr18toJun19/OverallDealerScorecard'
+                                     token="@ticket" toolbar='bottom'></tableau-viz>
+                    }
+
+                }
+
+                @if (dashtype == "User" && Session["dash_type_tml"].ToString() == "MonthlyJuly")
+                {
+
+
+                    if (Session["Type"].ToString() == "SuperAdmin" || Session["Type"].ToString() == "RSNM" || Session["Type"].ToString() == "RM")
+                    {
+
+                        <tableau-viz id='tableau-viz' src='https://infoviz.tatamotors.com/t/CPSCTMLSite/views/TML-DealerScorecardJul19Onward/OverallDealerScorecard'
+                                     token="@ticket" toolbar='bottom'></tableau-viz>
+                    }
+
+                    else
+                    {
+
+                        <tableau-viz id='tableau-viz' src='https://infoviz.tatamotors.com/t/CPSCTMLSite/views/TML-DealerScorecardJul19Onward/OverallDealerScorecard'
+                                     token="@ticket" toolbar='bottom'></tableau-viz>
+                    }
+
+                }
+                @if (dashtype == "User" && Session["dash_type_tml"].ToString() == "MonthlyJuly21")
+                {
+
+                    <tableau-viz id='tableau-viz' src='https://infoviz.tatamotors.com/t/CPSCTMLSite/views/TMLScorecardJul21Onward/OverallDealerScorecard'
+                                 token="@ticket" toolbar='bottom'></tableau-viz>
+
+                }
+
+                @if (dashtype == "User" && Session["dash_type_tml"].ToString() == "MonthlyJuly23")
+                {
+
+                    <tableau-viz id='tableau-viz' src='https://infoviz.tatamotors.com/t/CPSCTMLSite/views/TMLFY23/DealerDashboar'
+                                 token="@ticket" toolbar='bottom'></tableau-viz>
+
+                }
+
+                @if (dashtype == "User" && Session["dash_type_tml"].ToString() == "MonthlyJuly24")
+                {
+
+                    <tableau-viz id='tableau-viz' src='https://infoviz.tatamotors.com/t/CPSCTMLSite/views/TMLFY24/DealerDashboar'
+                                 token="@ticket" toolbar='bottom'></tableau-viz>
+                }
+                @if (dashtype == "User" && Session["dash_type_tml"].ToString() == "MonthlySCVJuly24")
+                {
+
+                    <tableau-viz id='tableau-viz' src='https://infoviz.tatamotors.com/t/CPSCTMLSite/views/TMLFY24SCV/DealerDashboar'
+                                 token="@ticket" toolbar='bottom'></tableau-viz>
+                }
+
+                @if (dashtype == "User" && Session["dash_type_tml"].ToString() == "Con")
+                {
+
+                    <tableau-viz id='tableau-viz' src='https://infoviz.tatamotors.com/t/CPSCTMLSite/views/Concurrent-TMLDealerScorecard/OverallDealerScorecard'
+                                 token="@ticket" toolbar='bottom'></tableau-viz>
+                }
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/global/plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <script type='module' src='https://infoviz.tatamotors.com/javascripts/api/tableau.embedding.3.latest.min.js'>
+    </script>
+
+</body>
+
+
+</html>

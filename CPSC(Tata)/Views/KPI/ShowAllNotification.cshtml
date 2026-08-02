@@ -1,0 +1,287 @@
+﻿@{
+    ViewBag.Title = "ShowAllNotification";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@*<script type="text/javascript">
+    $(document).ready(function () {
+
+        var $submit = $("#clickButton").hide(),
+            $cbs = $('input[name="check"]').click(function () {
+                $submit.toggle($cbs.is(":checked"));
+            });
+
+    });
+
+</script>*@
+<script type="text/javascript">
+    $(document).ready(function () {
+        $(".check").change(function () {
+
+            var btn = $("#clickButton");
+            var btn1 = $("#rejectButton");
+            
+
+            if ($(".check").is(":checked")) {
+
+               // btn.removeAttr("disabled");
+                btn.show();
+                btn1.show();
+
+            } else {
+
+                //btn.attr("disabled", "disabled");
+                btn.hide();
+                btn1.hide();
+
+            }
+
+        });
+
+        $(".check").triggerHandler("change");
+    });
+</script>
+<script type="text/javascript">
+
+    function toggleChecked(status) {
+        $("#checkboxes input").each(function () {
+            // Set the checked status of each to match the
+            // checked status of the check all checkbox:
+            $(this).prop("checked", status);
+           
+        });
+    }
+
+    $(document).ready(function () {
+
+        // Grab a reference to the check all box:
+        var checkAllBox = $("#checkall");
+
+        //Set the default value of the global checkbox to true:
+        checkAllBox.prop('checked', false);
+       
+
+        // Attach the call to toggleChecked to the
+        // click event of the global checkbox:
+        checkAllBox.click(function () {
+            var status = checkAllBox.prop('checked');
+
+            toggleChecked(status);
+
+        });
+    });
+</script>
+
+@using System.Data;
+@using System.Data.SqlClient;
+@using System.Globalization;
+@using System.Configuration;
+@using System.Web;
+@{
+
+    DataTable dtf;
+    string _sql = string.Empty;
+    string CS = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
+
+    _sql = @"getAllNotification";
+    using (SqlConnection cn = new SqlConnection(CS))
+    {
+        DataTable dt = new DataTable();
+        //var cmd = new SqlCommand(_sql, cn);
+        var daCampus = new SqlDataAdapter(_sql, cn);
+        daCampus.SelectCommand.CommandType = CommandType.StoredProcedure;
+        daCampus.SelectCommand.Parameters.AddWithValue("@FW", Session["Uid"].ToString());
+
+        daCampus.Fill(dt);
+        dtf = dt;
+
+       
+
+    }
+
+}
+<div class="row">
+    <div class="col-md-12">
+
+        <div class="portlet light bordered" id="form_wizard_1" style="max-height: 485px;">
+            <div class="portlet-title" style="min-height:30px; margin-bottom:0px;">
+                <div class="caption" style="padding:0px 0;">
+                    @*<i class="icon-layers font-blue"></i>*@
+                    <i class="glyphicon glyphicon-list-alt font-blue"></i>
+                    <span class="caption-subject font-blue bold uppercase">
+                        All Notification
+                    </span>
+                </div>
+
+
+
+            </div>
+
+            @using (Html.BeginForm("AllNotificationSubmission", "KPI", FormMethod.Post, new { id = "Notification", name = "Notification" }))
+            {
+
+                <div style="text-align:right;max-height: 485px;overflow-y: auto;height:490px">
+
+                    @if (dtf.Rows.Count > 0)
+                {
+                        <div  style="text-align:right;margin-left:690px; margin-right:0;">
+                            <table>
+                                <tr>
+                                    <td style="float:right;text-align:right">
+                                        <span style="background-color:#98FB98;">Accept</span>
+                                        &nbsp;    &nbsp;
+                                        <span style="background-color:#cccccc;">Reject</span>
+                                        &nbsp;    &nbsp;
+                                        <span style="background-color:#FA8072;">Pending</span>
+                                        &nbsp;    &nbsp;     &nbsp;    &nbsp;                                       
+                                        <span>Check All</span>
+                                        &nbsp;    &nbsp;  &nbsp;    &nbsp;  
+                                        <input type="checkbox" id="checkall" class="check" />
+                                    </td>
+                                </tr>
+
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                    }
+
+                    <div id="checkboxes">
+                        <div class="portlet-body form">
+                            <div class="portlet-body">
+                                @{ string color; int k = 1, s = 1;
+                                    for (int i = 0; i < dtf.Rows.Count; i++)
+                                    {
+                                        if (dtf.Rows[i]["Flag"].ToString() == "Pending")
+                                        {
+                                            if (dtf.Rows[i]["Approved_Status"].ToString() == "True")
+                                            {
+                                                color = "background-color:#98FB98;";
+                                            }
+                                            else
+                                            {
+                                                color = "background-color:#FA8072;";
+                                            }
+                                            <div class="note" style="padding: 5px 30px 5px 15px; margin:0 0 5px; @color">
+                                                <div style="float:left">
+                                                    <h4 style="color:black; font-size:12px; font-weight:bold;">
+                                                        @dtf.Rows[i]["Emp_Name"] is Late.
+                                                    </h4>
+                                                </div>
+                                                <div style="float:left;width:53%; text-align:right; color:black; font-size:11px;">
+                                                    <label style="align-self:flex-end">@dtf.Rows[i]["date"]</label><br />
+                                                </div>
+                                                <div style="text-align:left; padding-top:50px; color:black; font-size:11px;">
+                                                    @dtf.Rows[i]["Dealer_Name"] ,
+                                                    @dtf.Rows[i]["Division_Name"] , @dtf.Rows[i]["LOB"] @*dtf.Rows[i]["MSG"]*@.
+                                                </div>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            string href_link;
+                                            if (dtf.Rows[i]["flag"].ToString() == "BulkTarget")
+                                            {
+                                                href_link = "#";
+                                            }
+                                            else
+                                            {
+                                                //                             <a href="@Url.Action(dtf.Rows[i]["Action"].ToString(), dtf.Rows[i]["Controller"].ToString(), new { Uid = dtf.Rows[i]["Unique_Id"].ToString(), fromwhom = dtf.Rows[i]["FromWhom"], Flag = dtf.Rows[i]["Flag"].ToString(), dealer = dtf.Rows[i]["Dealer_Id"].ToString(), month = dtf.Rows[i]["Month"].ToString(), LOB = dtf.Rows[i]["LOB_Id"].ToString(), o = dtf.Rows[i]["Division_Id"].ToString(), dealer_name = dtf.Rows[i]["Dealer_Name"], LOB_name = dtf.Rows[i]["LOB"], o_name = dtf.Rows[i]["Division_Name"], monthdesc = dtf.Rows[i]["Monthdesc"], app_disapp_flag = dtf.Rows[i]["App/rejected"].ToString(), Notification_id = dtf.Rows[i]["Notification_id"].ToString(), remarks_out = dtf.Rows[i]["Remarks"].ToString(), year = dtf.Rows[i]["Year"].ToString() })">
+                                                href_link = Url.Action(dtf.Rows[i]["Action"].ToString(), dtf.Rows[i]["Controller"].ToString(), new { Uid = dtf.Rows[i]["Unique_Id"].ToString(), fromwhom = dtf.Rows[i]["FromWhom"], Flag = dtf.Rows[i]["Flag"].ToString(), dealer = dtf.Rows[i]["Dealer_Id"].ToString(), month = dtf.Rows[i]["Month"].ToString(), LOB = dtf.Rows[i]["LOB_Id"].ToString(), o = dtf.Rows[i]["Division_Id"].ToString(), dealer_name = dtf.Rows[i]["Dealer_Name"], LOB_name = dtf.Rows[i]["LOB"], o_name = dtf.Rows[i]["Division_Name"], monthdesc = dtf.Rows[i]["Monthdesc"], app_disapp_flag = dtf.Rows[i]["App/rejected"].ToString(), Notification_id = dtf.Rows[i]["Notification_id"].ToString(), remarks_out = dtf.Rows[i]["Remarks"].ToString(), year = dtf.Rows[i]["Year"].ToString() });
+                                            }
+                                            <a href="@href_link">
+
+                                                @if (dtf.Rows[i]["Approved_Status"].ToString() == "True" && dtf.Rows[i]["App/rejected"].ToString() == "accept")
+                                                {
+                                                    color = "background-color:#98FB98;";
+                                                }
+                                                else if (dtf.Rows[i]["Approved_Status"].ToString() == "False" && dtf.Rows[i]["App/rejected"].ToString() == "reject")
+                                                {
+                                                    color = "background-color:#cccccc;";
+                                                }
+                                                else
+                                                {
+                                                    color = "background-color:#FA8072;";
+                                                }
+                                                <div class="note" style="padding: 5px 30px 5px 15px; margin:0 0 5px; @color">
+                                                    <div style="float:left;">
+                                                        <h4 style="color:black; font-size:12px; font-weight:bold;">
+                                                            @dtf.Rows[i]["Flag"] Sheet Filled by @dtf.Rows[i]["Emp_Name"] (@dtf.Rows[i]["monthdesc"].ToString()).
+                                                        </h4>
+                                                    </div>
+                                                    <div style="float:left;width:53%; text-align:right; color:black; font-size:11px;">
+                                                        <label style="align-self:flex-end">@dtf.Rows[i]["Date"].ToString()</label><br />
+                                                    </div>
+
+                                                    @if (dtf.Rows[i]["Flag"].ToString() == "BulkActual")
+                                                    {
+
+
+
+                                                        if (dtf.Rows[i]["Approved_Status"].ToString() == "False" && dtf.Rows[i]["App/rejected"].ToString() == "accept")
+                                                        {
+
+                                                            <div style="float:left;width:10%; text-align:right; color:black; font-size:11px;">
+                                                                <input type="checkbox" id="chk@(k)" name="chk@(k)" class="check">
+                                                                <input type="hidden" name="N_id@(k)" value=@dtf.Rows[i]["Notification_id"].ToString() />
+                                                            </div>
+                                                            k++;
+                                                        }
+
+
+                                                        else
+                                                        {
+                                                            @*<div style="float:left;width:10%; text-align:right; color:black; font-size:11px;">
+                                                    <input type="checkbox" id="checkedop@(s)" name="chk@(s)" checked="checked" readonly="readonly" disabled>
+                                                </div>
+
+                                                s++;*@
+                                                        }
+
+                                                    }
+                                                    else
+
+                                                    {
+
+                                                    }
+                                                    <div style="text-align:left; padding-top:50px; color:black; font-size:11px;">@dtf.Rows[i]["Dealer_Name"] , @dtf.Rows[i]["Division_Name"] , @dtf.Rows[i]["LOB"] @*dtf.Rows[i]["MSG"]*@.</div>
+                                                </div>
+                                            </a>
+                                        }
+                                    }
+                                    <input type="hidden" name="loopcount" value=@k />
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+
+
+
+                <div class="form-actions" style="padding:0px;">
+                    <div id="row" style="margin:0px;">
+                        <div class="col-md-8">&nbsp;</div>
+                        <div class="col-md-4" style="text-align:right">
+
+@if (dtf.Rows.Count > 0)
+{
+
+                            <!--button type="button" data-dismiss="modal" class="btn green">Dis-Approved</button-->
+                            <input type="submit" value="Reject" name="dissubmitButton" class="btn green button-submit btn-sm" id="rejectButton" />
+                            <input type="submit" value="Approve" name="submitButton" id="clickButton" class="btn green button-submit btn-sm"   />
+}
+else
+{
+
+}
+                        </div>
+                    </div>
+                </div>
+
+                                }
+        </div>
+    </div>
+</div>

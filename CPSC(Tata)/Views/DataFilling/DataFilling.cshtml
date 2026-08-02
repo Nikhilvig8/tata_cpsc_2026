@@ -1,0 +1,303 @@
+﻿
+@{
+    ViewBag.Title = "DataFilling";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    DateTime A_d = Convert.ToDateTime(Session["Actual_Date"].ToString());
+    string Actual_Month = A_d.Month.ToString();
+    string Actual_Month_Des = A_d.Year.ToString() + "-" + A_d.ToString("MMM");
+}
+<style>
+    table input {
+        width: 100%;
+    }
+</style>
+
+<div id="row" style="min-height:565px; max-height:565px;">
+    <div class="col-md-12" style="min-height:565px; max-height:565px;">
+        <div class="portlet light bordered" id="form_wizard_1" style="min-height:565px; max-height:565px; margin-bottom:0px; padding-bottom:0px;">
+            <div class="portlet-title" style="min-height:30px; margin-bottom:0px;">
+                <div class="caption" style="padding:0px 0; width:54.5%; float:left;">
+                    <i class="icon-layers font-blue"></i>
+                    <span class="caption-subject font-blue bold uppercase">
+                        DATA FILLING FOR AREA's
+                    </span>
+                </div>
+                <div style="width:13%; float:left;">
+                    <label class="">
+                        Date
+                        <p class="control-label " id="DateMonthYear" name="DateMonthYear" style="border-style:groove">@Actual_Month_Des</p>
+                </div>
+                @*<div style="width:13%; float:left; margin-left:1%;">
+                        Region
+                        @Html.DropDownList("DealerRegion", (IEnumerable<SelectListItem>)ViewBag.DealerRegion, "--Select Region--", new { @onchange = "callDealerState(this.value)" })
+                    </div>*@
+                <div style="width:13%; float:left; margin-left:1%;">
+                    State
+                    @Html.DropDownList("DealerState", (IEnumerable<SelectListItem>)ViewBag.DealerState, new { @onchange = "callDealerdetails(this.value)" })
+                    @*<select name="DealerState" id="DealerState" onchange="callDealerdetails()">
+                            <option>--DealerState--</option>
+                        </select>*@
+                </div>
+                <!--<div style="width:17%; float:left; margin-left:1%; margin-top:0.4%;"><b>City</b> : <span id="dealer_city"></span></div>-->
+            </div>
+            <div class="portlet-body form" max-height:523px; min-height:523px;">
+
+
+                <div class="form-horizontal" style="min-height:521px; max-height:521px;">
+                    <div class="form-wizard" style=" min-height:476px;">
+                        <div class="form-body" style="padding:5px;">
+                             <div class="table-responsive">
+                                <table class="table table-bordered" border="1" id="tblSH">
+                                    <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>State TIV(N-1)</th>
+                                        <th>State TMV(N-1)</th>
+                                        <th>State MS(N-1)</th>
+                                        <th>YTD (N-1)TIV</th>
+                                        <th>YTD (N-1)TMV</th>
+                                        <th>YTD (N-1)MS</th>
+
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><input type="text" id="ILCV" value="ILCV" disabled class="LOB" /></td>
+                                            <td><input type="text" id="TIVILCV" class="TIVILCV" /></td>
+                                            <td><input type="text" id="TMVILCV" class="TMVILCV" /></td>
+                                            <td><input type="text" id="MSILCV" class="MSILCV" /></td>
+                                            <td><input type="text" id="YTDTIVILCV" class="YTDTIVILCV" /></td>
+                                            <td><input type="text" id="YTDTMVILCV" class="YTDTMVILCV" /></td>
+                                            <td><input type="text" id="YTDMSILCV" class="YTDMSILCV" /></td>
+
+                                        </tr>
+                                        <tr>
+                                            <td><input type="text" id="MHCV" value="M&HCV" disabled class="LOB" /></td>
+                                            <td><input type="text" id="TIVMHCV" class="TIVILCV" /></td>
+                                            <td><input type="text" id="TMVMHCV" class="TMVILCV" /></td>
+                                            <td><input type="text" id="MSMHCV" class="MSILCV" /></td>
+                                            <td><input type="text" id="YTDTIVMHCV" class="YTDTIVILCV" /></td>
+                                            <td><input type="text" id="YTDTMVMHCV" class="YTDTMVILCV" /></td>
+                                            <td><input type="text" id="YTDMSMHCV" class="YTDMSILCV" /></td>
+
+                                        </tr>
+                                        @*<tr>
+            <td><input type="text" id="CVPASS" value="CVPASS" disabled class="LOB" /></td>
+            <td><input type="text" id="TIVCV" class="TIVILCV" /></td>
+            <td><input type="text" id="TMVCV" class="TMVILCV" /></td>
+            <td><input type="text" id="MSCV" class="MSILCV" /></td>
+            <td><input type="text" id="YTDTIVCV" class="YTDTIVILCV" /></td>
+            <td><input type="text" id="YTDTMVCV" class="YTDTMVILCV" /></td>
+            <td><input type="text" id="YTDMSCV" class="YTDMSILCV" /></td>
+        </tr>*@
+
+                                        <tr>
+                                            <td><input type="text" id="SCV" value="SCV Cargo & Pickups" disabled class="LOB" /></td>
+                                            <td><input type="text" id="TIVSCV" class="TIVILCV" /></td>
+                                            <td><input type="text" id="TMVSCV" class="TMVILCV" /></td>
+                                            <td><input type="text" id="MSSCV" class="MSILCV" /></td>
+                                            <td><input type="text" id="YTDTIVSCV" class="YTDTIVILCV" /></td>
+                                            <td><input type="text" id="YTDTMVSCV" class="YTDTMVILCV" /></td>
+                                            <td><input type="text" id="YTDMSSCV" class="YTDMSILCV" /></td>
+                                        </tr>
+
+                                        <tr>
+                                            <td><input type="text" id="SCVPassVans" value="SCV Pass & Vans" disabled class="LOB" /></td>
+                                            <td><input type="text" id="TIVCV" class="TIVILCV" /></td>
+                                            <td><input type="text" id="TMVCV" class="TMVILCV" /></td>
+                                            <td><input type="text" id="MSCV" class="MSILCV" /></td>
+                                            <td><input type="text" id="YTDTIVCV" class="YTDTIVILCV" /></td>
+                                            <td><input type="text" id="YTDTMVCV" class="YTDTMVILCV" /></td>
+                                            <td><input type="text" id="YTDMSCV" class="YTDMSILCV" /></td>
+                                        </tr>
+
+
+                                        <tr>
+                                            <td><input type="text" id="Buses" value="Buses" disabled class="LOB" /></td>
+                                            <td><input type="text" id="TIVCV" class="TIVILCV" /></td>
+                                            <td><input type="text" id="TMVCV" class="TMVILCV" /></td>
+                                            <td><input type="text" id="MSCV" class="MSILCV" /></td>
+                                            <td><input type="text" id="YTDTIVCV" class="YTDTIVILCV" /></td>
+                                            <td><input type="text" id="YTDTMVCV" class="YTDTMVILCV" /></td>
+                                            <td><input type="text" id="YTDMSCV" class="YTDMSILCV" /></td>
+                                        </tr>
+
+                                    </tbody>
+                                </table>
+
+                            </div>
+                            <div id="row" style="margin:0px;">
+                                <div class="col-md-8">&nbsp;</div>
+                                <div class="col-md-4">
+                                    <button class="btn green button-submit" id="Cancel">Cancel</button>&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <button class="btn green button-submit" id="Insert">Submit</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+
+
+
+        <script src="~/Scripts/jquery-3.3.1.js"></script>
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <script type="text/javascript">
+            callDealerdetails();
+            function callDealerState() {
+                var DealerRegion = $("#DealerRegion").val();
+                //alert(DealerRegion);
+                $.ajax
+                    ({
+                        type: "POST",
+                        url: "/DataFilling/DealerState",
+                        data:
+                        {
+                            DealerRegion: "" + $('#DealerRegion').val()
+                        },
+                        //alert(data);
+                        dataType: "json",
+                        success: function (data) {
+                            for (var i = 0; i < data.length; i++) {
+                                DealerState += '<option value="' + data[i].Value + '" >' + data[i].Text + '</option>';
+                            }
+                            $("#DealerState").html(DealerState);
+                            //callDealerdetails();
+                        }
+                    });
+            }
+            function callDealerdetails() {
+                var Region = $("#DealerRegion").val();
+                var StateId = $("#DealerState").val();
+                $.ajax
+                    ({
+                        type: "POST",
+                        url: "/DataFilling/DataFillingDetails",
+                        data:
+                        {
+                            Region: Region,
+                            StateId: StateId
+                        },
+                        dataType: "json",
+                        success: function (data)
+                        {
+                            var d = JSON.parse(data);
+                            var IsLocked = "@ViewBag.IsLocked";
+                            var htm = '';
+                            if (IsLocked == "False")
+                            {
+                                if (d.length > 0)
+                                {
+                                    htm += '<tr>';
+                                    htm += '<th></th>';
+                                    htm += '<th>State TIV(N-1)</th>';
+                                    htm += '<th>State TMV(N-1)</th>';
+                                    htm += '<th>State MS(N-1)</th>';
+                                    htm += '<th>YTD (N-1)TIV</th>';
+                                    htm += '<th>YTD (N-1)TMV</th>';
+                                    htm += '<th>YTD (N-1)MS</th>';
+                                    htm += '</tr>';
+                                    for (var i = 0; i < d.length; i++) {
+                                        htm += '<tr>';
+                                        htm += '<td><input type="text" id="ILCV" disabled class="LOB" value=" '  + d[i].LOB + ' "/></td>';
+                                        htm += '<td><input type="text" id="TIVILCV" class="TIVILCV" value=" '+ d[i].TIV + '"/></td>';
+                                        htm += '<td><input type="text" id="TMVILCV" class="TMVILCV" value=" '+ d[i].TMV + '"/></td>';
+                                        htm += '<td><input type="text" id="MSILCV" class="MSILCV" value=" '+ d[i].MS + '"/></td>';
+                                        htm += '<td><input type="text" id="YTDTIVILCV" class="YTDTIVILCV" value=" '+ d[i].YTDTIV + '"/></td>';
+                                        htm += '<td><input type="text" id="YTDTMVILCV" class="YTDTMVILCV" value="' + d[i].YTDTMV +' "/></td>';
+                                        htm += '<td><input type="text" id="YTDMSILCV" class="YTDMSILCV" value=" '+ d[i].YTDMS + '"/></td>';
+                                        htm += '</tr> ';
+                                    }
+                                   $('#tblSH').html(htm);
+                                   $("#Insert").attr('disabled', true);
+                                   $("#Cancel").attr('disabled', true);
+                                   $(".IsDisabled").attr('disabled', false);
+                                }
+                                else
+                                {
+                                    $('table').find('tr').not(':first').each(function () {
+                                        $(this).find(".TIVILCV").val('');
+                                        $(this).find(".TMVILCV").val('');
+                                        $(this).find(".MSILCV").val('');
+                                        $(this).find(".YTDTIVILCV").val('');
+                                        $(this).find(".YTDTMVILCV").val('');
+                                        $(this).find(".YTDMSILCV").val('');
+                                    });
+                                    $(".IsDisabled").attr('disabled', false);
+                                    $("#Insert").attr('disabled', false);
+                                    $("#Cancel").attr('disabled', false);
+                                }
+
+
+                            }
+                            else
+                            {
+                                $(".IsDisabled").attr('disabled', true);
+                                $("#Insert").attr('disabled', true);
+                                $("#Cancel").attr('disabled', true);
+                            }
+                        }
+                    });
+            }
+            $("#Insert").click(function () {
+                var json = '';
+                let data = [];
+               {
+                    let DealerRegion = $("#DealerRegion :selected").val();
+                    let DealerState = $("#DealerState :selected").val();
+                    $('table').find('tr').not(':first').each(function () {
+                        DealerRegion = DealerRegion;
+                        DealerState = DealerState;
+                        let LOB = $(this).find(".LOB").val();
+                        let TIVILCV = $(this).find(".TIVILCV").val();
+                        let TMVILCV = $(this).find(".TMVILCV").val();
+                        let MSILCV = $(this).find(".MSILCV").val();
+                        let YTDTIVILCV = $(this).find(".YTDTIVILCV").val();
+                        let YTDTMVILCV = $(this).find(".YTDTMVILCV").val();
+                        let YTDMSILCV = $(this).find(".YTDMSILCV").val();
+                        data.push
+                        ({
+                            Region: DealerRegion,
+                            State: DealerState,
+                            LOB: LOB,
+                            TIV: TIVILCV,
+                            TMV: TMVILCV,
+                            MS: MSILCV,
+                            YTDTIV: YTDTIVILCV,
+                            YTDTMV: YTDTMVILCV,
+                            YTDMS: YTDMSILCV,
+                         });
+                     json = JSON.stringify(data);
+                    });
+                    $.ajax
+                        ({
+                            type: "Post",
+                            cache: false,
+                            url: "/DataFilling/DataFillingInsert",
+                            data: { json: "" + json + "" },
+                            success: function (drr) {
+                                alert(JSON.parse(drr));
+                                var url = "/DataFilling/DataFilling";
+                                window.location.href = url;
+                            },
+                            Error: function (err) {
+                                // alert('unsuccess');
+                                Console.log(err);
+                            }
+                        });
+               }
+
+            });
+            $("#Cancel").click(function () {
+                var url = "/DataFilling/DataFilling";
+                window.location.href = url;
+            });
+        </script>
+
+
+

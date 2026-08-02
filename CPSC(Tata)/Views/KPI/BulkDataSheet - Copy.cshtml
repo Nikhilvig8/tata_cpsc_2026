@@ -1,0 +1,328 @@
+﻿
+@model InputOutput.Models.TransactionViewModel
+@{
+    ViewBag.Title = "BulkDataSheet";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div id="row" style="min-height:565px; max-height:565px;">
+    <div class="col-md-12" style="min-height:565px; max-height:565px;">
+
+        <div class="portlet light bordered" id="form_wizard_1" style="min-height:565px; max-height:565px; margin-bottom:0px; padding-bottom:0px;">
+            <div class="portlet-title" style="min-height:30px; margin-bottom:0px;">
+                <div class="caption" style="padding:0px 0; width:72.5%; float:left;">
+                        <i class="icon-layers font-blue"></i>
+                        <span class="caption-subject font-blue bold uppercase">
+                            Bulk Data Sheet
+                        </span>
+                </div>
+                <div style="width:13%; float:left;">
+                    <select id="Month_main" name="Month" class="form-control" style="padding:0px 12px; height:25px;">
+                        <option value="">Month</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                    </select>
+                </div>
+                <div style="width:13%; float:left; margin-left:1%;">
+                    <select id="Dealer_main" name="Dealer" class="form-control" style="padding:0px 12px; height:25px;">
+                        <option value="">Dealer</option>
+                        <option value="">Dealer 1</option>
+                        <option value="">Dealer 2</option>
+                        <option value="">Dealer 3</option>
+                        <option value="">Dealer 4</option>
+                    </select>
+                </div>
+            </div>
+            <div class="portlet-body form" style="overflow:auto; max-height:523px; min-height:523px;">
+
+                
+                    <div class="form-horizontal" style="min-height:521px; max-height:521px;">
+                        <div class="form-wizard" style=" min-height:476px;">
+                            <div class="form-body" style="padding:5px;">
+
+                                <div class="tab-pane active" id="tab1">
+                                    <!--h3 class="block">Provide your account details</h3-->
+                                   
+                                    <style>
+                                        #DivisionRow {font-size: 12px;width: 10%; padding:2px;}
+                                        #LOBRow {font-size: 12px;width: 10%; padding:2px;}
+                                        #KPIRow {font-size: 12px;width: 13%; padding:2px;}
+                                        #row {font-size: 12px;padding:2px;}
+                                        #input {width:125px;}
+                                    </style>
+                                    
+                                        <table class="table table-bordered" style="margin-bottom:0px;">
+                                            <thead>
+                                                <tr>
+                                                    <th id="DivisionRow">Divisions</th>
+                                                    <th id="LOBRow">LOB</th>
+                                                    <th id="KPIRow">Customer Feedback Score- Dealership Post Sales Calling</th>
+                                                    <th id="KPIRow">Customer Feedback Score- Dealership Post Sales Calling</th>
+                                                    <th id="KPIRow">Customer Feedback Score- Dealership Post Sales Calling</th>
+                                                    <th id="KPIRow">Customer Feedback Score- Dealership Post Sales Calling</th>
+                                                    <th id="KPIRow">Customer Feedback Score- Dealership Post Sales Calling</th>
+                                                    <th id="KPIRow">Customer Feedback Score- Dealership Post Sales Calling</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <th scope="row" rowspan="3" id="row" style="width:10%;">1004650-Sales-Ahmednagar-ShubMo</th>
+                                                    <td id="row" style="width:10%;">Buses</td>
+                                                    <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                    <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                    <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                    <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                    <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                    <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                </tr>
+                                                <tr>
+                                                    <td id="row">Buses</td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                </tr>
+                                                <tr>
+                                                    <td id="row">Buses</td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row" rowspan="3" id="row" style="width:10%;">1004650-Sales-Ahmednagar-ShubMo</th>
+                                                    <td id="row" style="width:10%;">Buses</td>
+                                                    <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                    <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                    <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                    <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                    <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                    <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                </tr>
+                                                <tr>
+                                                    <td id="row">Buses</td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                </tr>
+                                                <tr>
+                                                    <td id="row">Buses</td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row" rowspan="3" id="row" style="width:10%;">1004650-Sales-Ahmednagar-ShubMo</th>
+                                                    <td id="row" style="width:10%;">Buses</td>
+                                                    <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                    <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                    <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                    <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                    <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                    <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                </tr>
+                                                <tr>
+                                                    <td id="row">Buses</td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                </tr>
+                                                <tr>
+                                                    <td id="row">Buses</td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row" rowspan="3" id="row" style="width:10%;">1004650-Sales-Ahmednagar-ShubMo</th>
+                                                    <td id="row" style="width:10%;">Buses</td>
+                                                    <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                    <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                    <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                    <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                    <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                    <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                </tr>
+                                                <tr>
+                                                    <td id="row">Buses</td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                </tr>
+                                                <tr>
+                                                    <td id="row">Buses</td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row" rowspan="3" id="row" style="width:10%;">1004650-Sales-Ahmednagar-ShubMo</th>
+                                                    <td id="row" style="width:10%;">Buses</td>
+                                                    <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                    <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                    <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                    <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                    <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                    <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                </tr>
+                                                <tr>
+                                                    <td id="row">Buses</td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                </tr>
+                                                <tr>
+                                                    <td id="row">Buses</td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                    <td id="row"><input id="input" type="text" value="" /></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+
+                                        @*<div class="form-group">
+                <label class="control-label col-md-1" style="font-weight:bold;">&nbsp;</label>
+                <label class="control-label col-md-3" style="font-weight:bold;">Parameter</label>
+                <label class="control-label col-md-2" style="font-weight:bold;">Actual</label>
+                <label class="control-label col-md-2" style="font-weight:bold;">Target</label>
+                <label class="control-label col-md-2" style="font-weight:bold;">Last Month Target</label>
+                <label class="control-label col-md-2" style="font-weight:bold;">Last Month Actual</label>
+                <!--label class="control-label col-md-2" style="font-weight:bold;">Last 12 Month Min.</label>
+                <label class="control-label col-md-2" style="font-weight:bold;">Last 12 Month Max.</label>
+                <label class="control-label col-md-2" style="font-weight:bold;">&nbsp;</label-->
+            </div>
+            <!-- row 1 start-->
+
+            @using System.Data;
+            @using System.Data.SqlClient;
+            @using System.Globalization;
+            @using System.Web;
+            @using DataUtilityLayer;
+            @using System.Configuration;
+
+            @{
+                SqlCommand cmdObj=new SqlCommand();
+                string uid2 = Session["Uid"].ToString();
+                string CS1 = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
+                DataTable dtf21;
+                string _sql2 = string.Empty;
+                _sql2 = @"getPendingInputData";
+                using (SqlConnection cn = new SqlConnection(CS1))
+                {
+                    DataTable dt = new DataTable();
+                    //var cmd = new SqlCommand(_sql, cn);
+                    var daCampus = new SqlDataAdapter(_sql2, cn);
+                    daCampus.SelectCommand.CommandType = CommandType.StoredProcedure;
+                    daCampus.SelectCommand.Parameters.AddWithValue("@FW", Session["Uid"].ToString());
+
+                    daCampus.Fill(dt);
+                    dtf21 = dt;
+                }
+
+            }
+
+
+            @{if (dtf21.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dtf21.Rows.Count; i++)
+                    {
+
+
+                <div class="form-group">
+                        <!--label class="control-label col-md-1" style="font-weight:bold;">&nbsp;</label-->
+                        <div class="col-md-1">&nbsp;</div>
+                        <div class="col-md-3">
+                                <label class="control-label" name="KPI">
+                            @dtf21.Rows[i]["KPI_Name"].ToString()
+                                </label>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="text" class="form-control" id="Actual_main" name="Actual" data-required="1" value="@dtf21.Rows[i]["Actual_Value"].ToString()"  disabled="disabled">
+                            <span id="error" style="color:red;display:none;">This Field is Required</span>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="text" class="form-control" name="Target" value="@dtf21.Rows[i]["Target_Value"].ToString()" disabled="disabled" />
+                            <!--span class="help-block"> Provide your username </span-->
+                        </div>
+                        <div class="col-md-2">
+                            <input type="text" class="form-control" name="L_M_T" value="@dtf21.Rows[i]["Last_M_T"].ToString()" disabled="disabled" />
+                            <!--span class="help-block"> Provide your username </span-->
+                        </div>
+                        <div class="col-md-2">
+                            <input type="text" class="form-control" name="L_M_A" value="@dtf21.Rows[i]["Last_M_A"].ToString()" disabled="disabled" />
+                            <!--span class="help-block"> Provide your username </span-->
+                        </div>
+                        <!--div class="col-md-2">&nbsp;</div-->
+                </div>
+            <!-- row 1 end-->
+            <!-- row 2 start-->
+                        }
+                    }
+                }*@
+
+</div>
+
+
+
+                            </div>
+                        </div>
+                        <!--col-md-offset-7 -->
+                        <div class="form-actions" style="padding:5px;">
+                            <div id="row" style="margin:0px;">
+                                <div class="col-md-8">&nbsp;</div>
+                                <div class="col-md-4">
+                                    <input type="button" value="Cancel" name="CancelButton" class="btn green button-submit" />
+
+                                    <input type="button" value="Submit" name="CancelButton" class="btn green button-submit" data-toggle="modal" href="#static" id="clickButton" />
+                                    <!--input type="submit" value="Submit" name="submitButton" class="btn green button-submit" / -->
+                                </div>
+                            </div>
+                        </div>
+                        
+
+                    </div>
+
+
+                                        
+            </div>
+        </div>
+    </div>
+</div>
+<!--pop up -->
+<script src="../assets/pages/scripts/ui-modals.min.js" type="text/javascript"></script>
+<script src="../assets/pages/scripts/form-validation.min.js" type="text/javascript"></script>
+<script src="../assets/global/plugins/jquery-validation/js/jquery.validate.min.js" type="text/javascript"></script>
+<script src="../assets/global/plugins/jquery-validation/js/additional-methods.min.js" type="text/javascript"></script>

@@ -1,0 +1,243 @@
+﻿
+@{
+    ViewBag.Title = "Unlock_Actual";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    DateTime A_d = Convert.ToDateTime(Session["Actual_Date"].ToString());
+    string Actual_Month = A_d.Month.ToString();
+}
+
+
+<script type="text/javascript">
+    $(document).ready(function ()//When the dom is ready
+    {
+
+
+        //---------Fill TSM_CSM------//
+
+        var url = '@Url.Action("GetTSM_CSM", "DropDown")';
+
+        var url_com = url;
+        //alert(url_com);
+
+        $.getJSON(url_com, function (result) {
+
+            var ddl = $('#TSM_CSM');
+            var data = result;
+            ddl.empty();
+            ddl.append(
+                       $('<option/>', {
+                           value: ''
+                       }).html('Select..'));
+            $.each(eval(data.replace(/[\r\n]/, "")), function (i, item) {
+                ddl.append(
+                      $('<option/>', {
+                          value: item.LOGIN
+                      }).html(item.Name + ' - ' + item.Position_Type));
+                //dealer.val(item.Dealer_id);
+            });
+
+        });
+
+        //-------Fill the Dealer--//
+
+        $("#TSM_CSM").bind('change', function () {
+            //alert('hello');
+            var TSM_CSM = $("#TSM_CSM").val();
+
+            var url = '@Url.Action("GetDealer", "DropDown")';
+
+            var m = '@Actual_Month';
+            //alert(m);
+          
+            var url_com = url + "?user=" + TSM_CSM + "&Month=" + m;
+            //alert(url_com);
+
+            $.getJSON(url_com, function (result) {
+
+                var ddl = $('#Dealer');
+                var data = result;
+
+                ddl.empty();
+                ddl.append(
+                           $('<option/>', {
+                               value: ''
+                           }).html('Select..'));
+                $.each(eval(data.replace(/[\r\n]/, "")), function (i, item) {
+                    ddl.append(
+                          $('<option/>', {
+                              value: item.Dealer_Code
+                          }).html(item.Dealer_Name));
+                    //dealer.val(item.Dealer_id);
+                });
+
+            });
+
+            return false;
+        });
+
+        //--Submit data--//
+
+        $('#create').click(function () {
+            //alert('Hi');
+            
+            var TSM_CSM = $("#TSM_CSM").val();
+            var Dealer_code = $("#Dealer").val();
+            var remark = $("#remark").val();
+            var Div_id = '%';
+            var LOB = '%';
+            var month = '@Actual_Month';
+
+            if (/^[a-zA-Z0-9- ]*$/.test(remark) == false) {
+                $("#remark").css("border-color", "red");
+                $("#remark").focus();
+                $("#msg_2").html("<span style='color:green;'>Special characters are not allowed.</span>");
+                var data1 = "<span style='color:green;'>Special characters are not allowed.</span>";
+                $('#msg_click').click();
+                setTimeout(function () { $('#user_msg').modal('hide'); }, 5000);
+
+                return (false);
+            }
+            else {
+                $("#remark").css("border-color", "gray");
+            }
+            if (TSM_CSM == '') {
+                $("#TSM_CSM").css("border-color", "red");
+                $("#TSM_CSM").focus();
+                return (false);
+            } else { $("#TSM_CSM").css("border-color", "gray"); }
+
+            if (Dealer_code == '') {
+                $("#Dealer").css("border-color", "red");
+                $("#Dealer").focus();
+                return (false);
+            } else {
+                $("#Dealer").css("border-color", "gray");
+
+                var url_at = '@Url.Action("Insert_Unlock_Actual_Notifi", "Home")';
+
+                var url_com_at = url_at + "?TSM_CSM=" + TSM_CSM + "&Dealer_code=" + Dealer_code + "&Division_id=" + Div_id + "&LOB=" + LOB + "&remark=" + remark + "&month=" + month;
+                //alert(url_com_at);
+                var jsonComp_at = $.getJSON(url_com_at, function (result) {
+                    if (result == true)
+                    {
+                        $("#msg_2").html("<span style='color:green;'>Notification has been generated.</span>");
+                        var data1 = "<span style='color:green;'>Notification has been generated.</span>";
+
+                        $("#TSM_CSM").css("border", "1px solid #c2cad8");
+
+                        $("#Dealer").css("border", "1px solid #c2cad8");
+                        $("#remark").css("border", "1px solid #c2cad8");
+                        $("#TSM_CSM").val('');
+                        $("#Dealer").val('');
+                        $("#remark").val('');
+
+                        $('#msg_click').click();
+                        setTimeout(function () { $('#user_msg').modal('hide'); }, 5000);
+                        //$('#msg').hide().html(data1).fadeIn('slow').delay(5000).hide(1);
+
+                    }
+                    else
+                    {
+                        $("#msg_2").html("<span style='color:red;'>Something went wrong.</span>");
+                        var data1 = "<span style='color:red;'>Something went wrong.</span>";
+                        $('#msg_click').click();
+                        setTimeout(function () { $('#user_msg').modal('hide'); }, 5000);
+                        //$('#msg').hide().html(data1).fadeIn('slow').delay(5000).hide(1);
+                    }
+
+                });
+
+                return (true);
+
+
+            }
+
+        });
+
+
+    });
+
+</script>
+<div class="row" style="min-height: 560px;max-height: 560px;">
+    <div class="col-md-12" style="min-height: 560px;max-height: 560px;">
+
+        <div class="portlet light bordered" id="form_wizard_1" style="min-height: 560px;max-height: 560px; margin-bottom:0px;">
+            <div class="portlet-title" style="min-height:30px; margin-bottom:0px;">
+                <div class="caption" style="padding:0px 0;">
+                    <i class="icon-layers font-blue"></i>
+                    <span class="caption-subject font-blue bold uppercase">
+                        Request for Unlock Actual
+                    </span>
+                </div>
+
+            </div>
+            <div class="portlet-body form" style="overflow:auto; max-height:515px; min-height:515px;">
+
+                @*using (Html.BeginForm("AMActual", "KPI", FormMethod.Post, new { id = "AMActual", name = "AMActual" }))
+                    {*@
+                <div class="form-horizontal">
+                    <div class="form-wizard" style="width:99%;">
+                        <div class="form-body" style="padding:5px;">
+                            <!-- BEGIN FORM-->
+                            <div class="form-body" style="padding-top: 100px;">
+
+                                <div class="form-group">
+                                    <div class="col-md-2"></div>
+                                    <label class="control-label col-md-2">
+                                        TSM/CSM
+                                        <span class="required"> * </span>
+                                    </label>
+                                    <div class="col-md-4">
+                                        <select class="form-control select2me" name="TSM_CSM" id="TSM_CSM"></select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-md-2"></div>
+                                    <label class="control-label col-md-2">
+                                        Dealer
+                                        <span class="required"> * </span>
+                                    </label>
+                                    <div class="col-md-4">
+                                        <select class="form-control select2me" name="Dealer" id="Dealer"></select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="col-md-2"></div>
+                                    <label class="control-label col-md-2">Remark</label>
+                                    <div class="col-md-7">
+                                        <textarea name="remark" id="remark" rows="7" style="width:325px;"></textarea>
+
+                                    </div>
+                                </div>
+
+                                <div class="form-actions">
+                                    <div class="row">
+
+                                        <div class="col-md-offset-4 col-md-8">
+                                            <button type="submit" class="btn green" id="create" name="create">Submit</button>
+                                            <button type="button" class="btn default" style="background-color: #3598dc;border-color: #3598dc;color: #ffffff;">Cancel</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- END FORM-->
+
+
+
+                            </div>
+                        </div>
+                        <!--col-md-offset-7 -->
+
+
+
+
+                    </div>
+
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

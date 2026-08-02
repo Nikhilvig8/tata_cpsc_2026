@@ -1,0 +1,151 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+@using System.Data;
+@using System.Data.SqlClient;
+@using System.Globalization;
+@using System.Web;
+@using System.Configuration;
+<!-- Pending Inputs -->
+@{
+    string uidPI = Session["Uid"].ToString();
+
+    DataTable dtfBox;
+    string _sqlPI = string.Empty;
+    string CS_index = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
+
+    using (SqlConnection cnPI = new SqlConnection(CS_index))
+    {
+        SqlDataAdapter da1 = new SqlDataAdapter("getBoxValue", cnPI); // Using a Store Procedure.
+                                                                      //SqlDataAdapter da = new SqlDataAdapter("SELECT 'this is a test text' as test", con); To use a hard coded query.
+        da1.SelectCommand.CommandType = CommandType.StoredProcedure; // Comment if using hard coded query.
+        DataSet ds = new DataSet(); // Definition: Memory representation of the database.
+        da1.SelectCommand.Parameters.AddWithValue("@uid", uidPI); // Repeat for each parameter present in the Store Procedure.
+
+        da1.Fill(ds); // Fill the dataset with the query data
+        dtfBox = ds.Tables[0];
+
+    }
+}
+<div class="row" style="margin-top:-3px;">
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <a class="dashboard-stat dashboard-stat-v2 blue" href="@Url.Action("DealerList", "KPI")">
+            <div class="visual">
+                <i class="fa fa-comments"></i>
+            </div>
+            <div class="details">
+                <div class="number">
+                    <span data-counter="counterup" data-value="@dtfBox.Rows[0]["DealerCount"].ToString()">0</span>
+                    
+                </div>
+                <div class="desc"> Division </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <a class="dashboard-stat dashboard-stat-v2 orange" href="@Url.Action("Div_List_With_No_Data", "KPI")">
+            <div class="visual">
+                <i class="fa fa-globe"></i>
+            </div>
+            <div class="details">
+
+                @{
+                    string type1 = Session["Type"].ToString();
+
+                    if (type1 == "CSM"  || type1 == "TSM")
+                    {
+                        <div class="number">
+                            A - <span data-counter = "counterup" data-value = "@dtfBox.Rows[0]["DivWisePendingDataActual"].ToString()" ></span>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="number">
+                            <div> T - <span data-counter="counterup" data-value="@dtfBox.Rows[0]["DivWisePendingDataTarget"].ToString()"> </span> </div>
+                            <div> A - <span data-counter="counterup" data-value="@dtfBox.Rows[0]["DivWisePendingDataActual"].ToString()"></span></div>
+                        </div>
+                    }
+                }
+
+
+
+                <div class="desc"> Division with no Data </div>
+        </div>
+</a>
+    </div>
+
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <div class="dashboard-stat dashboard-stat-v2 blue">
+            <div class="visual">
+                <i class="fa fa-bar-chart-o"></i>
+            </div>
+            <div class="details">
+                <div class="number">
+                    <span data-counter="counterup" data-value="@dtfBox.Rows[0]["TotalSales"].ToString()">0</span>
+                </div>
+                @{
+                    
+                    if (type1 == "ASM" || type1 == "CSM" || type1=="SSM")
+                    {
+                        <div class="desc"> Total Job Card this Month </div>
+                    }
+                    else
+                    {
+                        <div class="desc"> Total Sales this Month </div>
+                    }
+                }
+                
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <div class="dashboard-stat dashboard-stat-v2 orange">
+            <div class="visual">
+                <i class="fa fa-shopping-cart"></i>
+            </div>
+            <div class="details">
+                <div class="number">
+                    <span data-counter="counterup" data-value="@dtfBox.Rows[0]["AvgScore"].ToString()">0</span>
+                </div>
+                <div class="desc"> Average Score Last Month </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+        <div class="clearfix"></div>
+        <!-- END DASHBOARD STATS 1-->
+
+        <div class="row" style="width:50%; float:left;margin-right:0px;">
+            <div class="col-lg-12 col-xs-12 col-sm-12" style="padding-right:0px;">
+                <!-- BEGIN CHART PORTLET-->
+                <div class="portlet light bordered" style="padding-top:0px;">
+                    <div class="portlet-body" style="padding-top:0px;">
+                        <div id="chart_1" class="chart" style="height: 310px;"> </div>
+                    </div>
+                </div>
+                <!-- END CHART PORTLET-->
+            </div>
+        </div>
+@{
+    if (type1 == "CSM" || type1 == "TSM")
+    {
+
+    }
+    else
+    {
+        <div class="row" style="width:50%; float:left;margin-right:0px; margin-left:15px;">
+            <div class="col-lg-12 col-xs-12 col-sm-12" style="padding-right:0px;">
+                <!-- BEGIN CHART PORTLET-->
+                <div class="portlet light bordered" style="padding-top:0px;">
+                    <div class="portlet-body" style="padding-top:0px;">
+                        <div id="chart_2" class="chart" style="height: 310px;"> </div>
+                    </div>
+                </div>
+                <!-- END CHART PORTLET-->
+            </div>
+        </div>
+        }
+    }
+
+

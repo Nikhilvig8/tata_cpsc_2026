@@ -1,0 +1,298 @@
+﻿
+@{
+    ViewBag.Title = "Data_Complition_AfterSales_Target_DivWies";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string state = Request.QueryString["state"];
+}
+
+
+@using System.Data;
+@using System.Data.SqlClient;
+@using System.Globalization;
+@using System.Web;
+@using DataUtilityLayer;
+@using System.Configuration;
+
+@{ string cn1h = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
+                                             <!-- Pending Inputs -->
+
+    DataTable dtfreport;
+    string _sqlreport = string.Empty;
+
+    _sqlreport = "Data_Complition_AfterSales_Target_DivWies";
+    //var cmdTSM = new SqlCommand(_sqlTSM, cn);
+    using (var cnreport = new SqlConnection(cn1h))
+    {
+        var daCampusreport = new SqlDataAdapter(_sqlreport, cnreport);
+        DataTable dtreport = new DataTable();
+        daCampusreport.SelectCommand.CommandType = CommandType.StoredProcedure;
+        daCampusreport.SelectCommand.Parameters.AddWithValue("@FW", Session["Uid"].ToString());
+        daCampusreport.SelectCommand.Parameters.AddWithValue("@state", state);
+        daCampusreport.Fill(dtreport);
+
+        dtfreport = dtreport;
+    }
+
+
+}
+
+
+
+
+<div class="row">
+    <div class="col-md-12">
+
+        <div class="portlet light bordered" id="form_wizard_1">
+            <div class="portlet-title" style="min-height:30px; margin-bottom:0px;">
+                <div class="caption" style="padding:0px 0;">
+                    <i class="icon-layers font-blue"></i>
+                    <span class="caption-subject font-blue bold uppercase">
+                        AfterSales Completion Status for Target Division Wise
+                    </span>
+
+                </div>
+                <div class="btn-group pull-right" style="margin-top: -8px;">
+                    <button class="btn green btn-outline dropdown-toggle" data-toggle="dropdown">
+                        Tools
+                        <i class="fa fa-angle-down"></i>
+                    </button>
+                    <ul class="dropdown-menu pull-right">
+                        <li>
+                            <a id="Print"> Print </a>
+                        </li>
+                        <li>
+                            <a id="ExcelExport"> Export to Excel </a>
+                        </li>
+                        @*<li>
+                                <a id="Exporttopdf"> Export to Pdf </a>
+                            </li>*@
+                    </ul>
+                </div>
+
+            </div>
+            <div class="portlet-body form" style="overflow:auto; max-height:475px;">
+
+
+                <div class="form-horizontal">
+                    <div class="form-wizard" style="width:99%;">
+                        <div class="form-body" style="padding:5px;">
+
+                            <table class="table table-striped table-hover table-bordered" id="example">
+                                <thead>
+                                    <tr>
+
+                                        <th> Month - Year  </th>
+                                        <th> Region </th>
+                                        <th> State </th>
+                                        <th> Dealer </th>
+                                        <th> Division  </th>
+                                        <th> Not Filled </th>
+                                        <th> Filled </th>
+
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{ if (dtfreport.Rows.Count > 0)
+                                        {
+
+
+                                            for (int k = 0; k < dtfreport.Rows.Count; k++)
+                                            {
+
+                                                <tr>
+
+
+                                                    <td> @dtfreport.Rows[k]["ForMonth"].ToString()-@dtfreport.Rows[k]["ForYear"].ToString() </td>
+                                                    <td><a href="@Url.Action("Data_Complition_AfterSales_Target","Home")"> @dtfreport.Rows[k]["Region"].ToString()</a> </td>
+                                                    <td><a href="@Url.Action("Data_Complition_AfterSales_Target_Zone","Reports",new {zone= dtfreport.Rows[k]["Region"].ToString()})">@dtfreport.Rows[k]["State"].ToString()</a> </td>
+                                                    <td> @dtfreport.Rows[k]["Dealer_Name"].ToString() </td>
+                                                    <td> @dtfreport.Rows[k]["Division_Name"].ToString() </td>
+                                                    <td> @dtfreport.Rows[k]["Not_Filled"].ToString() </td>
+                                                    <td> @dtfreport.Rows[k]["Filled"].ToString() </td>
+
+
+
+                                                </tr>
+                                            }
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+
+
+                        </div>
+                    </div>
+                    <!--col-md-offset-7 -->
+
+
+
+                </div>
+
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function printData()
+{
+        var divToPrint = document.getElementById("example");
+        divToPrint.style.borderCollapse = "collapse";
+
+
+        var th = document.getElementById("example").getElementsByTagName("th");
+
+        for (i = 0; i < th.length; i++) {
+            th[i].style.borderColor = "Black";
+            th[i].style.borderWidth = "1px";
+            th[i].style.borderStyle = "solid";
+           // alert(i);
+        }
+        //th[11].innerHTML = "";
+        var td = document.getElementById("example").getElementsByTagName("td");
+        for (k = 0; k < td.length; k++) {
+            td[k].style.borderColor = "Black";
+            td[k].style.borderWidth = "1px";
+            td[k].style.borderStyle = "solid";
+        }
+   newWin= window.open("");
+   newWin.document.write(divToPrint.outerHTML);
+   newWin.print();
+   newWin.close();
+   for (l = 0; l < th.length; l++) {
+       th[l].style.borderColor = "";
+       th[l].style.borderWidth = "";
+       th[l].style.borderStyle = "";
+   }
+   //th[11].innerHTML = "Action";
+   var td = document.getElementById("example").getElementsByTagName("td");
+   for (m = 0; m < td.length; m++) {
+       td[m].style.borderColor = "";
+       td[m].style.borderWidth = "";
+       td[m].style.borderStyle = "";
+   }
+}
+
+    function fnExcelReport() {
+        var tab_text = "<table border='2px'><tr bgcolor='#87AFC6'>";
+        var textRange;
+        var j = 0;
+        tab = document.getElementById('example'); // id of table
+
+        for (j = 0; j < tab.rows.length; j++) {
+            tab_text = tab_text + tab.rows[j].innerHTML + "</tr>";
+            //tab_text=tab_text+"</tr>";
+        }
+
+        tab_text = tab_text + "</table>";
+        tab_text = tab_text.replace(/<A[^>]*>|<\/A>/g, ""); //remove if u want links in your table
+        tab_text = tab_text.replace(/<img[^>]*>/gi, ""); // remove if u want images in your table
+        tab_text = tab_text.replace(/<input[^>]*>|<\/input>/gi, ""); // reomves input params
+
+        var ua = window.navigator.userAgent;
+        var msie = ua.indexOf("MSIE ");
+        if (msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./)) // If Internet Explorer
+        {
+            txtArea1.document.open("txt/html", "replace");
+            txtArea1.document.write(tab_text);
+            txtArea1.document.close();
+            txtArea1.focus();
+            sa = txtArea1.document.execCommand("SaveAs", true, "Actual_CurrentStatus_Report.xls");
+        } else //other browser not tested on IE 11
+            sa = window.open('data:application/vnd.ms-excel,' + encodeURIComponent(tab_text));
+        return (sa);
+    }
+
+$('#Print').on('click',function(){
+printData();
+})
+$('#ExcelExport').on('click', function () {
+    //alert("Hi");
+    fnExcelReport();
+})
+</script>
+
+<script>
+$(document).ready(function () {
+
+
+
+    $("#example").dataTable({
+
+        "bPaginate": false
+    });
+
+
+});
+</script>
+
+<link rel="stylesheet" type="text/css" href="~/assets/apps/css/all.min.css" />
+<script type="text/javascript" src="~/Scripts/shieldui-all.min.js"></script>
+<script type="text/javascript" src="~/Scripts/jszip.min.js"></script>
+<script type="text/javascript" src="~/Scripts/jquery-1.10.2.min.js"></script>
+<script src="~/Scripts/pdf.js"></script>
+
+
+
+<script type="text/javascript">
+    jQuery(function ($) {
+        $("#Exporttopdf").click(function () {
+            // parse the HTML table element having an id=exportTable
+            var dataSource = shield.DataSource.create({
+                data: "#example",
+                schema: {
+                    type: "table",
+                    fields: {
+                        Username: { type: String },
+                        Name: { type: String },
+                        Role: { type: String },
+                        Organization: { type: String },
+                        Operation: { type: String },
+                        Department: { type: String },
+                        Status: { type: String }
+                    }
+                }
+            });
+
+            // when parsing is done, export the data to PDF
+            dataSource.read().then(function (data) {
+                var pdf = new shield.exp.PDFDocument({
+                    author: "Target_CurrentStatus_Report",
+                    created: new Date()
+                });
+
+                pdf.addPage("a4", "portrait");
+
+                pdf.table(
+                    50,
+                    50,
+                    data,
+                    [
+                        { field: "Username", title: "User Name", width: 100 },
+                        { field: "Name", title: "Name", width: 70 },
+                        { field: "Role", title: "Role", width: 70 },
+                        { field: "Organization", title: "Organization", width: 80 },
+                        { field: "Operation", title: "Operation", width: 70 },
+                        { field: "Department", title: "Department", width: 70 },
+                        { field: "Status", title: "Status", width: 70 }
+                    ],
+                    {
+                        margins: {
+                            top: 50,
+                            left: 50
+                        }
+                    }
+                );
+
+                pdf.saveAs({
+                    fileName: "Target_CurrentStatus_Report"
+                });
+            });
+        });
+    });
+</script>
+

@@ -1,0 +1,269 @@
+﻿
+@{
+    ViewBag.Title = "CreateUser";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script src="../assets/custom/jquery.min11.js" type="text/javascript"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#create_user').click(function () {
+            var username = $("input[name=username]").val();
+            var email = $("input[name=Email]").val();
+            var email_valid = /^([\w-\.]+@@([\w-]+\.)+[\w-]{2,4})?$/;
+            var user_type = $("#usertype").val();
+            var Contact = $("input[name=Contact]").val();
+            var Password = $("input[name=Password]").val();
+            var Re_Type = $("input[name=Re-Type]").val();
+            var numtest = /^[0-9]+$/;
+            //alert(user_type);
+            if (username == '') {
+                alert("Please Enter Name.");
+                return (false);
+            }
+            else if (email == '') {
+                alert("Please Enter Email.");
+                return (false);
+            }
+            else if (!(email_valid.test(email))) {
+                alert("Please enter valid email id.");
+                return (false);
+            }
+            else if (user_type == '') {
+                alert("Please Choose User Type.");
+                return (false);
+            }
+            else if (Contact == '') {
+                alert("Please Enter Contact No.");
+                return (false);
+            }
+            else if (!(numtest.test(Contact))) {
+                alert("Only Numeric value allowed.");
+                return (false);
+            }
+            else if (Contact.length < 10) {
+                alert("10 Numeric values allowed.");
+                return (false);
+            }
+            else if (Contact.length > 10) {
+                alert("10 Numeric values allowed.");
+                return (false);
+            }
+            else if (Password == '') {
+                alert("Please Enter Password.");
+                return (false);
+            }
+            else if (Password.length < 6) {
+                alert("Password should atleast 6 Character Long.");
+                return (false);
+            }
+            else if (Re_Type == '') {
+                alert("Please Re-Enter Password.");
+                return (false);
+            }
+            else if (Password != Re_Type) {
+                alert("Password not match.");
+                return (false);
+            }
+            else
+            {
+                return (true);
+            }
+        });
+    });
+
+</script>
+<div class="row">
+    <div class="col-md-12">
+
+        <div class="portlet light bordered" id="form_wizard_1">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="icon-layers font-blue"></i>
+                    <span class="caption-subject font-blue bold uppercase">
+                        Create User
+                    </span>
+                </div>
+
+            </div>
+            <div class="portlet-body form">
+@using (Html.BeginForm("NewUser", "Login", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <div class="form-horizontal">
+        <div class="form-wizard">
+            <div class="form-body">
+                <ul class="nav nav-pills nav-justified steps" style="display:none;">
+                    <li>
+                        <a href="#tab1" data-toggle="tab" class="step">
+                            <span class="number"> 1 </span>
+                            <span class="desc">
+                                <i class="fa fa-check"></i> Account Setup
+                            </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#tab2" data-toggle="tab" class="step">
+                            <span class="number"> 2 </span>
+                            <span class="desc">
+                                <i class="fa fa-check"></i> Profile Setup
+                            </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#tab3" data-toggle="tab" class="step active">
+                            <span class="number"> 3 </span>
+                            <span class="desc">
+                                <i class="fa fa-check"></i> Billing Setup
+                            </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#tab4" data-toggle="tab" class="step">
+                            <span class="number"> 4 </span>
+                            <span class="desc">
+                                <i class="fa fa-check"></i> Confirm
+                            </span>
+                        </a>
+                    </li>
+                </ul>
+                <div id="bar" class="progress progress-striped" role="progressbar" style="display:none;">
+                    <div class="progress-bar progress-bar-success"> </div>
+                </div>
+                <div class="tab-content">
+                    <div class="alert alert-danger display-none">
+                        <button class="close" data-dismiss="alert"></button> You have some form errors. Please check below.
+                    </div>
+                    <div class="alert alert-success display-none">
+                        <button class="close" data-dismiss="alert"></button> Your form validation is successful!
+                    </div>
+                    <div class="tab-pane active" id="tab1">
+                        <!--h3 class="block">Provide your account details</h3-->
+
+
+                        <div class="form-group">
+                            <label class="control-label col-md-3" style="text-align:right;">
+                                Name
+                                <span class="required"> * </span>
+                            </label>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" name="username" placeholder="Enter Your Name" />
+                                <!--span class="help-block"> Provide your username </span-->
+                            </div>
+                            <div class="col-md-5">&nbsp;</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-md-3" style="text-align:right;">
+                                Email
+                                <span class="required"> * </span>
+                            </label>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" name="Email" placeholder="Enter Your Email" />
+                                <!--span class="help-block"> Provide your username </span-->
+                            </div>
+                            <div class="col-md-5">&nbsp;</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-md-3" style="text-align:right;">
+                                User Type
+                                <span class="required"> * </span>
+                            </label>
+                            <div class="col-md-4">
+                                <select id="usertype" name="Type" class="form-control">
+                                    <option value="">User Type</option>
+                                    <option value="AM">AM</option>
+                                    <option value="ASM">ASM</option>
+                                    <option value="TSM">TSM</option>
+                                    <option value="CSM">CSM</option>
+                                </select>
+                                <!--input type="text" class="form-control" name="username" value="100" /-->
+                                <!--span class="help-block"> Provide your username </span-->
+                            </div>
+                            <div class="col-md-5">&nbsp;</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3" style="text-align:right;">
+                                Activation/Deactivation
+                                <span class="required"> * </span>
+                            </label>
+                            <div class="col-md-4">
+                                <select  name="IsActive" class="form-control">
+                                    <option value="Active">Active</option>
+                                    <option value="InActive">InActive</option>
+
+                                </select>
+                                <!--input type="text" class="form-control" name="username" value="100" /-->
+                                <!--span class="help-block"> Provide your username </span-->
+                            </div>
+                            <div class="col-md-5">&nbsp;</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3" style="text-align:right;">
+                                Contact No
+                                <span class="required"> * </span>
+                            </label>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" name="Contact" placeholder="Enter Your Contact No" />
+                                <!--span class="help-block"> Provide your username </span-->
+                            </div>
+                            <div class="col-md-5">&nbsp;</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-md-3" style="text-align:right;">
+                                Password
+                                <span class="required"> * </span>
+                            </label>
+                            <div class="col-md-4">
+                                <input type="password" class="form-control" name="Password" placeholder="Enter Your Password" />
+                                <!--span class="help-block"> Provide your username </span-->
+                            </div>
+                            <div class="col-md-5">&nbsp;</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-md-3" style="text-align:right;">
+                                Re-Type Your Password
+                                <span class="required"> * </span>
+                            </label>
+                            <div class="col-md-4">
+                                <input type="password" class="form-control" name="Re-Type" placeholder="Re-type Your Password" />
+                                <!--span class="help-block"> Provide your username </span-->
+                            </div>
+                            <div class="col-md-5">&nbsp;</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3" style="text-align:right;">
+                                Upload Image                                
+                                
+                            </label>
+                            <div class="col-md-4">
+                                <input type="file" class="form-control" name="file" id="file" placeholder="Choose image path" />
+                           
+                                <!--span class="help-block"> Provide your username </span-->
+                            </div>
+                            <div class="col-md-5">&nbsp;</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-actions">
+                <div class="row">
+                    <div class="col-md-offset-3 col-md-9">
+                       
+                        <button type="button" class="btn green button-previous">Back</button>
+                        <button type="submit" class="btn green button-submit" id="create_user">Submit</button>
+                        @ViewBag.Message
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+            </div>
+        </div>
+    </div>
+</div>
+                

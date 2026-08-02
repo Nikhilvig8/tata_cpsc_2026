@@ -1,0 +1,108 @@
+﻿
+@{
+    ViewBag.Title = "DSE";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@using System.Data;
+@using System.Data.SqlClient;
+@using System.Globalization;
+@using System.Web;
+@using System.Configuration;
+@{ string cn = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
+    string typeTSM = Session["Type"].ToString();
+                                            <!-- Pending Inputs -->
+
+    DataTable dtfDSE;
+    string _sqlDSE = string.Empty;
+
+    _sqlDSE = "getDSEList";
+    //var cmdTSM = new SqlCommand(_sqlTSM, cn);
+    using (var cnDSE = new SqlConnection(cn))
+    {
+        var daCampusDSE = new SqlDataAdapter(_sqlDSE, cnDSE);
+        DataTable dtDSE = new DataTable();
+        daCampusDSE.SelectCommand.CommandType = CommandType.StoredProcedure;
+        daCampusDSE.SelectCommand.Parameters.AddWithValue("@year", "%");
+        daCampusDSE.SelectCommand.Parameters.AddWithValue("@m","%");
+        daCampusDSE.SelectCommand.Parameters.AddWithValue("@del","%");
+        daCampusDSE.SelectCommand.Parameters.AddWithValue("@div", "%");
+        daCampusDSE.SelectCommand.Parameters.AddWithValue("@l", "%");
+
+        daCampusDSE.Fill(dtDSE);
+
+        dtfDSE = dtDSE;
+    }
+
+
+}
+
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+
+    <link href="../assets/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/global/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/global/plugins/bootstrap-switch/css/bootstrap-switch.min.css" rel="stylesheet" type="text/css" />
+    <!-- END GLOBAL MANDATORY STYLES -->
+    <!-- BEGIN PAGE LEVEL PLUGINS -->
+    <link href="../assets/global/plugins/bootstrap-daterangepicker/daterangepicker.min.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/global/plugins/morris/morris.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/global/plugins/fullcalendar/fullcalendar.min.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/global/plugins/jqvmap/jqvmap/jqvmap.css" rel="stylesheet" type="text/css" />
+    <!-- END PAGE LEVEL PLUGINS -->
+    <!-- BEGIN THEME GLOBAL STYLES -->
+    <link href="../assets/global/css/components.min.css" rel="stylesheet" id="style_components" type="text/css" />
+    <link href="../assets/global/css/plugins.min.css" rel="stylesheet" type="text/css" />
+    <!-- END THEME GLOBAL STYLES -->
+    <!-- BEGIN THEME LAYOUT STYLES -->
+    <link href="../assets/layouts/layout/css/layout.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/layouts/layout/css/themes/darkblue.css" rel="stylesheet" type="text/css" id="style_color" />
+    <link href="../assets/layouts/layout/css/custom.min.css" rel="stylesheet" type="text/css" />
+    <!-- END THEME LAYOUT STYLES -->
+    <link href="../assets/global/css/custom.css" rel="stylesheet" type="text/css" />
+    <title>Hygiene</title>
+</head>
+<body>
+    <div>
+        <table class="table table-striped">
+            <thead>
+                <tr style="Color:blue;"><th> DSE list (Yes/No)</th></tr>
+                <tr>
+                    <th>No.</th>
+                    <th>DES</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    if (dtfDSE.Rows.Count > 0)
+                    {
+                        for (int i = 0; i < dtfDSE.Rows.Count; i++)
+                        {
+                            <tr>
+                                <td>@dtfDSE.Rows[i]["DSE_Id"].ToString()</td>
+                                <td>@dtfDSE.Rows[i]["DSE_Name"].ToString()</td>
+                                <td>
+                                    <select id="Select_Value" name="Select_Value" class="form-control">
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        }
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
+
+
+
+

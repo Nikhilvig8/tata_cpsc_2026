@@ -1,0 +1,476 @@
+﻿@model InputOutput.Models.TransactionViewModel
+@{
+    ViewBag.Title = "BULKNotification";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    string monthDesc = Request.QueryString["monthdesc"];//string.Empty;
+    string month_id = Request.QueryString["month"];//string.Empty;
+    string dealer_id = Request.QueryString["dealer"];//string.Empty;
+    string dealer_name = Request.QueryString["dealer_name"];//string.Empty;
+    string flag = Request.QueryString["Flag"];
+    string Un_id = Request.QueryString["Uid"];
+    string LOB = Request.QueryString["LOB"];
+    string Div = Request.QueryString["o"];
+    string fromwhom = Request.QueryString["fromwhom"];
+    //string.Empty;
+
+}
+@*foreach (var data in Model.Trans_list)
+    {
+         monthDesc = data.monthdesc;
+         month_id = data.Month;
+         dealer_id = data.Dealer;
+         dealer_name = data.Dealer_Name;
+         flag = data.Flag;
+    }*@
+<script src="~/Scripts/jquery3_1.js"></script>
+<script type="text/javascript">
+    $(document).ready(function ()//When the dom is ready
+    {
+        //$("#input").popover({ trigger: 'focus' });
+
+        //put Dealer city name in city span
+        var Dealer_name1 = $("#Dealer_main :selected").text();
+        var dealer_split = Dealer_name1.split("-");
+        var dealer_city = dealer_split[1];
+        //alert(dealer_city);
+        $("#dealer_city").html(dealer_city);
+
+
+        $("#Dealer_main").bind('change', function () {
+            $('#tableHeader').html("");
+            //alert('hello');
+            var user1 = '@fromwhom';//Get the value in the username textbox
+            var dealer = $("#Dealer_main").val();
+            var month = $("#Month_main").val();
+
+            //var year = '2016';
+            var flag_chk = '@flag';
+            if (flag_chk == 'Actual' || flag_chk == 'BulkActual') { var url = '@Url.Action("GetBulkData", "DropDown")'; }
+            else { var url = '@Url.Action("GetBulkDataTarget", "DropDown")'; }
+
+
+            var url_com = url + "?user=" + user1 + "&month=" + month + "&dealer=" + dealer;
+            //alert(url_com);
+
+            var jsonComp = $.getJSON(url_com, function (result) {
+                //alert(result);
+
+                var split_res = result.split("^");
+
+                var data = split_res[0];
+                var column = split_res[1];
+                //alert(column);
+
+                var html = "";
+                var columnCount = "";
+                $.each(eval(column.replace(/[\r\n]/, "")), function (i, item) {
+                    if (item.Column_Name == 'Dealer_Code' || item.Column_Name == 'LOB_ID' || item.Column_Name == 'Division_Id' || item.Column_Name == 'Order_Level' || item.Column_Name == 'Dealer_Level' || item.Column_Name == 'Division_Level' || item.Column_Name == 'LOB_Level') { }
+                    else
+                    {
+                        if (item.Column_Name == "Division_Name")
+                        { html += ('<td id="DivisionRow">Division Name <input type="hidden" name="column_count" value="' + item.Count + '" /></td>'); }
+                        else if (item.Column_Name == "LOB")
+                        { html += ('<td id="DivisionRow">Product Line</td>'); }
+                        else
+                        {
+                            var kpi_col = item.Column_Name;
+                            if (kpi_col.includes("<<>>")) {
+                                var kpi = kpi_col.split("<<>>");
+                                var kpi_name = kpi[0];
+                                var kpi_id = kpi[1];
+                                html += ('<td id="DivisionRow">' + kpi_name + '  </td>');
+                            }
+                            else {
+                                html += ('<td id="DivisionRow">' + item.Column_Name + '</td>');
+                            }
+                        }
+                    }
+                    columnCount = item.Count;
+                });
+                $('#tableHeader').html(html);
+                //alert(columnCount);
+                //Data
+
+                var htmlData = "";
+                var s = "0";
+                $.each(eval(data.replace(/[\r\n]/, "")), function (ii, itemi) {
+
+                    htmlData += "<tr>";
+
+                    var t = "0";
+                    for (p in itemi) {
+
+                        if (t == "0" || t == "1" || t == "2" || t == "4" || t == "6" || t == "7" || t == "8") {
+                            htmlData += "<input type='hidden' id='" + p + "" + ii + "" + t + "' name='" + p + "" + ii + "" + t + "' value='" + itemi[p] + "' />";
+                        }
+                        else if (t == "3" || t == "5") {
+                            htmlData += "<td id='row' style='width:10%;'>" + itemi[p] + "</td>";
+                            htmlData += "<input type='hidden' id='" + p + "" + ii + "" + t + "' name='" + p + "" + ii + "" + t + "' value='" + itemi[p] + "' />";
+                        }
+                        else {
+                            //alert(itemi[p]);
+                            if (itemi[p] == null) { htmlData += "<td id='row' style='width:10%;'>&nbsp;</td>"; }
+                            else
+                            {
+
+                                var kpi_data_to_split = itemi[p];
+                                var split_kpi_data = kpi_data_to_split.split("<<>>");
+                                var kpi_id_split = split_kpi_data[0];
+                                var kpi_val_split = split_kpi_data[1];
+                                var kpi_tooltip_split = split_kpi_data[2];
+                                var kpi_input_type = split_kpi_data[3];
+                                var kpi_input_pattern = split_kpi_data[4];
+                                var kpi_input_keypress = split_kpi_data[5];
+                                var kpi_input_popup = split_kpi_data[6];
+
+                                if (kpi_val_split == "NULL") { kpi_val_split = ""; }
+
+                                htmlData += '<td id="row" style="width:10%;"><input type="hidden" name="kpi_id' + ii + '' + t + '" id="kpi_id' + ii + '' + t + '" value="' + kpi_id_split + '" /><input id="input' + ii + "" + t + '" class="input" type="' + kpi_input_type + '"  onkeypress="' + kpi_input_keypress + '" readonly  name="target' + ii + '' + t + '"  value="' + kpi_val_split + '" data-toggle="popover" data-trigger="focus" data-placement="bottom" data-html="true" data-content="' + kpi_tooltip_split + '"  /> </td>';
+                                //htmlData += "<td id='row' style='width:10%;'><input type='hidden' name='kpi_id" + ii + "" + t + "' id='kpi_id" + ii + "" + t + "' value='" + kpi_id_split + "' /><input id='input' type='number' name='target" + ii + "" + t + "'  value='" + kpi_val_split + "' data-toggle='popover' data-trigger='focus' data-placement='bottom' data-html='true' data-content='" + kpi_tooltip_split + "'  /> </td>";
+                            }
+
+                        }
+
+                        t++;
+                    }
+                    s++;
+                    htmlData += "</tr>";
+
+                });
+                $("#row_count").val(s);
+                $('#tableData').html(htmlData);
+
+            });
+            return false;
+        }).trigger('change');
+
+
+
+    });
+</script>
+@using System.Data;
+@using System.Data.SqlClient;
+@using System.Globalization;
+@using System.Web;
+@using DataUtilityLayer;
+@using System.Configuration;
+@{
+    SqlCommand cmdObj = new SqlCommand();
+    string uid2 = Session["Uid"].ToString();
+    string CS1 = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
+
+    string typeTSM = Session["Type"].ToString();
+    string type = string.Empty;
+    string OpMode = string.Empty;
+    if (typeTSM == "AM" || typeTSM == "TSM" || typeTSM == "RM")
+    {
+        OpMode = "1";
+
+    }
+    else
+    {
+        OpMode = "2";
+    }
+
+    DataTable dtf21;
+    string _sql2 = string.Empty;
+    _sql2 = @"getBulkEntryActual";
+    using (SqlConnection cn = new SqlConnection(CS1))
+    {
+        DataTable dt = new DataTable();
+        //var cmd = new SqlCommand(_sql, cn);
+        var daCampus = new SqlDataAdapter(_sql2, cn);
+        daCampus.SelectCommand.CommandType = CommandType.StoredProcedure;
+        daCampus.SelectCommand.Parameters.AddWithValue("@User_Id", Session["Uid"].ToString());
+
+        daCampus.Fill(dt);
+        dtf21 = dt;
+    }
+
+}
+
+@{
+    SqlCommand cmdObj1 = new SqlCommand();
+    string CS11 = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
+
+    DataTable dtfdeal;
+    string _sqldeal = string.Empty;
+    _sqldeal = @"procGetDealer";
+    using (SqlConnection cn1 = new SqlConnection(CS11))
+    {
+        DataTable dt1 = new DataTable();
+        //var cmd = new SqlCommand(_sql, cn);
+        var daCampus1 = new SqlDataAdapter(_sqldeal, cn1);
+        daCampus1.SelectCommand.CommandType = CommandType.StoredProcedure;
+        daCampus1.SelectCommand.Parameters.AddWithValue("@OpMOde", OpMode);
+        if (typeTSM == "AM" || typeTSM == "ASM")
+        {
+            daCampus1.SelectCommand.Parameters.AddWithValue("@TSM_CSM_Code", "%");
+            daCampus1.SelectCommand.Parameters.AddWithValue("@AM_ASM_Code", Session["Uid"].ToString());
+
+        }
+        else
+        {
+            daCampus1.SelectCommand.Parameters.AddWithValue("@TSM_CSM_Code", Session["Uid"].ToString());
+            daCampus1.SelectCommand.Parameters.AddWithValue("@AM_ASM_Code", "%");
+        }
+
+        daCampus1.Fill(dt1);
+        dtfdeal = dt1;
+    }
+
+}
+
+<div id="row" style="min-height:565px; max-height:565px;">
+    @using (Html.BeginForm("BULKNotification", "KPI", FormMethod.Post))
+    {
+        <div class="col-md-12" style="min-height:565px; max-height:565px;">
+
+            <div class="portlet light bordered" id="form_wizard_1" style="min-height:565px; max-height:565px; margin-bottom:0px; padding-bottom:0px;">
+                <div class="portlet-title" style="min-height:30px; margin-bottom:0px;">
+                    <div class="caption" style="padding:0px 0; width:45.5%; float:left;">
+                        <i class="icon-layers font-blue"></i>
+                        <span class="caption-subject font-blue bold uppercase">
+                            @{ @flag } - Bulk Entry
+                        </span>
+                    </div>
+
+                    <div style="width:8%; float:left;">
+                        <span>@{ @monthDesc }</span>
+                        <input type="hidden" id="Month_main" name="Month" value="@month_id" />
+                        
+                    </div>
+                    <div style="width:36%; float:left; margin-left:1%;">
+                        <span>@{ @dealer_name }</span>
+                        <input type="hidden" id="Dealer_main" name="Dealer"  value="@dealer_id" />
+                        <input type="hidden" id="Div_main" name="Out" value="@Div" />
+                        <input type="hidden" id="LOB_main" name="LOB" value="@LOB" />
+                        <input type="hidden" id="Flag_main" name="flag" value="@flag" />
+                        <input type="hidden" id="Un_main" name="Unique_id" value="@Un_id" />
+                    </div>
+                    @{ var city = dealer_name.Split('-');
+
+
+
+                            }
+                    <div style="width:8%; float:left; margin-left:1%; margin-top:0.4%;"><b>City</b> : <span id="dealer_city">@city[1].ToString()</span></div>
+                </div>
+                <div class="portlet-body form" style="overflow:auto; max-height:523px; min-height:523px;">
+
+
+                    <div class="form-horizontal" style="min-height:521px; max-height:521px;">
+                        <div class="form-wizard" style=" min-height:476px;">
+                            <div class="form-body" style="padding:5px;">
+
+                                <div class="tab-pane active" id="tab1">
+                                    <!--h3 class="block">Provide your account details</h3-->
+
+                                    <style>
+                                        #DivisionRow {
+                                            font-size: 13px;
+                                            width: 10%;
+                                            font-weight: bold;
+                                            padding: 2px;
+                                        }
+
+                                        #LOBRow {
+                                            font-size: 12px;
+                                            width: 10%;
+                                            padding: 2px;
+                                        }
+
+                                        #KPIRow {
+                                            font-size: 12px;
+                                            width: 13%;
+                                            padding: 2px;
+                                        }
+
+                                        #row {
+                                            font-size: 12px;
+                                            padding: 2px;
+                                        }
+
+                                        #input {
+                                            width: 125px;
+                                        }
+                                    </style>
+                                    <input type="hidden" name="row_count" id="row_count" value="" />
+                                    <table class="table table-bordered" style="margin-bottom:0px;">
+                                        <thead>
+                                            <tr id="tableHeader">
+                                                @*@{if (dtf21.Columns.Count > 0)
+                                                        {
+                                                            for (int j = 0; j < dtf21.Columns.Count; j++)
+                                                            {
+                                                                if (j == 0 || j == 2) { }
+                                                                else
+                                                                {
+                                                                    <th id="DivisionRow">@dtf21.Columns[j].ToString()</th>
+                                                                }
+                                                            }
+                                                        }
+                                                    }*@
+
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tableData">
+
+
+                                            @*@{if (dtf21.Rows.Count > 0)
+                                                    {
+                                                        for (int i = 0; i < dtf21.Rows.Count; i++)
+                                                        {
+                                                            <tr>
+                                                                @if (dtf21.Columns.Count > 0)
+                                                                {
+                                                                    for (int j = 0; j < dtf21.Columns.Count; j++)
+                                                                    {
+                                                                        if (j == 0 || j == 2) { }
+                                                                        else if (j == 1 || j == 3)
+                                                                        { <td id="row" style="width:10%;"> @dtf21.Rows[i][j].ToString() </td> }
+                                                                        else
+                                                                        {
+                                                                            <td id="row" style="width:10%;"><input id="input" type="text" value="@dtf21.Rows[i][j].ToString()" /></td>
+                                                                        }
+                                                                    }
+                                                                }
+
+
+
+                                                                @*<th scope="row" id="row" style="width:10%;">@dtf21.Rows[i]["Division_Id"].ToString()</th>
+                                                                <td id="row" style="width:10%;">@dtf21.Rows[i]["LOB"].ToString()</td>
+                                                                <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                                <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                                <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                                <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                                <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                                <td id="row" style="width:10%;"><input id="input" type="text" value="" /></td>
+                                                            </tr>
+                                                        }
+                                                    }
+                                                }*@
+                                        </tbody>
+                                    </table>
+
+                                    @*<div class="form-group">
+                                            <label class="control-label col-md-1" style="font-weight:bold;">&nbsp;</label>
+                                            <label class="control-label col-md-3" style="font-weight:bold;">Parameter</label>
+                                            <label class="control-label col-md-2" style="font-weight:bold;">Actual</label>
+                                            <label class="control-label col-md-2" style="font-weight:bold;">Target</label>
+                                            <label class="control-label col-md-2" style="font-weight:bold;">Last Month Target</label>
+                                            <label class="control-label col-md-2" style="font-weight:bold;">Last Month Actual</label>
+                                            <!--label class="control-label col-md-2" style="font-weight:bold;">Last 12 Month Min.</label>
+                                            <label class="control-label col-md-2" style="font-weight:bold;">Last 12 Month Max.</label>
+                                            <label class="control-label col-md-2" style="font-weight:bold;">&nbsp;</label-->
+                                        </div>
+                                        <!-- row 1 start-->
+
+                                        @using System.Data;
+                                        @using System.Data.SqlClient;
+                                        @using System.Globalization;
+                                        @using System.Web;
+                                        @using DataUtilityLayer;
+                                        @using System.Configuration;
+
+                                        @{
+                                            SqlCommand cmdObj=new SqlCommand();
+                                            string uid2 = Session["Uid"].ToString();
+                                            string CS1 = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
+                                            DataTable dtf21;
+                                            string _sql2 = string.Empty;
+                                            _sql2 = @"getPendingInputData";
+                                            using (SqlConnection cn = new SqlConnection(CS1))
+                                            {
+                                                DataTable dt = new DataTable();
+                                                //var cmd = new SqlCommand(_sql, cn);
+                                                var daCampus = new SqlDataAdapter(_sql2, cn);
+                                                daCampus.SelectCommand.CommandType = CommandType.StoredProcedure;
+                                                daCampus.SelectCommand.Parameters.AddWithValue("@FW", Session["Uid"].ToString());
+
+                                                daCampus.Fill(dt);
+                                                dtf21 = dt;
+                                            }
+
+                                        }
+
+
+                                        @{if (dtf21.Rows.Count > 0)
+                                            {
+                                                for (int i = 0; i < dtf21.Rows.Count; i++)
+                                                {
+
+
+                                            <div class="form-group">
+                                                    <!--label class="control-label col-md-1" style="font-weight:bold;">&nbsp;</label-->
+                                                    <div class="col-md-1">&nbsp;</div>
+                                                    <div class="col-md-3">
+                                                            <label class="control-label" name="KPI">
+                                                        @dtf21.Rows[i]["KPI_Name"].ToString()
+                                                            </label>
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <input type="text" class="form-control" id="Actual_main" name="Actual" data-required="1" value="@dtf21.Rows[i]["Actual_Value"].ToString()"  disabled="disabled">
+                                                        <span id="error" style="color:red;display:none;">This Field is Required</span>
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <input type="text" class="form-control" name="Target" value="@dtf21.Rows[i]["Target_Value"].ToString()" disabled="disabled" />
+                                                        <!--span class="help-block"> Provide your username </span-->
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <input type="text" class="form-control" name="L_M_T" value="@dtf21.Rows[i]["Last_M_T"].ToString()" disabled="disabled" />
+                                                        <!--span class="help-block"> Provide your username </span-->
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <input type="text" class="form-control" name="L_M_A" value="@dtf21.Rows[i]["Last_M_A"].ToString()" disabled="disabled" />
+                                                        <!--span class="help-block"> Provide your username </span-->
+                                                    </div>
+                                                    <!--div class="col-md-2">&nbsp;</div-->
+                                            </div>
+                                        <!-- row 1 end-->
+                                        <!-- row 2 start-->
+                                                    }
+                                                }
+                                            }*@
+
+                                </div>
+
+
+
+                            </div>
+                        </div>
+                        <!--col-md-offset-7 -->
+                        <div class="form-actions" style="padding:5px;">
+                            <div id="row" style="margin:0px;">
+                                <div class="col-md-8">&nbsp;</div>
+                                <div class="col-md-4">
+@{if (Model.Trans.TAFlag == "False")
+    {
+        <button type="button" data-dismiss="modal" class="btn green">Dis-Approved</button>
+
+                                <input type="submit" value="Approved" name="submitButton" class="btn green button-submit" />
+                                    <!--input type="submit" value="Submit" name="submitButton" class="btn green button-submit" / -->
+        }
+    }
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+
+
+                </div>
+
+            </div>
+        </div>
+                                }
+</div>
+<!--pop up -->
+<script src="../assets/pages/scripts/ui-modals.min.js" type="text/javascript"></script>
+<script src="../assets/pages/scripts/form-validation.min.js" type="text/javascript"></script>
+<script src="../assets/global/plugins/jquery-validation/js/jquery.validate.min.js" type="text/javascript"></script>
+<script src="../assets/global/plugins/jquery-validation/js/additional-methods.min.js" type="text/javascript"></script>
+
+

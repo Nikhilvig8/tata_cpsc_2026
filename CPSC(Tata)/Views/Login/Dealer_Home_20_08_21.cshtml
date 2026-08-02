@@ -1,0 +1,116 @@
+﻿
+@{
+    Layout = null;
+    string ticket = Session["ticket"].ToString();
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Home | TATA Motors</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv='X-Frame-Options' content='allow' />
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <meta content="Preview page of Metronic Admin Theme #1 for " name="description" />
+    <meta content="" name="author" />
+
+    <!-- BEGIN GLOBAL MANDATORY STYLES -->
+
+    <link href="../assets/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    
+    <link rel="shortcut icon" href="favicon.ico" />
+    <script type="text/javascript">
+   function preventBack(){window.history.forward();}
+    setTimeout("preventBack()", 0);
+    window.onunload = function () { null };
+    history.pushState(null, null, document.URL);
+    window.addEventListener('popstate', function () {
+        history.pushState(null, null, document.URL);
+    });
+
+    </script>
+    <style type="text/css">
+  td, th {
+    padding: 10px;
+}
+
+  a:hover {
+  text-decoration: none;
+}
+    </style>
+
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="navbar navbar-fixed-top col-lg-12 col-md-12 col-xs-12 col-sm-12" style="min-height:42px; border:1px solid #eee; background:#f0f0f0;">
+                <div style="margin-top: 0.6%;margin-left: 2%; font-weight: bold; font-family: times new roman; color: red; float:left;">
+                    <span><img src="~/assets/logo/tata-logo.png" /></span>
+                </div>
+
+                <div style="margin-top: 0.2%;margin-left: 2%; font-weight: bold; font-family: times new roman; color: red; float:right;height:34px; width:34px;">
+                    <a href='~/PDF/read.pdf' target='_blank' style="color:#3598dc;"><img src="~/assets/Dealer_Home/TATA_dashboard_qes.png" style="height:24px; width:24px; margin-left:17%; margin-top:17%;" title="To know more about the parameters,please click" /></a>
+                </div>
+
+
+
+                <div style="margin-top: 0.2%;margin-left: 2%; font-weight: bold; font-family: times new roman; color: red; float:right; height:34px; width:34px;">
+                    <a href="@Url.Action("Login","Login")"><img src="~/assets/Dealer_Home/TATA_dashboard_Logout.png" style="height:24px; width:24px; margin-left:100%; margin-top:17%;" title="Logout" /></a>
+                </div>
+
+                <div style="margin-top: 0.2%;margin-left: 2%; font-weight: bold; font-family: times new roman; color: red; float:right; height:34px; width:34px;">
+                    <a href="@Url.Action("Insert_Feedback","Feedback")"><img src="~/assets/Dealer_Home/TATA_dashboard_FD.png" style="height:24px; width:24px; margin-left:178%; margin-top:17%;" title="Feedback" /></a>
+                </div>
+
+                <div style="margin-top: 0.2%;margin-left: 2%; font-weight: bold; font-family: times new roman; color: red; float:right;height:34px; width:34px;">
+                    <a href="@Url.Action("Insert_Feedback_Status","Feedback")"><img src="~/assets/Dealer_Home/TATA_dashboard_FDS.png" style="height:24px; width:24px; margin-left:256%; margin-top:17%;" title="Feedback Status" /></a>
+                </div>
+
+                <div style="margin-top: 0.2%;margin-left: 2%; font-weight: bold; font-family: times new roman; color: red; float:right;
+					height:34px; width:34px;">
+                    <a href="@Url.Action("Dealer_Home", "Login")"><img src="~/assets/Dealer_Home/TATA_dashboard_home.png" style="height:24px; width:24px; margin-left:335%; margin-top:17%;" title="Home" /></a>
+                </div>
+
+
+            </div>
+            
+            <div class="col-lg-12 col-md-12 col-xs-12 col-sm-12 container-fluid" style="background-image:url(../../assets/Dealer_Home/TATA_dashboard_back.png);text-align:left;margin-top:-1px;min-height:663px;">
+                
+                <div class="row" style="margin-top:12%">
+                    <div class="col-md-3">
+                        &nbsp;
+                    </div>
+                    <div class="col-md-6">
+                        <div class="table-responsive">
+
+                            <table  border="0" cellspacing="0" cellpadding="0">
+
+                                <tr>
+                                    <td><img src="~/assets/Dealer_Home/TATA_dashboard_Con.png" class="img-responsive" ><br/><div style="border:solid;border-color: #fff;margin-top:-22px;height:110px;text-align:center;padding-top:21%"><a style="color:#fff;border-bottom:1px solid #fff;" href="@Url.Action("Dealer_Home", "Login",new { dashtype="Con"})">Concurrent Dashboard</a></div></td>
+                                    <td><img src="~/assets/Dealer_Home/TATA_dashboard_Month.png" class="img-responsive"><br/><div style="border:solid;border-color: #fff;margin-top:-22px;height:110px;text-align:center;color:#fff;padding-top:11%">Monthly Scorecard<br /><a style="color:#fff;border-bottom:1px solid #fff;" href="@Url.Action("Dealer_Home", "Login" ,new { dashtype="June15"})">July'15-June'17</a><br /><a style="color:#fff;border-bottom:1px solid #fff;" href="@Url.Action("Dealer_Home", "Login",new { dashtype="July17"})">July'17-March'18</a><br /><a style="color:#fff;border-bottom:1px solid #fff;" href="@Url.Action("Dealer_Home", "Login",new { dashtype="April18"})">April’18 – June’19</a></div></td>
+                                    <td><img src="~/assets/Dealer_Home/TATA_dashboard_Month.png" class="img-responsive"><br/><div style="border:solid;border-color: #fff;margin-top:-22px;height:110px;text-align:center;color:#fff;padding-top:21%">Monthly Dashboard<br /><a style="color:#fff;border-bottom:1px solid #fff;" href="@Url.Action("Dealer_Home", "Login",new { dashtype="Qtr"})">July’19 Onwards</a></div></td>			
+				    <!--<td><img src="~/assets/Dealer_Home/TATA_dashboard_Qur.png" class="img-responsive"><br/><div style="border:solid;border-color: #fff;margin-top:-22px;height:110px;text-align:center;padding-top:21%"><a style="color:#fff;border-bottom:1px solid #fff;" href="@Url.Action("Dealer_Home", "Login",new { dashtype="Qtr"})">Quarterly Scorecard</a></div></td>-->
+                                </tr>
+                             
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        &nbsp;
+                    </div>
+                </div>
+                </div>
+
+        </div>
+    </div>
+
+    <script src="../assets/global/plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+
+
+</body>
+
+</html>

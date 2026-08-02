@@ -1,0 +1,114 @@
+
+.fa-divide,
+.fa-multiple,
+.fa-addition,
+.fa-less-than,
+.fa-greater-than,
+.fa-less-than-equal,
+.fa-greater-than-equal,
+.fa-equal {
+font-family: Arial;
+font-size: 18px;
+font-weight: bold;
+}
+
+.fa-divide:before {
+    content: "\00f7";
+}
+.fa-multiple:before {
+    content: "x";
+}
+
+.fa-less-than:before {
+    content: "<";
+}
+
+.fa-greater-than:before {
+    content: ">";
+}
+
+.fa-less-than-equal:before {
+    content: "\2264";
+}
+
+.fa-greater-than-equal:before {
+    content: "\2265";
+}
+
+.fa-equal:before {
+    content: "\003d";
+}
+
+.fa-addition:before {
+    content: "\002b";
+}
+
+/**
+ * Profile image component
+ */
+.profile-header-container{
+    margin: 0 auto;
+    text-align: center;
+}
+
+.profile-header-img {
+    padding: 10px;
+}
+
+.profile-header-img > img.img-circle {
+    width: 80px;
+    height: 80px;
+    border: 2px solid #51D2B7;
+}
+
+.profile-header {
+    margin-top: 25px;
+}
+
+/**
+ * Ranking component
+ */
+.rank-label-container {
+    margin-top: -15px;
+    /* z-index: 1000; */
+    text-align: center;
+}
+
+.rank-label-container-info {
+    margin-top: -1px;
+    /* z-index: 1000; */
+    text-align: center;
+	margin-bottom: 7px;
+}
+
+.label.label-default.rank-label {
+    background-color: rgb(81, 210, 183);
+    padding: 5px 10px 5px 10px;
+	/*display: block;*/
+    border-radius: 27px;
+	-moz-border-radius: 27px;
+    -webkit-border-radius: 27px;
+  
+}
+.label.label-default.rank-label-info{
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 7px;
+}
+
+
+#logo_sidebar {
+					position: fixed;
+					
+					display: inline-block;
+					bottom: 18px;		
+					left: 35px;
+}
+
+.sidebar_logo{
+		height: 100px;
+		width: 150px; 				
+}
+
+.logo_sidebar_content {
+}

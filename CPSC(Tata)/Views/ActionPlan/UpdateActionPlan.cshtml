@@ -1,0 +1,638 @@
+﻿@model IEnumerable<CPSC.Models.ActionPlanModel>
+
+@{
+    ViewBag.Title = "Update Actiion Plan";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!DOCTYPE html>
+@using System.Data;
+@using System.Data.SqlClient;
+@using System.Globalization;
+@using System.Web;
+@using DataUtilityLayer;
+@using System.Configuration;
+@{
+    SqlCommand cmdObj = new SqlCommand();
+    string uid2 = Session["Uid"].ToString();
+    string CS1 = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
+
+    string typeTSM = Session["Type"].ToString();
+    string type = string.Empty;
+    string OpMode = string.Empty;
+    if (typeTSM == "AM" || typeTSM == "TSM" || typeTSM == "RM")
+    {
+        OpMode = "1";
+
+    }
+    else
+    {
+        OpMode = "2";
+    }
+
+
+}
+
+@{
+    SqlCommand cmdObj1 = new SqlCommand();
+    string CS11 = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
+
+    DataTable dtfdeal;
+    string _sqldeal = string.Empty;
+    _sqldeal = @"[procGetDealerWithCode]";
+    using (SqlConnection cn1 = new SqlConnection(CS11))
+    {
+        DataTable dt1 = new DataTable();
+        //var cmd = new SqlCommand(_sql, cn);
+        var daCampus1 = new SqlDataAdapter(_sqldeal, cn1);
+        daCampus1.SelectCommand.CommandType = CommandType.StoredProcedure;
+        daCampus1.SelectCommand.Parameters.AddWithValue("@OpMOde", OpMode);
+        if (typeTSM == "AM" || typeTSM == "ASM")
+        {
+            daCampus1.SelectCommand.Parameters.AddWithValue("@TSM_CSM_Code", "%");
+            daCampus1.SelectCommand.Parameters.AddWithValue("@AM_ASM_Code", Session["Uid"].ToString());
+
+        }
+        else
+        {
+            daCampus1.SelectCommand.Parameters.AddWithValue("@TSM_CSM_Code", Session["Uid"].ToString());
+            daCampus1.SelectCommand.Parameters.AddWithValue("@AM_ASM_Code", "%");
+        }
+
+        daCampus1.Fill(dt1);
+        dtfdeal = dt1;
+    }
+
+}
+
+
+<div class="col-md-12" style="min-height:565px; max-height:565px;">
+
+    <div class="portlet light bordered" id="form_wizard_1" style="min-height:565px; max-height:565px; margin-bottom:0px; padding-bottom:0px;">
+
+        <div class="portlet-title" style="min-height:30px; margin-bottom:0px;">
+            <div class="caption" style="padding:0px 0; width:45.5%; float:left;">
+                <i class="icon-layers font-blue"></i>
+                <span class="caption-subject font-blue bold uppercase">
+                    UPDATE ACTION PLAN
+                </span>
+                <br />
+                <br />
+                <div>
+
+                    <div><span id="ErrorMsg" style="color:red"></span></div>
+                </div>
+            </div>
+            <div style="width:13%; float:left;">
+                Total Score: <label id="lblScore" style="font:bold">NA</label>
+            </div>
+            <div style="width:13%; float:left;">
+                <input type="hidden" id="year" value="" name="year" />
+                <select id="Month_main" name="Month" class="form-control" style="padding:0px 12px; height:25px;">
+                    <option value="">Month</option>
+                    @{
+                        DateTime RTarget_date = Convert.ToDateTime(Session["Target_date"].ToString());
+                        string RYear = RTarget_date.AddMonths(0).Year.ToString();
+                        string Rmonth = RTarget_date.ToString("MMM");
+
+                        string Ym = RYear + "-" + Rmonth;
+                        SqlCommand cmdObj2 = new SqlCommand();
+                        string CS12 = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
+
+                        DataTable dtfMonth;
+                        string _sql22 = string.Empty;
+                        _sql22 = @"[getMonthsAction]";
+                        using (SqlConnection cn2 = new SqlConnection(CS12))
+                        {
+                            var daCampusMonth = new SqlDataAdapter(_sql22, cn2);
+                            DataTable dtMonth = new DataTable();
+                            daCampusMonth.SelectCommand.CommandType = CommandType.StoredProcedure;
+                            daCampusMonth.SelectCommand.Parameters.AddWithValue("@CalledFor", "Target");
+                            daCampusMonth.Fill(dtMonth);
+
+                            dtfMonth = dtMonth;
+                        }
+
+                    }
+                    @{ if (dtfMonth.Rows.Count > 0)
+                        {
+                            for (int i = 0; i < dtfMonth.Rows.Count; i++)
+                            {
+                                <option value="@dtfMonth.Rows[i]["ForDataEntryMonthValue"]" @(@dtfMonth.Rows[i]["MonthDesc"].ToString() == @Ym ? "Selected" : " ")>@dtfMonth.Rows[i]["MonthDesc"] </option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
+            <div style="width:27%; float:left; margin-left:1%;">
+                <select id="Dealer_main" name="Dealer" class="form-control" style="padding:0px 12px; height:25px;">
+                    <option value="">Dealer</option>
+                    @{
+                        DateTime target_date = Convert.ToDateTime(Session["Target_date"].ToString());
+                        string FYear = target_date.AddMonths(0).Year.ToString();
+                        string Fmonth = target_date.AddMonths(0).Month.ToString();
+                        SqlCommand cmdObj3 = new SqlCommand();
+                        string CS13 = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
+
+                        DataTable dtfsel;
+                        string _sql3 = string.Empty;
+                        _sql3 = @"getFirstBulkEntryPoint";
+                        using (SqlConnection cn3 = new SqlConnection(CS13))
+                        {
+                            var daCampussel = new SqlDataAdapter(_sql3, cn3);
+                            DataTable dtsel = new DataTable();
+                            daCampussel.SelectCommand.CommandType = CommandType.StoredProcedure;
+                            daCampussel.SelectCommand.Parameters.AddWithValue("@ForYear", FYear);
+                            daCampussel.SelectCommand.Parameters.AddWithValue("@ForMonth", Fmonth);
+                            daCampussel.SelectCommand.Parameters.AddWithValue("@UserId", Session["Uid"].ToString());
+                            daCampussel.SelectCommand.Parameters.AddWithValue("@Target_Actual", "Target");
+
+                            daCampussel.Fill(dtsel);
+
+                            dtfsel = dtsel;
+                        }
+
+                    }
+                    @{
+                        if (dtfsel.Rows.Count > 0)
+                        {
+
+                            for (int k = 0; k < dtfdeal.Rows.Count; k++)
+                            {
+                                <option value="@dtfdeal.Rows[k]["Dealer_Code"].ToString()" @(@dtfsel.Rows[0]["Dealer_Code"].ToString() == @dtfdeal.Rows[k]["Dealer_Code"].ToString() ? "Selected" : " ")>@dtfdeal.Rows[k]["Dealer_Name"].ToString()</option>
+                            }
+                        }
+                        else
+                        {
+                            for (int k = 0; k < dtfdeal.Rows.Count; k++)
+                            {
+                                <option value="@dtfdeal.Rows[k]["Dealer_Code"].ToString()">@dtfdeal.Rows[k]["Dealer_Name"].ToString()</option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+
+
+        <div class="form-horizontal" style="min-height:521px; max-height:521px;">
+            <div class="form-wizard" style=" min-height:476px;">
+                <div class="form-body" style="padding:5px;">
+                    <div class="tab-pane active table-responsive" style="max-height:450px" id="tab1">
+                        <table class="table table-bordered" style="margin-bottom:0px;" id="ActionPlanDetails">
+
+                            <tr style="white-space: nowrap">
+                                @*<th>S. NO.</th>*@
+
+                                <th>Parameters</th>
+                                <th>Metric Name</th>
+                                <th>Max Points</th>
+                                <th>Para Score RYG</th>
+
+
+                                <th>Action Plan</th>
+                                <th>Responsibility</th>
+                                <th>Timeline</th>
+                                <th>Update Status</th>
+                                <th>Remarks</th>
+
+                            </tr>
+
+
+                            @foreach (var actionPlanModel in Model)
+                            {
+
+                                <tr id="ActionPlanDetails" class="ActionPlanDetails">
+
+                                    @*<input type="hidden" id="TransId" class="TransId" value="" />*@
+                                    @*<td><label id="RowNo">@actionPlanModel.RowNo</label></td>*@
+                                    <td><label id="Parameter">@actionPlanModel.Parameter</label></td>
+                                    <td><label id="MetricName">@actionPlanModel.MetricName</label></td>
+                                    <td><label id="MaxPoints">@actionPlanModel.MaxPoint</label></td>
+                                    <td><label id="ParaScoreRYG">@actionPlanModel.ParaScoreRYG</label></td>
+
+                                    <td>@Html.TextBox("ActionPlan", actionPlanModel.ActionPlan, new { @class = "form-control", @id = "ActionPlan" })  </td>
+                                    <td>@Html.TextBox("Responsibility", actionPlanModel.Responsibility, new { @class = "form-control", @id = "Responsibility" })  </td>
+                                    <td>@Html.TextBox("Timeline", actionPlanModel.Timeline, new { @class = "form-control cal", @id = "Timeline" })  </td>
+
+                                    <td>
+                                        @Html.DropDownList("CurrentStatus", (IEnumerable<SelectListItem>)ViewBag.ActionPlans, new { @id = "CurrentStatus" })
+                                    </td>
+                                    <td>@Html.TextBox("Observation", actionPlanModel.Observation, new { @class = "form-control", @id = "Observation" })  </td>
+
+
+
+                                </tr>
+                            }
+                            </>
+                        </table>
+                    </div>
+
+
+                </div>
+
+            </div>
+            <div id="row" style="margin:0px;">
+                <div class="col-md-8">&nbsp;</div>
+                <div class="col-md-4">
+                    <button class="btn green button-submit" id="Cancel">Cancel</button>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <button class="btn green button-submit" id="Update">Save</button>
+                    @{
+                        string Type = Session["Type"].ToString();
+
+                    }
+                    <input type="hidden" id="Type" value="@Type">
+                </div>
+
+            </div>
+        </div>
+
+        <br />
+
+    </div>
+
+</div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        //$('#Date').datepicker();
+    });
+</script>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $("#Dealer_main").change(function () {
+            var Type = $('#Type').val();
+            $('#ErrorMsg').text('');
+            $('#ErrorMsg').css('color', 'red');
+            $("#wait").css("display", "block");
+            //var DealerCode = $('#Dealer_main').val()
+            var DealerCode = jQuery("#Dealer_main option:selected").val();
+            var Date = jQuery("#Month_main option:selected").text();
+
+            $.ajax
+                ({
+
+                    url: "/ActionPlan/BindActionPlanDetailsForUpdate",
+                    type: "Get",
+                    data: { DealerCode: "" + DealerCode + "", Date: "" + Date + "" },
+                    success: function (data) {
+                        debugger;
+                        var item = JSON.parse(data);
+
+                        if (item == '' || item == null || item == []) {
+                            alert("Records are not found for selected dealer.");
+                            //var url = "/ActionPlan/UpdateActionPlan";
+                            //window.location.href = url;
+                            $('#Update').hide();
+                            $('#Cancel').hide();
+                        }
+                        else {
+                            $('#Update').show();
+                            $('#Cancel').show();
+                        }
+
+                        //var Submited = item[0].Submited;
+                        var Score_Dealer = item[0].Score_Dealer;
+                        $('#lblScore').text(Score_Dealer);
+
+                        var htm = '';
+
+                        htm += '<tr>';
+                        htm += '<th>Parameters </th>';
+                        htm += '<th>Metric Name</th>';
+                        htm += '<th>Max Points</th>';
+                        htm += '<th>Para Score RYG</th>';
+
+
+
+                        htm += '<th>Action Plan</th>';
+                        htm += '<th>Responsibility</th>';
+                        htm += '<th>Timeline</th>';
+
+                        htm += '<th>Update Status</th>';
+                        htm += '<th>Remarks</th>';
+
+                        //htm += '<th>Data Status</th>';
+
+
+                        htm += '</tr>';
+                        for (var i = 0; i < item.length; i++) {
+
+                            var maxPoint = parseInt(item[i].MaxPoint);
+                            var ScoreDP = parseInt(item[i].ParaScoreRYG);
+                            var AvgTotal = 0;
+
+                            AvgTotal = ((ScoreDP / maxPoint) * 100)
+                            //alert(flag);
+
+                            htm += '<tr class="ActionPlanDetails">';
+
+                            htm += '<td><input type="hidden" id="AID" value="' + item[i].AID + '"><label id="Parameter">' + item[i].Parameter + '</label></td>';
+                            htm += '<td><label id="MetricName">' + item[i].MetricName + '</label></td>';
+                            htm += '<td><label id="MaxPoint">' + item[i].MaxPoint + '</label></td>';
+                            if (AvgTotal >= 60) {
+                                htm += '<td style="background-color: green;"><label style="-webkit-text-stroke: medium;" id="ParaScoreRYG">' + item[i].ParaScoreRYG + '</label</td>';
+                            }
+                            else if (AvgTotal >= 40 && AvgTotal < 60) {
+                                htm += '<td style="background-color: yellow;"><label style="-webkit-text-stroke: medium;" id="ParaScoreRYG">' + item[i].ParaScoreRYG + '</label</td>';
+                            }
+                            else {
+                                htm += '<td style="background-color: red;"><label style="-webkit-text-stroke: medium;" id="ParaScoreRYG">' + item[i].ParaScoreRYG + '</label</td>';
+
+                            }
+
+                            //htm += '<td> <input type="text" id="ParaScoreRYG" value="' + item[i].ParaScoreRYG + '" disabled></td>';
+
+
+                            htm += '<td> <label  id="ActionPlan" >' + item[i].ActionPlan + '</label></td>';
+                            htm += '<td> <label  id="Responsibility" >' + item[i].Responsibility + '</label></td>';
+                            htm += '<td> <lable id="Timeline" >' + item[i].Timeline + '</label></td>';
+
+                            if (item[i].CurrentStatus == "NA" || item[i].CurrentStatus == "0" || item[i].CurrentStatus == "") {
+                                htm += '<td> <select id="CurrentStatus" class="hid" disabled><option value="0" selected>NA</option > <option value="1" >Completed</option > <option value="2">In progress</option> <option value="3">Pending</option> </select ></td>';
+                            }
+                            else if (item[i].CurrentStatus == "Completed" || item[i].CurrentStatus == "1") {
+                                htm += '<td> <select id="CurrentStatus" class="hid" disabled><option value="0" >NA</option > <option value="1" selected>Completed</option > <option value="2">In progress</option> <option value="3">Pending</option> </select ></td>';
+                            }
+                            else if (item[i].CurrentStatus == "In progress" || item[i].CurrentStatus == "2") {
+                                htm += '<td> <select id="CurrentStatus" class="hid" disabled><option value="0" >NA</option > <option value="1" >Completed</option > <option value="2" selected>In progress</option> <option value="3">Pending</option> </select ></td>';
+                            }
+                            else if (item[i].CurrentStatus == "Pending" || item[i].CurrentStatus == "3") {
+                                htm += '<td> <select id="CurrentStatus" class="hid" disabled><option value="0" >NA</option > <option value="1" >Completed</option > <option value="2">In progress</option> <option value="3" selected>Pending</option> </select ></td>';
+                            }
+
+                            htm += '<td> <input type="text" id="Remarks" class="hid" value="' + item[i].Remarks + '"></td>';
+
+                            //htm += '<td><label id="DataType" width="193px">' + item[i].DataType + '</label>';
+                            htm += '</tr>';
+
+                        }
+                        //if (Type == 'SH') {
+                        //    for (var i = 0; i < item.length; i++) {
+                        //        $('#Remarks').prop('disabled', false);
+                        //        $('#CurrentStatus').prop('disabled', false);
+                        //    }
+                        //    $('#Update').show();
+                        //    $('#Cancel').show();
+                        //}
+                        //else {
+                        //    for (var i = 0; i < item.length; i++) {
+                        //        $('#Remarks').prop('disabled', true);
+                        //        $('#CurrentStatus').prop('disabled', true);
+                        //    }
+                        //    $('#Update').hide();
+                        //    $('#Cancel').hide();
+                        //}
+                        $('#ActionPlanDetails').html(htm);
+
+                        if (Type == 'SH') {
+                            for (var i = 0; i < item.length; i++) {
+                                $('.hid').prop('disabled', false);
+                            }
+                            $('#Update').show();
+                            $('#Cancel').show();
+                        }
+                        else {
+                            for (var i = 0; i < item.length; i++) {
+                                $('.hid').prop('disabled', true);
+                            }
+                            $('#Update').hide();
+                            $('#Cancel').hide();
+                        }
+
+
+                    },
+                    Error: function (err) {
+                        Console.log(err);
+                    }
+                });
+
+
+        });
+
+        $("#Month_main").change(function () {
+            var Type = $('#Type').val();
+            $('#ErrorMsg').text('');
+            $('#ErrorMsg').css('color', 'red');
+            $("#wait").css("display", "block");
+            var DealerCode = jQuery("#Dealer_main option:selected").val();
+            var Date = jQuery("#Month_main option:selected").text();
+
+            $.ajax
+                ({
+                    url: "/ActionPlan/BindActionPlanDetailsForUpdate",
+                    type: "Get",
+                    data: { DealerCode: "" + DealerCode + "", Date: "" + Date + "" },
+                    success: function (data) {
+                        debugger;
+                        var item = JSON.parse(data);
+
+                        if (item == '' || item == null || item == []) {
+                            alert("Records are not found for selected date.");
+                            //var url = "/ActionPlan/UpdateActionPlan";
+                            //window.location.href = url;
+                            $('#Update').hide();
+                            $('#Cancel').hide();
+                        }
+                        else {
+                            $('#Update').show();
+                            $('#Cancel').show();
+                        }
+
+                        //var Submited = item[0].Submited;
+                        var Score_Dealer = item[0].Score_Dealer;
+                        $('#lblScore').text(Score_Dealer);
+
+                        var htm = '';
+
+                        htm += '<tr>';
+                        htm += '<th>Parameters </th>';
+                        htm += '<th>Metric Name</th>';
+                        htm += '<th>Max Points</th>';
+                        htm += '<th>Para Score RYG</th>';
+
+
+
+                        htm += '<th>Action Plan</th>';
+                        htm += '<th>Responsibility</th>';
+                        htm += '<th>Timeline</th>';
+
+                        htm += '<th>Update Status</th>';
+                        htm += '<th>Remarks</th>';
+                        //htm += '<th>Data Status</th>';
+
+
+                        htm += '</tr>';
+                        for (var i = 0; i < item.length; i++) {
+
+                            var maxPoint = parseInt(item[i].MaxPoint);
+                            var ScoreDP = parseInt(item[i].ParaScoreRYG);
+                            var AvgTotal = 0;
+
+                            AvgTotal = ((ScoreDP / maxPoint) * 100)
+                            //alert(flag);
+
+                            htm += '<tr class="ActionPlanDetails">';
+
+                            htm += '<td><input type="hidden" id="AID" value="' + item[i].AID + '"><label id="Parameter">' + item[i].Parameter + '</label></td>';
+                            htm += '<td><label id="MetricName">' + item[i].MetricName + '</label></td>';
+                            htm += '<td><label id="MaxPoint">' + item[i].MaxPoint + '</label></td>';
+
+                            if (AvgTotal >= 60) {
+                                htm += '<td style="background-color: green;"><label style="-webkit-text-stroke: medium;" id="ParaScoreRYG">' + item[i].ParaScoreRYG + '</label</td>';
+                            }
+                            else if (AvgTotal >= 40 && AvgTotal < 60) {
+                                htm += '<td style="background-color: yellow;"><label style="-webkit-text-stroke: medium;" id="ParaScoreRYG">' + item[i].ParaScoreRYG + '</label</td>';
+                            }
+                            else {
+                                htm += '<td style="background-color: red;"><label style="-webkit-text-stroke: medium;" id="ParaScoreRYG">' + item[i].ParaScoreRYG + '</label</td>';
+
+                            }
+
+
+                            htm += '<td> <label id="ActionPlan" >' + item[i].ActionPlan + '</label></td>';
+                            htm += '<td> <label id="Responsibility" >' + item[i].Responsibility + '</label></td>';
+                            //htm += '<td><div class="input-group date" data-provide="datepicker" data-date-format="dd/mm/yyyy"> <input type="text" id="Timeline" value="' + item[i].Timeline + '" ><div class="input-group-addon"><span class="glyphicon glyphicon-th"></span></div></div></td>';
+                            htm += '<td> <lable id="Timeline" >' + item[i].Timeline + '</label></td>';
+
+                            if (item[i].CurrentStatus == "NA" || item[i].CurrentStatus == "0" || item[i].CurrentStatus == "") {
+                                htm += '<td> <select id="CurrentStatus" class="hid"><option value="0" selected>NA</option > <option value="1">Completed</option > <option value="2">In progress</option> <option value="3">Pending</option> </select ></td>';
+                            }
+                            else if (item[i].CurrentStatus == "Completed" || item[i].CurrentStatus == "1") {
+                                htm += '<td> <select id="CurrentStatus" class="hid"><option value="0">NA</option > <option value="1" selected>Completed</option > <option value="2">In progress</option> <option value="3">Pending</option> </select ></td>';
+                            }
+                            else if (item[i].CurrentStatus == "In progress" || item[i].CurrentStatus == "2") {
+                                htm += '<td> <select id="CurrentStatus" class="hid"><option value="0">NA</option > <option value="1" >Completed</option > <option value="2" selected>In progress</option> <option value="3">Pending</option> </select ></td>';
+                            }
+                            else if (item[i].CurrentStatus == "Pending" || item[i].CurrentStatus == "3") {
+                                htm += '<td> <select id="CurrentStatus"class="hid" ><option value="0" >NA</option > <option value="1"  >Completed</option > <option value="2">In progress</option> <option value="3" selected>Pending</option> </select ></td>';
+                            }
+
+                            htm += '<td> <input type="text" id="Remarks" class="hid" value="' + item[i].Remarks + '"></td>';
+
+
+                            //htm += '<td><label id="DataType" width="193px">' + item[i].DataType + '</label>';
+                            htm += '</tr>';
+
+                        }
+
+
+                        $('#ActionPlanDetails').html(htm);
+
+                        if (Type == 'SH') {
+                            for (var i = 0; i < item.length; i++) {
+                                $('.hid').prop('disabled', false);
+                            }
+                            $('#Update').show();
+                            $('#Cancel').show();
+                        }
+                        else {
+                            for (var i = 0; i < item.length; i++) {
+                                $('.hid').prop('disabled', true);
+                            }
+                            $('#Update').hide();
+                            $('#Cancel').hide();
+                        }
+
+
+                    },
+                    Error: function (err) {
+                        Console.log(err);
+                    }
+                });
+
+
+        });
+
+        $("#Update").click(function () {
+            debugger;
+            let data = [];
+            var ErrorCount = 0;
+            $('#Update').prop('disabled', true);
+            $('#Update').css('background-color', '#000066');
+
+            var DealerCode = jQuery("#Dealer_main option:selected").val();
+            var Date = jQuery("#Month_main option:selected").text();
+
+
+            $('.ActionPlanDetails').each(function () {
+                debugger;
+
+                let AID = $(this).find('#AID').val();
+                let Parameter = $(this).find('#Parameter').text();
+                let MetricName = $(this).find('#MetricName').text();
+                let MaxPoint = $(this).find('#MaxPoint').text();
+                let ParaScoreRYG = $(this).find('#ParaScoreRYG').text();
+                let CurrentStatus = $(this).find('#CurrentStatus').val();
+                let Observation = $(this).find('#Observation').val();
+                let Remarks = $(this).find('#Remarks').val();
+                let ActionPlan = $(this).find('#ActionPlan').val();
+                let Responsibility = $(this).find('#Responsibility').val();
+                let Timeline = $(this).find('#Timeline').val();
+                let DataType = $(this).find('#DataType').text();
+
+
+                //if (CurrentStatus == '' || CurrentStatus == null) {
+                //    $('#ErrorMsg').text('Please enter Current Status.');
+                //    ErrorCount = 1;
+                //    $('#Update').prop('disabled', false);
+                //}
+                //else if (Remarks == '' || Remarks == null) {
+                //    $('#ErrorMsg').text('Please enter Remarks.');
+                //    ErrorCount = 1;
+                //    $('#Update').prop('disabled', false);
+                //}
+                //else {
+                //    ErrorCount = 0;
+                //}
+
+                data.push({
+
+                    AID: AID,
+                    CurrentStatus: CurrentStatus,
+                    Remarks: Remarks,
+                    DealerCode: DealerCode,
+                    Date: Date
+
+                });
+            });
+
+            //if (ErrorCount == '1') {
+            //    return;
+            //};
+
+            var json = JSON.stringify(data);
+
+            $("#wait").css("display", "block");
+            $.ajax
+                ({
+                    url: "/ActionPlan/PostUpdateActionPlan?json=" + json + "",
+                    type: "Get",
+                    success: function (drr) {
+                        alert('Record has been update successfully.');
+                        var url = "/ActionPlan/UpdateActionPlan";
+                        $('#Update').prop('disabled', false);
+                        window.location.href = url;
+                    },
+                    Error: function (err) {
+                        Console.log(err);
+                    }
+                });
+        });
+
+        $("#Cancel").click(function () {
+            var url = "/ActionPlan/UpdateActionPlan";
+            window.location.href = url;
+        });
+
+    });
+
+</script>
+
+
+
+
+

@@ -1,0 +1,261 @@
+﻿@model InputOutput.Models.Users
+@{
+    Layout = null;
+
+    string ticket = Session["ticket"].ToString();
+    string dashtype = Session["dashtype"].ToString();
+}
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Tableau Dashboard | TATA Motors</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv='X-Frame-Options' content='allow' />
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <meta content="Preview page of Metronic Admin Theme #1 for " name="description" />
+    <meta content="" name="author" />
+
+    <!-- BEGIN GLOBAL MANDATORY STYLES -->
+
+    <link href="../assets/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+
+    <link rel="shortcut icon" href="favicon.ico" />
+    <script type="text/javascript">
+        function preventBack() { window.history.forward(); }
+        setTimeout("preventBack()", 0);
+        window.onunload = function () { null };
+        history.pushState(null, null, document.URL);
+        window.addEventListener('popstate', function () {
+            history.pushState(null, null, document.URL);
+        });
+
+    </script>
+
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="navbar navbar-fixed-top col-lg-12 col-md-12 col-xs-12 col-sm-12" style="min-height:42px; border:1px solid #eee; background:#f0f0f0;">
+                <div style="margin-top: 0.6%;margin-left: 2%; font-weight: bold; font-family: times new roman; color: red; float:left;">
+                    <span><img src="~/assets/logo/tata-logo.png" /></span>
+                </div>
+
+                <div style="margin-top: 0.2%;margin-left: 2%; font-weight: bold; font-family: times new roman; color: red; float:right;height:34px; width:34px;">
+                    <a href='~/PDF/read.pdf' target='_blank' style="color:#3598dc;"><img src="~/assets/Dealer_Home/TATA_dashboard_qes.png" style="height:24px; width:24px; margin-left:17%; margin-top:17%;" title="To know more about the parameters,please click" /></a>
+                </div>
+
+
+
+                <div style="margin-top: 0.2%;margin-left: 2%; font-weight: bold; font-family: times new roman; color: red; float:right; height:34px; width:34px;">
+                    <a href="@Url.Action("Login", "Login")"><img src="~/assets/Dealer_Home/TATA_dashboard_Logout.png" style="height:24px; width:24px; margin-left:100%; margin-top:17%;" title="Logout" /></a>
+                </div>
+                @{
+                    if (Session["Type"].ToString() == "DL")
+                    {
+
+                        <div style="margin-top: 0.2%;margin-left: 2%; font-weight: bold; font-family: times new roman; color: red; float:right; height:34px; width:34px;">
+                            <a href="@Url.Action("Insert_Feedback","Feedback")"><img src="~/assets/Dealer_Home/TATA_dashboard_FD.png" style="height:24px; width:24px; margin-left:178%; margin-top:17%;" title="Feedback" /></a>
+                        </div>
+
+                        <div style="margin-top: 0.2%;margin-left: 2%; font-weight: bold; font-family: times new roman; color: red; float:right;height:34px; width:34px;">
+                            <a href="@Url.Action("Insert_Feedback_Status","Feedback")"><img src="~/assets/Dealer_Home/TATA_dashboard_FDS.png" style="height:24px; width:24px; margin-left:256%; margin-top:17%;" title="Feedback Status" /></a>
+                        </div>
+                    }
+                }
+                @{
+                    if (Session["Type"].ToString() != "DL")
+                    {
+                        <div style="margin-top: 0.2%;margin-left: 2%; font-weight: bold; font-family: times new roman; color: red; float:right;
+					      height:34px; width:34px;">
+
+                            <a href="@Url.Action("Index", "Home")"><img src="~/assets/Dealer_Home/TATA_dashboard_home.png" style="height:24px; width:24px; margin-left:178%; margin-top:17%;" title="DCL" /></a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div style="margin-top: 0.2%;margin-left: 2%; font-weight: bold; font-family: times new roman; color: red; float:right;
+					      height:34px; width:34px;">
+                            <a href="@Url.Action("Dealer_Home", "Login")"><img src="~/assets/Dealer_Home/TATA_dashboard_home.png" style="height:24px; width:24px; margin-left:335%; margin-top:17%;" title="Home" /></a>
+                        </div>
+
+                    }
+                }
+
+            </div>
+            <iframe id="targetedPage" src="" style="width:100%; height:668px; margin-top:-3.4%; border:0px;"></iframe>
+        </div>
+    </div>
+
+    <script src="../assets/global/plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+
+</body>
+
+<script type="text/javascript">
+    (function () {
+
+
+        var ticket = '@ticket';
+        var dashtype = '@dashtype';
+        var newURL = "";
+        if ('@Session["Type"].ToString()' == 'DL' && dashtype == 'Con') {
+
+            //newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/views/ConcurrentDashboard/ConcurrentDealerScorecard";//22_10_2019
+			//newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/views/ConcurrentDashboardDec17/DailyScorecard";
+            newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/t/CPSCTMLSite/views/ConcurrentDashboard/ConcurrentDealerScorecard?iframeSizedToWindow=true&:embed=y&:showAppBanner=false&:display_count=no&:showVizHome=no#4";
+            //newURL = "https://infoviz.cv.tatamotors/views/ConcurrentDashboard/ConcurrentDealerScorecard?iframeSizedToWindow=true&:embed=y&:showAppBanner=false&:display_count=no&:showVizHome=no&:origin=viz_share_link;#2"
+			//document.getElementById('targetedPage').src = newURL;
+            window.open(newURL, '_blank', 'location=yes,height=570,width=520,scrollbars=yes,status=yes');
+        }
+        if ('@Session["Type"].ToString()' == 'DL' && dashtype == 'June15') {
+
+           // newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/views/Monthlydealerdashboardswith3LOB/ActualTarget";//22_10_2019
+            newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/t/CPSCTMLSite/views/Monthlydealerdashboardswith3LOB/ActualTarget?iframeSizedToWindow=true&:embed=y&:showAppBanner=false&:display_count=no&:showVizHome=no#4";
+            //document.getElementById('targetedPage').src = newURL;
+window.open(newURL, '_blank', 'location=yes,height=570,width=520,scrollbars=yes,status=yes');
+        }
+        if ('@Session["Type"].ToString()' == 'DL' && dashtype == 'July17') {
+
+           // newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/views/DealerScorecard-Aug17-Oct17/Overalldealerscorecard";//22_10_2019
+            newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/t/CPSCTMLSite/views/DealerScorecard-Aug17-Dec17_OnlyforGaurav/Overalldealerscorecard?iframeSizedToWindow=true&:embed=y&:showAppBanner=false&:display_count=no&:showVizHome=no#4";
+            //document.getElementById('targetedPage').src = newURL;
+window.open(newURL, '_blank', 'location=yes,height=570,width=520,scrollbars=yes,status=yes');
+        }
+       //08_08_2019//8871
+       if ('@Session["Type"].ToString()' == 'DL' && dashtype == 'April18') {
+
+          // newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/views/DealerScorecard_0/OverallDealerScorecard";//22_10_2019
+           newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/t/CPSCTMLSite/views/DealerScorecardApr18toJun19/OverallDealerScorecard?iframeSizedToWindow=true&:embed=y&:showAppBanner=false&:display_count=no&:showVizHome=no#4";
+            //document.getElementById('targetedPage').src = newURL;
+window.open(newURL, '_blank', 'location=yes,height=570,width=520,scrollbars=yes,status=yes');
+        }
+       //end
+         if ('@Session["Type"].ToString()' == 'DL' && dashtype == 'Jul19Onward') {
+
+            //newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/views/ConcurrentDashboardOct17/DailyScorecard";
+            //newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/views/DealerScorecard_0/OverallDealerScorecard";//)8_8_2019BackUp
+            //New change 08_08_2019
+            //newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/views/DealerScorecardJul19Onward/OverallDealerScorecard";//22_10_2019
+            newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/t/CPSCTMLSite/views/DealerScorecardJul19Onward/OverallDealerScorecard?iframeSizedToWindow=true&:embed=y&:showAppBanner=false&:display_count=no&:showVizHome=no#4";
+             //End
+            //newURL = "";
+           // document.getElementById('targetedPage').src = newURL;
+window.open(newURL, '_blank', 'location=yes,height=570,width=520,scrollbars=yes,status=yes');
+         }
+
+        if ('@Session["Type"].ToString()' == 'DL' && dashtype == 'Jul21Onward') {
+
+            //newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/views/ConcurrentDashboardOct17/DailyScorecard";
+            //newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/views/DealerScorecard_0/OverallDealerScorecard";//)8_8_2019BackUp
+            //New change 08_08_2019
+            //newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/views/DealerScorecardJul19Onward/OverallDealerScorecard";//22_10_2019
+            newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/t/CPSCTMLSite/views/DealerScorecardJul21Onward/OverallDealerScorecard?iframeSizedToWindow=true&:embed=y&:showAppBanner=false&:display_count=no&:showVizHome=no#4";
+            //End
+            //newURL = "";
+            // document.getElementById('targetedPage').src = newURL;
+            window.open(newURL, '_blank', 'location=yes,height=570,width=520,scrollbars=yes,status=yes');
+        }
+
+
+if ('@Session["Type"].ToString()' == 'DL' && dashtype == 'Qtr') {
+
+            //newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/views/ConcurrentDashboardOct17/DailyScorecard";
+            //newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/views/DealerScorecard_0/OverallDealerScorecard";//)8_8_2019BackUp
+            //New change 08_08_2019
+            //newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/views/DealerScorecardJul19Onward/OverallDealerScorecard";//22_10_2019
+    newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/t/CPSCTMLSite/views/DealerScoreCard/CPSC?iframeSizedToWindow=true&:embed=y&:showAppBanner=false&:display_count=no&:showVizHome=no#4";
+             //End
+            //newURL = "";
+           // document.getElementById('targetedPage').src = newURL;
+window.open(newURL, '_blank', 'location=yes,height=570,width=520,scrollbars=yes,status=yes');
+}
+        if ('@Session["Type"].ToString()' == 'DL' && dashtype == 'Qtr24') {
+
+            //newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/views/ConcurrentDashboardOct17/DailyScorecard";
+            //newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/views/DealerScorecard_0/OverallDealerScorecard";//)8_8_2019BackUp
+            //New change 08_08_2019
+            //newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/views/DealerScorecardJul19Onward/OverallDealerScorecard";//22_10_2019
+            newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/t/CPSCTMLSite/views/DealerScoreCard_16836965938590/CPSC?:origin=card_share_link&:embed=y";
+                //+ ticket + "/t/CPSCTMLSite/views/DealerScoreCard_16836965938590/CPSC?:origin=card_share_link&:embed=n&:showAppBanner=false&:display_count=no&:showVizHome=no#4";
+            //https://infoviz.cv.tatamotors/t/CPSCTMLSite/views/DealerScoreCard_16836965938590/CPSC?:origin=card_share_link&:embed=y
+            //End
+            //newURL = "";
+            // document.getElementById('targetedPage').src = newURL;
+            //"https://infoviz.cv.tatamotors/trusted/" + ticket + "/t/CPSCTMLSite/views/DealerScoreCard_16836965938590/CPSC?:origin=card_share_link&:embed=n&:showAppBanner=false&:display_count=no&:showVizHome=no#4";
+            window.open(newURL, '_blank', 'location=yes,height=570,width=520,scrollbars=yes,status=yes');
+        }
+                     if ('@dashtype' == 'User' && '@Session["dash_type_tml"].ToString()' == 'MonthlyApril')
+		     {
+
+//window.open(document.URL, '_blank', 'location=yes,height=570,width=520,scrollbars=yes,status=yes');
+
+                         //newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/views/DealerScorecardAug-TML/DealerScorecard";
+			if('@Session["Type"].ToString()' == 'SuperAdmin' || '@Session["Type"].ToString()' == 'RSNM' ||'@Session["Type"].ToString()' == 'RM')
+			{
+			//newURL ="https://infoviz.cv.tatamotors/trusted/" + ticket + "t/CPSCTMLSite/views/TMLScorecardRevised/ChannelPartnerScorecard";
+              //  newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/views/TMLScorecardRevised/ChannelPartnerScorecard";//22_10_2019
+                newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/t/CPSCTMLSite/views/TMLScorecardApr18toJun19Superadmin/ChannelPartnerScorecard?iframeSizedToWindow=true&:embed=y&:showAppBanner=false&:display_count=no&:showVizHome=no#4";
+                   	}
+			//  newURL ="https://infoviz.cv.tatamotors/trusted/" + ticket + "/views/TMLScorecardRevised/ChannelPartnerScorecard";
+                        else
+			{
+               // newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/views/TML-DealerScorecard/OverallDealerScorecard";//22_10_2019
+              //newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/views/TML-DealerScorecard/OverallDealerScorecard";
+                newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/t/CPSCTMLSite/views/TML-DealerScorecardApr18toJun19/OverallDealerScorecard?iframeSizedToWindow=true&:embed=y&:showAppBanner=false&:display_count=no&:showVizHome=no#4";
+			}
+			//document.getElementById('targetedPage').src = newURL;
+			window.open(newURL, '_blank', 'location=yes,height=570,width=520,scrollbars=yes,status=yes');
+                        }
+
+                      if ('@dashtype' == 'User' && '@Session["dash_type_tml"].ToString()' == 'MonthlyJuly')
+		     {
+
+                         //newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/views/DealerScorecardAug-TML/DealerScorecard";
+			if('@Session["Type"].ToString()' == 'SuperAdmin' || '@Session["Type"].ToString()' == 'RSNM' ||'@Session["Type"].ToString()' == 'RM')
+			{
+			//newURL ="https://infoviz.cv.tatamotors/trusted/" + ticket + "t/CPSCTMLSite/views/TMLScorecardRevised/ChannelPartnerScorecard";
+			//newURL ="https://infoviz.cv.tatamotors/trusted/" + ticket + "/views/TMLScorecardRevisedJul19Onward/ChannelPartnerScorecard";//22_10_2019
+                //newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/t/CPSCTMLSite/views/TMLScorecardRevisedJul19Onward/ChannelPartnerScorecard?iframeSizedToWindow=true&:embed=y&:showAppBanner=false&:display_count=no&:showVizHome=no#4";
+            		newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/t/CPSCTMLSite/views/TML-DealerScorecardJul19Onward/OverallDealerScorecard?iframeSizedToWindow=true&:embed=y&:showAppBanner=false&:display_count=no&:showVizHome=no&:origin=viz_share_link";
+}
+
+                        else
+			{
+                           // newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/views/TML-DealerScorecardJul19Onward/OverallDealerScorecard";//22_10_2019
+                          //newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/views/TML-DealerScorecard/OverallDealerScorecard";
+                newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/t/CPSCTMLSite/views/TML-DealerScorecardJul19Onward/OverallDealerScorecard?iframeSizedToWindow=true&:embed=y&:showAppBanner=false&:display_count=no&:showVizHome=no#4";
+            }
+			//document.getElementById('targetedPage').src = newURL;
+                      window.open(newURL, '_blank', 'location=yes,height=570,width=520,scrollbars=yes,status=yes');
+                        }
+ if ('@dashtype' == 'User' && '@Session["dash_type_tml"].ToString()' == 'MonthlyJuly21'){
+                 newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/t/CPSCTMLSite/views/TMLScorecardJul21Onward/OverallDealerScorecard?iframeSizedToWindow=true&:embed=y&:showAppBanner=false&:display_count=no&:showVizHome=no#4";
+                window.open(newURL, '_blank', 'location=yes,height=570,width=520,scrollbars=yes,status=yes');
+ }
+
+        if ('@dashtype' == 'User' && '@Session["dash_type_tml"].ToString()' == 'MonthlyJuly23') {
+            newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/t/CPSCTMLSite/views/TMLFY23/DealerDashboar?iframeSizedToWindow=true&:embed=y&:showAppBanner=false&:display_count=no&:showVizHome=no#4";
+            window.open(newURL, '_blank', 'location=yes,height=570,width=520,scrollbars=yes,status=yes');
+        }
+
+        if ('@dashtype' == 'User' && '@Session["dash_type_tml"].ToString()' == 'MonthlyJuly24') {
+            newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/t/CPSCTMLSite/views/TMLFY24/DealerDashboar?:origin=card_share_link&:embed=y";
+            //https://infoviz.cv.tatamotors/t/CPSCTMLSite/views/TMLFY24/DealerDashboar?:origin=card_share_link&:embed=n
+            //newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/t/CPSCTMLSite/views/TMLFY24/DealerDashboar?:origin=card_share_link&:embed=n&:showAppBanner=false&:display_count=no&:showVizHome=no#4";
+            
+            window.open(newURL, '_blank', 'location=yes,height=570,width=520,scrollbars=yes,status=yes');
+        }
+
+        if ('@dashtype' == 'User' && '@Session["dash_type_tml"].ToString()' == 'Con') {
+
+            //newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/views/DealerScorecardAug-TML/DealerScorecard";
+           // newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/views/Concurrent-TMLDealerScorecard/OverallDealerScorecard";//22_10_2019
+            newURL = "https://infoviz.cv.tatamotors/trusted/" + ticket + "/t/CPSCTMLSite/views/Concurrent-TMLDealerScorecard/OverallDealerScorecard?iframeSizedToWindow=true&:embed=y&:showAppBanner=false&:display_count=no&:showVizHome=no#4";
+            //document.getElementById('targetedPage').src = newURL;
+window.open(newURL, '_blank', 'location=yes,height=570,width=520,scrollbars=yes,status=yes');
+        }
+
+    })();
+</script>
+</html>

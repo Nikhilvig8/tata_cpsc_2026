@@ -1,0 +1,304 @@
+﻿
+@{
+    ViewBag.Title = "DelayedData_Target";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="row">
+    <div class="col-md-12">
+
+        <div class="portlet light bordered" id="form_wizard_1">
+            <div class="portlet-title" style="min-height:30px; margin-bottom:0px;">
+                <div class="caption" style="padding:0px 0;">
+                    <i class="icon-layers font-blue"></i>
+                    <span class="caption-subject font-blue bold uppercase">
+                        Delayed Entry Report - Target
+                    </span>
+
+                </div>
+
+
+                <div class="btn-group pull-right" style=" margin-top -8px;">
+                    <button class="btn green btn-outline dropdown-toggle" data-toggle="dropdown">
+                        Tools
+                        <i class="fa fa-angle-down"></i>
+                    </button>
+                    <ul class="dropdown-menu pull-right">
+                        <li>
+                            <a id="Print"> Print </a>
+                        </li>
+                        <li>
+                            <a id="ExcelExport"> Export to Excel </a>
+                        </li>
+                        @*<li>
+                                <a id="Exporttopdf"> Export to Pdf </a>
+                            </li>*@
+                    </ul>
+                </div>
+
+            </div>
+            <div class="portlet-body form" style="overflow:auto; max-height:425px;">
+                <div class="form-horizontal">
+                    <div class="form-wizard" style="width:99%;">
+                        <div class="form-body" style="padding:5px;">
+
+                            <div class="tab-pane active" id="tab1">
+                                <!--h3 class="block">Provide your account details</h3-->
+
+
+
+                                <table id="sample_editable_1" class="table table-striped table-bordered display" cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th style="font-size:11px;">SPM/SSM</th>
+                                            <th style="font-size:11px;">TSM/CSM</th>
+                                            <th style="font-size:11px;">Dealer</th>
+                                            <th style="font-size:11px;">Division</th>
+                                            <th style="font-size:11px;">LOB</th>
+                                            <th style="font-size:11px;">Parameter</th>
+                                            <th style="font-size:11px;">Sales/AfterSales</th>
+                                            <th style="font-size:11px;">Target</th>
+                                            <th style="font-size:11px;">Entry Date</th>
+                                            
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+
+                                        @using System.Data;
+                                        @using System.Data.SqlClient;
+                                        @using System.Globalization;
+                                        @using System.Web;
+                                        @using DataUtilityLayer;
+                                        @using System.Configuration;
+                                        @{
+                                            SqlCommand cmdObj = new SqlCommand();
+                                            string uid2 = Session["Uid"].ToString();
+                                            string sheet = "Target";
+                                            string CS1 = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
+                                            DataTable dtf2;
+                                            string _sql2 = string.Empty;
+                                            _sql2 = @"getDelayedData";
+                                            using (SqlConnection cn = new SqlConnection(CS1))
+                                            {
+                                                DataTable dt = new DataTable();
+                                                //var cmd = new SqlCommand(_sql, cn);
+                                                var daCampus = new SqlDataAdapter(_sql2, cn);
+                                                daCampus.SelectCommand.CommandType = CommandType.StoredProcedure;
+                                                daCampus.SelectCommand.Parameters.AddWithValue("@FW", Session["Uid"].ToString());
+                                                daCampus.SelectCommand.Parameters.AddWithValue("@ForActual_Target", sheet);
+                                                daCampus.Fill(dt);
+                                                dtf2 = dt;
+                                            }
+
+                                        }
+
+
+                                        @{if (dtf2.Rows.Count > 0)
+                                            {
+                                                for (int i = 0; i < dtf2.Rows.Count; i++)
+                                                {
+                                                    <tr>
+                                                        <td style="font-size:11px;">@dtf2.Rows[i]["SPM_SSM"].ToString()</td>
+                                                        <td style="font-size:11px;">@dtf2.Rows[i]["TSM_CSM"].ToString()</td>
+                                                        <td style="font-size:11px;">@dtf2.Rows[i]["Dealer_Name"].ToString() - @dtf2.Rows[i]["City"].ToString()</td>
+                                                        <td style="font-size:11px;">@dtf2.Rows[i]["Division_Id"].ToString()</td>
+                                                        <td style="font-size:11px;">@dtf2.Rows[i]["LOB"].ToString()</td>
+                                                        <td style="font-size:11px;">@dtf2.Rows[i]["KPI_NAME"].ToString()</td>
+                                                        <td style="font-size:11px;">@dtf2.Rows[i]["dept"].ToString()</td>
+                                                        <td style="font-size:11px;">@dtf2.Rows[i]["Target_Value"].ToString()</td>
+                                                        <td style="font-size:11px;">@dtf2.Rows[i]["Entry_Date_Target"].ToString()</td>
+                                                        
+                                                    </tr>
+                                    <!-- row 1 end-->
+                                    <!-- row 2 start-->
+                                                                }
+                                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+
+
+
+                        </div>
+                    </div>
+                    <!--col-md-offset-7 -->
+
+
+
+                </div>
+
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function () {
+
+
+
+    $("#sample_editable_1").dataTable({
+        "bPaginate": false
+
+    });
+
+
+});
+</script>
+
+<!--pop up -->
+<script src="../assets/pages/scripts/ui-modals.min.js" type="text/javascript"></script>
+<script src="../assets/pages/scripts/form-validation.min.js" type="text/javascript"></script>
+<script src="../assets/global/plugins/jquery-validation/js/jquery.validate.min.js" type="text/javascript"></script>
+<script src="../assets/global/plugins/jquery-validation/js/additional-methods.min.js" type="text/javascript"></script>
+
+
+<script>
+    function printData()
+{
+        var divToPrint = document.getElementById("sample_editable_1");
+        divToPrint.style.borderCollapse = "collapse";
+
+
+        var th = document.getElementById("sample_editable_1").getElementsByTagName("th");
+
+        for (i = 0; i < th.length; i++) {
+            th[i].style.borderColor = "Black";
+            th[i].style.borderWidth = "1px";
+            th[i].style.borderStyle = "solid";
+           // alert(i);
+        }
+        //th[11].innerHTML = "";
+        var td = document.getElementById("sample_editable_1").getElementsByTagName("td");
+        for (k = 0; k < td.length; k++) {
+            td[k].style.borderColor = "Black";
+            td[k].style.borderWidth = "1px";
+            td[k].style.borderStyle = "solid";
+        }
+   newWin= window.open("");
+   newWin.document.write(divToPrint.outerHTML);
+   newWin.print();
+   newWin.close();
+   for (l = 0; l < th.length; l++) {
+       th[l].style.borderColor = "";
+       th[l].style.borderWidth = "";
+       th[l].style.borderStyle = "";
+   }
+   //th[11].innerHTML = "Action";
+   var td = document.getElementById("sample_editable_1").getElementsByTagName("td");
+   for (m = 0; m < td.length; m++) {
+       td[m].style.borderColor = "";
+       td[m].style.borderWidth = "";
+       td[m].style.borderStyle = "";
+   }
+}
+
+  
+$('#Print').on('click',function(){
+printData();
+})
+$('#ExcelExport').on('click', function () {
+    var proc = '@_sql2';
+    var flag = '@sheet';
+    var Uid = '@Session["Uid"].ToString()';
+    var filename = 'report_Delayed' + flag + '_' + Uid + '.xlsx';
+
+    var url_at = '@Url.Action("DTToExcel", "Home")';
+    var url_com_at = url_at + '?Proc=' + proc + '&flag=' + flag + '&filename=' + filename;
+    //alert(url_com_at);
+    var jsonComp_at = $.getJSON(url_com_at, function (result) {
+
+        if (result == true) {
+
+            var uri_file = '@Url.Action("Download", "Home")';
+            var uri_file_at = uri_file + '?file=' + filename;
+            window.location.href = uri_file_at;
+        }
+        else {
+
+
+        }
+
+    });
+
+    return (true);
+
+
+})
+</script>
+
+
+
+
+
+
+<link rel="stylesheet" type="text/css" href="~/assets/apps/css/all.min.css" />
+<script type="text/javascript" src="~/Scripts/shieldui-all.min.js"></script>
+<script type="text/javascript" src="~/Scripts/jszip.min.js"></script>
+<script type="text/javascript" src="~/Scripts/jquery-1.10.2.min.js"></script>
+<script src="~/Scripts/pdf.js"></script>
+
+
+
+<script type="text/javascript">
+    jQuery(function ($) {
+        $("#Exporttopdf").click(function () {
+            // parse the HTML table element having an id=exportTable
+            var dataSource = shield.DataSource.create({
+                data: "#sample_editable_1",
+                schema: {
+                    type: "table",
+                    fields: {
+                        Username: { type: String },
+                        Name: { type: String },
+                        Role: { type: String },
+                        Organization: { type: String },
+                        Operation: { type: String },
+                        Department: { type: String },
+                        Status: { type: String }
+                    }
+                }
+            });
+
+            // when parsing is done, export the data to PDF
+            dataSource.read().then(function (data) {
+                var pdf = new shield.exp.PDFDocument({
+                    author: "Target_Pending_Report",
+                    created: new Date()
+                });
+
+                pdf.addPage("a4", "portrait");
+
+                pdf.table(
+                    50,
+                    50,
+                    data,
+                    [
+                        { field: "Username", title: "User Name", width: 100 },
+                        { field: "Name", title: "Name", width: 70 },
+                        { field: "Role", title: "Role", width: 70 },
+                        { field: "Organization", title: "Organization", width: 80 },
+                        { field: "Operation", title: "Operation", width: 70 },
+                        { field: "Department", title: "Department", width: 70 },
+                        { field: "Status", title: "Status", width: 70 }
+                    ],
+                    {
+                        margins: {
+                            top: 50,
+                            left: 50
+                        }
+                    }
+                );
+
+                pdf.saveAs({
+                    fileName: "Target_Pending_Report"
+                });
+            });
+        });
+    });
+</script>

@@ -1,0 +1,239 @@
+﻿
+@{
+    ViewBag.Title = "Dialog";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using System.Data;
+@using System.Data.SqlClient;
+@using System.Globalization;
+@using System.Web;
+@using System.Configuration;
+@{ string cn = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
+    string typeTSM = Session["Type"].ToString();
+                                            <!-- Pending Inputs -->
+
+    DataTable dtfHy;
+    string _sqlHy = string.Empty;
+
+    _sqlHy = "getHygienList";
+    //var cmdTSM = new SqlCommand(_sqlTSM, cn);
+    using (var cnHy = new SqlConnection(cn))
+    {
+        var daCampusHy = new SqlDataAdapter(_sqlHy, cnHy);
+        DataTable dtHy = new DataTable();
+        daCampusHy.SelectCommand.CommandType = CommandType.StoredProcedure;
+
+        //else { daCampusTSM.SelectCommand.Parameters.AddWithValue("@TSM_CSM_Code", Session["Uid"].ToString()); }
+        //daCampusTSM.SelectCommand.Parameters.AddWithValue("@Dealer_Code", Model.Trans.Dealer);
+        //daCampusTSM.SelectCommand.Parameters.AddWithValue("@Division_Id", Model.Trans.Out);
+        //daCampusTSM.SelectCommand.Parameters.AddWithValue("@LOB", Model.Trans.LOB);
+
+        daCampusHy.Fill(dtHy);
+
+        dtfHy = dtHy;
+    }
+
+
+}
+
+<div class="row" style="min-height: 560px;max-height: 560px;">
+    <div class="col-md-12" style="min-height: 560px;max-height: 560px;">
+
+        <div class="portlet light bordered" id="form_wizard_1" style="min-height: 560px;max-height: 560px; margin-bottom:0px;">
+            <div class="portlet-title" style="min-height:30px; margin-bottom:0px;">
+                <div class="caption" style="padding:0px 0;">
+                    <i class="icon-layers font-blue"></i>
+                    <span class="caption-subject font-blue bold uppercase">
+                        Dialog
+                    </span>
+                </div>
+
+            </div>
+            <div class="portlet-body form" style="overflow:auto; max-height:515px; min-height:515px;">
+
+                <div class="form-horizontal">
+                    <div class="form-wizard" style="width:99%;">
+                        <div class="form-body" style="padding:5px;">
+
+                            <div class="tab-pane active" id="tab1">
+                                <!--h3 class="block">Provide your account details</h3-->
+
+                                <div class="form-group" style="margin-left:-6px;">
+                                    <div class="col-xs-3">&nbsp;</div>
+                                    <div class="col-xs-3">&nbsp;</div>
+<script src="~/Scripts/jquery3_1.js"></script>
+<script type="text/javascript">
+    $(document).ready(function ()//When the dom is ready
+    {
+        $('[data-toggle="popover"]').popover({ trigger: 'focus' });
+    });
+</script>
+                                        <div class="col-xs-3">
+                                            @*<input type="text" name="dialog"  data-toggle="modal" href="#static" id="clickButton"  />*@
+                                            <input id="input09" class="input" type="number" name="target09" value="2" data-toggle="popover" data-trigger="focus" data-placement="bottom" data-html="true" 
+                                                data-content="<div style='width:200px;'>
+                                                <div style='width:99%;'>Sales Experience Scope of Dealership Computed on Dealership Calling</div><br />
+                                                <div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>Month</div><div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>Value</div>
+                                                <div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>Jul - 2016</div><div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>10</div>
+                                                <div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>Dec - 2016</div><div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>10</div>
+                                                <div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>Aug - 2016</div><div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>10</div>
+                                            </div>">
+
+                                            <input id="input09" class="input" type="number" name="target09" value="2" data-toggle="popover" data-trigger="focus" data-placement="bottom" data-html="true"
+                                                   data-content="<div style='width:200px;'>
+                                                <div style='width:99%;'>Sales Experience Scope of Dealership Computed on Dealership Calling</div><br />
+                                                <div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>Month</div><div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>Value</div>
+                                                <div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>Jul - 2016</div><div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>10</div>
+                                                <div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>Dec - 2016</div><div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>10</div>
+                                                <div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>Aug - 2016</div><div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>10</div>
+                                            </div>">
+
+                                            <input id="input09" class="input" type="number" name="target09" value="2" data-toggle="popover" data-trigger="focus" data-placement="bottom" data-html="true"
+                                                   data-content="<div style='width:200px;'>
+                                                <div style='width:99%;'>Sales Experience Scope of Dealership Computed on Dealership Calling</div><br />
+                                                <div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>Month</div><div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>Value</div>
+                                                <div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>Jul - 2016</div><div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>10</div>
+                                                <div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>Dec - 2016</div><div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>10</div>
+                                                <div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>Aug - 2016</div><div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>10</div>
+                                            </div>">
+
+                                            <input id="input09" class="input" type="number" name="target09" value="2" data-toggle="popover" data-trigger="focus" data-placement="bottom" data-html="true"
+                                                   data-content="<div style='width:200px;'>
+                                                <div style='width:99%;'>Sales Experience Scope of Dealership Computed on Dealership Calling</div><br />
+                                                <div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>Month</div><div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>Value</div>
+                                                <div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>Jul - 2016</div><div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>10</div>
+                                                <div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>Dec - 2016</div><div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>10</div>
+                                                <div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>Aug - 2016</div><div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>10</div>
+                                            </div>">
+
+                                            <input id="input09" class="input" type="number" name="target09" value="2" data-toggle="popover" data-trigger="focus" data-placement="bottom" data-html="true"
+                                                   data-content="<div style='width:200px;'>
+                                                <div style='width:99%;'>Sales Experience Scope of Dealership Computed on Dealership Calling</div><br />
+                                                <div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>Month</div><div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>Value</div>
+                                                <div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>Jul - 2016</div><div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>10</div>
+                                                <div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>Dec - 2016</div><div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>10</div>
+                                                <div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>Aug - 2016</div><div style='width:49%; font-weight:bold; border:1px solid #000; float:left;'>10</div>
+                                            </div>">
+                                        </div>
+                                    <div class="col-xs-3">&nbsp;</div>
+
+                                    </div>
+</div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+                                    </div>
+<script src="~/Scripts/jquery3_1.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function ()//When the dom is ready
+    {
+        var count = $("#count").val();
+        var j = "0";
+        $(".Select_Value").change(function () {
+            var select_val = $(this).val();
+            if (select_val == "YES") { j++; } else { j--;}
+            var cal_percnt = (j / count) * 100;
+            $("#total_val_view").html(cal_percnt+"%");
+            $("#total_val_view").val(cal_percnt + "%");
+        });
+        //
+    });
+</script>
+
+            <!-- Pop up start -->
+
+            <!--a class="btn purple btn-outline sbold" data-toggle="modal" href="#static" id="clickButton"></a-->
+            <div id="static" class="modal fade" tabindex="-1" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog" style="border:2px solid #3598dc; width:75%;">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                            <h4 class="modal-title">Service Hygiene Checklist (Yes/No)</h4>
+                        </div>
+                        @using (Html.BeginForm("Dialog", "KPI", FormMethod.Post))
+                        {
+                            <div class="modal-body" style="overflow:auto;max-height:400px;">
+
+                                <!-- Pop up body start-->
+                                
+                                <div class="form-group">
+                                    <label class="control-label col-md-1" style="font-weight:bold;">No.</label>
+                                    <label class="control-label col-md-8" style="font-weight:bold;">Description</label>
+                                    <label class="control-label col-md-3" style="font-weight:bold;">&nbsp;</label>
+                                </div>
+
+                                <!-- row 1 start-->
+                                <!-- Tooltip start -->
+                                <input type="hidden" name="count" id="count" value="@dtfHy.Rows.Count" />
+                                @{
+                                    if (dtfHy.Rows.Count > 0)
+                                    {
+                                        for (int i = 0; i < dtfHy.Rows.Count; i++)
+                                        {
+                                            
+                                    <div class="form-group">
+                                        <div class="col-md-1">
+                                            <label class="control-label" name="no">
+                                                @dtfHy.Rows[i]["SerialNo"].ToString()
+                                            </label>
+                                            <input type="hidden" name="no@(i)" value="@dtfHy.Rows[i]["SerialNo"].ToString()" />
+                                        </div>
+                                        <div class="col-md-8">
+                                            <label class="control-label" name="description">
+                                                @dtfHy.Rows[i]["Description"].ToString()
+                                            </label>
+                                            <input type="hidden" name="des@(i)" value="@dtfHy.Rows[i]["Description"].ToString()" />
+                                        </div>
+                                        <div class="col-md-3">
+                                            <select id="Select_Value" name="Select_Value@(i)" class="form-control Select_Value" style="margin-bottom:2px;">
+                                                <option value="NO" @("NO" == @dtfHy.Rows[i]["Selection"].ToString() ? "Selected" : " ")>No</option>
+                                                <option value="YES" @("YES" == @dtfHy.Rows[i]["Selection"].ToString() ? "Selected" : " ")>Yes</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                            }
+                                        }
+                                    }
+
+                                <div class="form-group">
+                                    <div class="col-md-1">
+                                        <label class="control-label" name="premise">
+                                            &nbsp;
+                                        </label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <label class="control-label" name="KPI">
+                                           <b>Net Score {Out of 100}</b>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="control-label" name="premise" id="total_val_view" style="font-weight:bold;">&nbsp;</label>
+                                        <input type="hidden" name="total_val" id="total_val" value="" />
+                                    </div>
+                                </div>
+                                <!-- row 1 end-->
+                                <!-- Pop up body end-->
+                                
+                            </div>
+                                    <div class="modal-footer">
+                                        <input type="submit" value="Submit" name="submitButton" class="btn green button-submit" />
+                                    </div>
+                                    }
+                    </div>
+                </div>
+            </div>
+            <!-- Pop up end -->
+
+
+                                </div>
+                            </div>
+                        </div>
+<script src="../assets/pages/scripts/ui-modals.min.js" type="text/javascript"></script>
+
+
+

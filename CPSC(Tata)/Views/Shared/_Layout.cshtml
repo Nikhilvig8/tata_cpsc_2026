@@ -1,0 +1,1807 @@
+﻿
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Home | TATA Motors</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <meta content="Preview page of Metronic Admin Theme #1 for statistics, charts, recent events and reports" name="description" />
+    <meta content="" name="author" />
+    <!-- BEGIN GLOBAL MANDATORY STYLES -->
+    @*<link href="http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700&subset=all" rel="stylesheet" type="text/css" />*@
+    <link href="https://fonts.googleapis.com/css?family=PT+Sans" rel="stylesheet">
+    <link href="../assets/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/global/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css" />
+
+   
+    <link href="../assets/apps/css/jquery.dataTables.min.css" rel="stylesheet" />
+    <link href="../assets/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/global/plugins/bootstrap-switch/css/bootstrap-switch.min.css" rel="stylesheet" type="text/css" />
+    <!-- END GLOBAL MANDATORY STYLES -->
+    <!-- BEGIN PAGE LEVEL PLUGINS -->
+    <link href="../assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+    <link href="../assets/global/plugins/bootstrap-daterangepicker/daterangepicker.min.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/global/plugins/morris/morris.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/global/plugins/fullcalendar/fullcalendar.min.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/global/plugins/jqvmap/jqvmap/jqvmap.css" rel="stylesheet" type="text/css" />
+    <!-- END PAGE LEVEL PLUGINS -->
+    <!-- BEGIN THEME GLOBAL STYLES -->
+    <link href="../assets/global/css/components.min.css" rel="stylesheet" id="style_components" type="text/css" />
+    <link href="../assets/global/css/plugins.min.css" rel="stylesheet" type="text/css" />
+    <!-- END THEME GLOBAL STYLES -->
+    <!-- BEGIN THEME LAYOUT STYLES -->
+    <link href="../assets/layouts/layout/css/layout.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/layouts/layout/css/themes/darkblue.css" rel="stylesheet" type="text/css" id="style_color" />
+    <link href="../assets/layouts/layout/css/custom.min.css" rel="stylesheet" type="text/css" />
+    <!-- END THEME LAYOUT STYLES -->
+    <link href="../assets/global/css/custom.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/global/plugins/bootstrap-markdown/css/bootstrap-markdown.min.css" rel="stylesheet" type="text/css" />
+
+    <link rel="shortcut icon" href="favicon.ico" />
+
+    <script type="text/javascript">
+   function preventBack(){window.history.forward();}
+    setTimeout("preventBack()", 0);
+    window.onunload = function () { null };
+    history.pushState(null, null, document.URL);
+    window.addEventListener('popstate', function () {
+        history.pushState(null, null, document.URL);
+    });
+    </script>
+    <script src="../assets/custom/jquery.min11.js" type="text/javascript"></script>
+
+    <!-- Unlocking Script -->
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $('#Unlock_Target').click(function () {
+
+                var internal_flag = "Traget";
+                var internal_Dealer_Code = "%";
+                var internal_Division_Id = "%";
+                var internal_LOB_ID = "%";
+
+
+                var url_at = '@Url.Action("UnlockEditing", "DropDown")';
+
+                var url_com_at = url_at + "?flag=" + internal_flag + "&Dealer_Code=" + internal_Dealer_Code + "&Division_Id=" + internal_Division_Id + "&LOB_ID=" + internal_LOB_ID;
+                //alert(url_com_at);
+                var jsonComp_at = $.getJSON(url_com_at, function (result) {
+                    if (result == true) {
+                        $("#msg_2").html("<span style='color:green;'>Unlock Target Successfully.</span>");
+                        var data1 = "<span style='color:green;'>Unlock Target Successfully.</span>";
+
+
+
+                        $('#msg_click').click();
+                        setTimeout(function () { $('#user_msg').modal('hide'); }, 5000);
+                        //$('#msg').hide().html(data1).fadeIn('slow').delay(5000).hide(1);
+
+                    }
+                    else {
+                        $("#msg_2").html("<span style='color:red;'>Something went wrong.</span>");
+                        var data1 = "<span style='color:red;'>Something went wrong.</span>";
+                        $('#msg_click').click();
+                        setTimeout(function () { $('#user_msg').modal('hide'); }, 5000);
+                        //$('#msg').hide().html(data1).fadeIn('slow').delay(5000).hide(1);
+                    }
+
+                });
+
+            });
+
+            $('#Unlock_Actual').click(function () {
+
+                var internal_flag = "Actual";
+                var internal_Dealer_Code = "%";
+                var internal_Division_Id = "%";
+                var internal_LOB_ID = "%";
+
+
+                var url_at = '@Url.Action("UnlockEditing", "DropDown")';
+
+                var url_com_at = url_at + "?flag=" + internal_flag + "&Dealer_Code=" + internal_Dealer_Code + "&Division_Id=" + internal_Division_Id + "&LOB_ID=" + internal_LOB_ID;
+                //alert(url_com_at);
+                var jsonComp_at = $.getJSON(url_com_at, function (result) {
+                    if (result == true) {
+                        $("#msg_2").html("<span style='color:green;'>Unlock Actual Successfully.</span>");
+                        var data1 = "<span style='color:green;'>Unlock Actual Successfully.</span>";
+
+
+
+                        $('#msg_click').click();
+                        setTimeout(function () { $('#user_msg').modal('hide'); }, 5000);
+                        //$('#msg').hide().html(data1).fadeIn('slow').delay(5000).hide(1);
+
+                    }
+                    else {
+                        $("#msg_2").html("<span style='color:red;'>Something went wrong.</span>");
+                        var data1 = "<span style='color:red;'>Something went wrong.</span>";
+                        $('#msg_click').click();
+                        setTimeout(function () { $('#user_msg').modal('hide'); }, 5000);
+                        //$('#msg').hide().html(data1).fadeIn('slow').delay(5000).hide(1);
+                    }
+
+                });
+
+            });
+
+            $('#Target_Link').click(function () {
+
+                //dtf.Rows[i]["FromWhom"].ToString() + "," + dtf.Rows[i]["Dealer_Name"].ToString() + "," + dtf.Rows[i]["Division_Name"].ToString()+","+ dtf.Rows[i]["MSG"].ToString()+","+ dtf.Rows[i]["Notification_id"].ToString()+","+ dtf.Rows[i]["Emp_Name"].ToString();
+                var parameters = $('#parameters').val();
+                //alert(parameters);
+                var parameterarray = parameters.split("<>");
+                var internal_fromWhom = parameterarray[0];
+                var internal_Dealer = parameterarray[1];
+                var internal_Division_Name = parameterarray[2];
+                var internal_MSG = parameterarray[3];
+                var internal_notification_id = parameterarray[4];
+                var internal_Emp_Name = parameterarray[5];
+
+
+                var url_at = '@Url.Action("Update_Hasbeenseenflag", "DropDown")';
+
+                var url_com_at = url_at + "?notifi_id=" + internal_notification_id + "&fromwhom=" + internal_fromWhom;
+                //alert(url_com_at);
+                var jsonComp_at = $.getJSON(url_com_at, function (result) {
+                    if (result == true) {
+                        $("#msg_2").html("<span style='color:green;'>" + internal_Emp_Name + " Filled BulkTarget sheet for Dealer:" + internal_Dealer + " and Division: " + internal_Division_Name + "</span>");
+                        var data1 = "<span style='color:green;'>" + internal_Emp_Name + " Filled BulkTarget sheet for Dealer:" + internal_Dealer + " and Division: " + internal_Division_Name + "</span>";
+
+
+
+                        $('#msg_click').click();
+                        setTimeout(function () { $('#user_msg').modal('hide'); }, 5000);
+                        //$('#msg').hide().html(data1).fadeIn('slow').delay(5000).hide(1);
+                        setTimeout(function () { location.reload();}, 6000);
+                        //location.reload().delay(5000);
+
+                    }
+                    else {
+                        $("#msg_2").html("<span style='color:red;'>Something went wrong.</span>");
+                        var data1 = "<span style='color:red;'>Something went wrong.</span>";
+                        $('#msg_click').click();
+                        setTimeout(function () { $('#user_msg').modal('hide'); }, 5000);
+                        //location.reload();
+                        //$('#msg').hide().html(data1).fadeIn('slow').delay(5000).hide(1);
+                    }
+
+                });
+
+            });
+            
+            $("#Unlock_Target_Req").click(function () {
+
+                //alert('hi');
+
+                //dtf.Rows[i]["FromWhom"].ToString() + "," + dtf.Rows[i]["Dealer_Name"].ToString() + "," + dtf.Rows[i]["Division_Name"].ToString()+","+ dtf.Rows[i]["MSG"].ToString()+","+ dtf.Rows[i]["Notification_id"].ToString()+","+ dtf.Rows[i]["Emp_Name"].ToString();
+                var parameters = $("#parameters").val();
+                //alert(parameters);
+                var parameterarray = parameters.split("<>");
+                var internal_fromWhom = parameterarray[0];
+                var internal_Dealer = parameterarray[1];
+                var internal_Division_Name = parameterarray[2];
+                var internal_MSG = parameterarray[3];
+                var internal_notification_id = parameterarray[4];
+                var internal_Emp_Name = parameterarray[5];
+
+
+                var url_at = '@Url.Action("Update_Hasbeenseenflag", "DropDown")';
+
+                var url_com_at = url_at + "?notifi_id=" + internal_notification_id + "&fromwhom=" + internal_fromWhom;
+                //alert(url_com_at);
+                var jsonComp_at = $.getJSON(url_com_at, function (result) {
+                    if (result == true) {
+                        $("#msg_2").html("<span style='color:green;'>" + internal_MSG + "</span>");
+                        var data1 = "<span style='color:green;'>" + internal_MSG + "</span>";
+
+                   
+
+                                $('#msg_click').click();
+                        setTimeout(function () { $('#user_msg').modal('hide'); }, 5000);
+                        //$('#msg').hide().html(data1).fadeIn('slow').delay(5000).hide(1);
+                        setTimeout(function () { location.reload(); }, 6000);
+                        //location.reload().delay(5000);
+
+                    }
+                    else {
+                        $("#msg_2").html("<span style='color:red;'>Something went wrong.</span>");
+                        var data1 = "<span style='color:red;'>Something went wrong.</span>";
+                        $('#msg_click').click();
+                        setTimeout(function () { $('#user_msg').modal('hide'); }, 5000);
+                        //$('#msg').hide().html(data1).fadeIn('slow').delay(5000).hide(1);
+                        setTimeout(function () { location.reload(); }, 6000);
+                        //location.reload();
+                        //$('#msg').hide().html(data1).fadeIn('slow').delay(5000).hide(1);*/
+                    }
+
+                });
+
+            });
+
+
+            $("#Unlock_Actual_Req").click(function () {
+
+
+                //alert('hi');
+
+                //dtf.Rows[i]["FromWhom"].ToString() + "," + dtf.Rows[i]["Dealer_Name"].ToString() + "," + dtf.Rows[i]["Division_Name"].ToString()+","+ dtf.Rows[i]["MSG"].ToString()+","+ dtf.Rows[i]["Notification_id"].ToString()+","+ dtf.Rows[i]["Emp_Name"].ToString();
+                var parameters = $("#parameters").val();
+                //alert(parameters);
+                var parameterarray = parameters.split("<>");
+                var internal_fromWhom = parameterarray[0];
+                var internal_Dealer = parameterarray[1];
+                var internal_Division_Name = parameterarray[2];
+                var internal_MSG = parameterarray[3];
+                var internal_notification_id = parameterarray[4];
+                var internal_Emp_Name = parameterarray[5];
+
+
+                var url_at = '@Url.Action("Update_Hasbeenseenflag", "DropDown")';
+
+                var url_com_at = url_at + "?notifi_id=" + internal_notification_id + "&fromwhom=" + internal_fromWhom;
+                //alert(url_com_at);
+                var jsonComp_at = $.getJSON(url_com_at, function (result) {
+                    if (result == true) {
+                        $("#msg_2").html("<span style='color:green;'>" + internal_MSG + "</span>");
+                        var data1 = "<span style='color:green;'>" + internal_MSG + "</span>";
+
+
+
+                        $('#msg_click').click();
+                        setTimeout(function () { $('#user_msg').modal('hide'); }, 5000);
+                        //$('#msg').hide().html(data1).fadeIn('slow').delay(5000).hide(1);
+                        setTimeout(function () { location.reload(); }, 6000);
+                        //location.reload().delay(5000);
+
+                    }
+                    else {
+                        $("#msg_2").html("<span style='color:red;'>Something went wrong.</span>");
+                        var data1 = "<span style='color:red;'>Something went wrong.</span>";
+                        $('#msg_click').click();
+                        setTimeout(function () { $('#user_msg').modal('hide'); }, 5000);
+                        //$('#msg').hide().html(data1).fadeIn('slow').delay(5000).hide(1);
+                        setTimeout(function () { location.reload(); }, 6000);
+                        //location.reload();
+                        //$('#msg').hide().html(data1).fadeIn('slow').delay(5000).hide(1);*/
+                    }
+
+                });
+
+            });
+
+
+            $("#Change_Target_Req").click(function () {
+
+                //alert('hi');
+
+                //dtf.Rows[i]["FromWhom"].ToString() + "," + dtf.Rows[i]["Dealer_Name"].ToString() + "," + dtf.Rows[i]["Division_Name"].ToString()+","+ dtf.Rows[i]["MSG"].ToString()+","+ dtf.Rows[i]["Notification_id"].ToString()+","+ dtf.Rows[i]["Emp_Name"].ToString();
+                var parameters = $("#parameters").val();
+                //alert(parameters);
+                var parameterarray = parameters.split("<>");
+                var internal_fromWhom = parameterarray[0];
+                var internal_Dealer = parameterarray[1];
+                var internal_Division_Name = parameterarray[2];
+                var internal_MSG = parameterarray[3];
+                var internal_notification_id = parameterarray[4];
+                var internal_Emp_Name = parameterarray[5];
+                var internal_binding_key = parameterarray[6];
+
+
+                var url_at = '@Url.Action("Update_Hasbeenseenflag_ChangeReq", "ChangeReq")';
+
+                var url_com_at = url_at + "?notifi_id=" + internal_notification_id + "&fromwhom=" + internal_fromWhom + "&binding_key=" + internal_binding_key;
+                //alert(url_com_at);
+                var jsonComp_at = $.getJSON(url_com_at, function (result) {
+                    if (result == true) {
+                        $("#msg_2").html("<span style='color:green;'>" + internal_MSG + "</span>");
+                        var data1 = "<span style='color:green;'>" + internal_MSG + "</span>";
+
+
+
+                        $('#msg_click').click();
+                        setTimeout(function () { $('#user_msg').modal('hide'); }, 3000);
+                        //$('#msg').hide().html(data1).fadeIn('slow').delay(5000).hide(1);
+                        setTimeout(function () { location.reload(); }, 4000);
+                        //location.reload().delay(5000);
+
+                    }
+                    else {
+                        $("#msg_2").html("<span style='color:red;'>Something went wrong.</span>");
+                        var data1 = "<span style='color:red;'>Something went wrong.</span>";
+                        $('#msg_click').click();
+                        setTimeout(function () { $('#user_msg').modal('hide'); }, 3500);
+                        //$('#msg').hide().html(data1).fadeIn('slow').delay(5000).hide(1);
+                        setTimeout(function () { location.reload(); }, 4000);
+                        //location.reload();
+                        //$('#msg').hide().html(data1).fadeIn('slow').delay(5000).hide(1);*/
+                    }
+
+                });
+
+            });
+
+            $("#Change_Actual_Req").click(function () {
+
+                //alert('hi');
+
+                //dtf.Rows[i]["FromWhom"].ToString() + "," + dtf.Rows[i]["Dealer_Name"].ToString() + "," + dtf.Rows[i]["Division_Name"].ToString()+","+ dtf.Rows[i]["MSG"].ToString()+","+ dtf.Rows[i]["Notification_id"].ToString()+","+ dtf.Rows[i]["Emp_Name"].ToString();
+                var parameters = $("#parameters").val();
+                //alert(parameters);
+                var parameterarray = parameters.split("<>");
+                var internal_fromWhom = parameterarray[0];
+                var internal_Dealer = parameterarray[1];
+                var internal_Division_Name = parameterarray[2];
+                var internal_MSG = parameterarray[3];
+                var internal_notification_id = parameterarray[4];
+                var internal_Emp_Name = parameterarray[5];
+                var internal_binding_key = parameterarray[6];
+
+
+                var url_at = '@Url.Action("Update_Hasbeenseenflag_ChangeReq", "ChangeReq")';
+
+                var url_com_at = url_at + "?notifi_id=" + internal_notification_id + "&fromwhom=" + internal_fromWhom + "&binding_key=" + internal_binding_key;
+                //alert(url_com_at);
+                var jsonComp_at = $.getJSON(url_com_at, function (result) {
+                    if (result == true) {
+                        $("#msg_2").html("<span style='color:green;'>" + internal_MSG + "</span>");
+                        var data1 = "<span style='color:green;'>" + internal_MSG + "</span>";
+
+
+
+                        $('#msg_click').click();
+                        setTimeout(function () { $('#user_msg').modal('hide'); }, 3500);
+                        //$('#msg').hide().html(data1).fadeIn('slow').delay(5000).hide(1);
+                        setTimeout(function () { location.reload(); }, 4000);
+                        //location.reload().delay(5000);
+
+                    }
+                    else {
+                        $("#msg_2").html("<span style='color:red;'>Something went wrong.</span>");
+                        var data1 = "<span style='color:red;'>Something went wrong.</span>";
+                        $('#msg_click').click();
+                        setTimeout(function () { $('#user_msg').modal('hide'); }, 3000);
+                        //$('#msg').hide().html(data1).fadeIn('slow').delay(5000).hide(1);
+                        setTimeout(function () { location.reload(); }, 4000);
+                        //location.reload();
+                        //$('#msg').hide().html(data1).fadeIn('slow').delay(5000).hide(1);*/
+                    }
+
+                });
+
+            });
+
+
+});
+
+    </script>
+    <script>
+$(document).ready(function(){
+    $('[data-toggle="tooltip"]').tooltip();
+});
+    </script>
+    <style>
+        .red-tooltip + .tooltip > .tooltip-inner {
+            background-color: #3598dc;
+            margin-right: 20px;
+            padding-right: 50px;
+        }
+
+        .red-tooltip + .tooltip > .tooltip-arrow {
+            border-bottom-color: #3598dc;
+            margin-right: 20px;
+        }
+    </style>
+    <!-- END SCRIPTS -->
+</head>
+<!-- END HEAD -->
+<body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white">
+    <div class="page-wrapper">
+        <!-- BEGIN HEADER -->
+        <div class="page-header navbar navbar-fixed-top">
+            <!-- BEGIN HEADER INNER -->
+            <div class="page-header-inner ">
+                <!-- BEGIN LOGO -->
+                <div class="page-logo">
+                    <a href="../Home/Index">
+                        <img src="../assets/logo/tata-logo.png" alt="TATA Motors" class="logo-default" />
+                    </a>
+                    <div class="menu-toggler sidebar-toggler">
+                        <span></span>
+                    </div>
+                </div>
+                <!-- END LOGO -->
+                <!-- BEGIN RESPONSIVE MENU TOGGLER -->
+                <a href="javascript:;" class="menu-toggler responsive-toggler" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span></span>
+                </a>
+                <!-- END RESPONSIVE MENU TOGGLER -->
+                <!-- BEGIN TOP NAVIGATION MENU -->
+                @using System.Data;
+                @using System.Data.SqlClient;
+                @using System.Globalization;
+                @using System.Configuration;
+                @using System.Web;
+                @{ 
+                    string type1 = Session["Type"].ToString();
+                }
+                
+                <div class="top-menu">
+                    <ul class="nav navbar-nav pull-right">
+
+                        <!-- BEGIN INBOX DROPDOWN -->
+                        <!-- DOC: Apply "dropdown-dark" class after below "dropdown-extended" to change the dropdown styte -->
+                        @{ 
+                            if (Session["Type"].ToString() == "SuperAdmin")
+                            {
+                        @*<li class="dropdown dropdown-extended dropdown-inbox" id="header_inbox_bar">
+                            <a href="@Url.Action("ChangeReq_Logs","ChangeReq")" title="Change Request Logs" >
+                                <span class="username username-hide-on-mobile"><img src="~/assets/logo/Logs.png" style="height:25px;width:30px;margin-top:-15px;" /></span>
+                                
+                            </a>
+                            <ul class="dropdown-menu" style="width:60px;">
+                                <li style="text-align:center"><a href="#" style="color:#3598dc;" id="Unlock_Target" >Target</a></li>
+                                <li style="text-align:center"><a href="#" style="color:#3598dc;" id="Unlock_Actual">Actual</a></li>
+                                
+                                                </ul>
+                                            </li>*@
+                                }
+                            }
+                        
+
+                        <!-- END INBOX DROPDOWN -->
+                        <!-- BEGIN USER LOGIN DROPDOWN -->
+                        <!-- DOC: Apply "dropdown-dark" class after below "dropdown-extended" to change the dropdown styte -->
+                        @if (type1 == "Spl")
+                        {
+                            <li class="dropdown dropdown-user">
+                                <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+                                    <!--img alt="" class="img-circle" src="../assets/layouts/layout/img/avatar3_small.jpg" /-->
+                                    <span class="username username-hide-on-mobile">
+                                        Welcome <b>Ishwar Khairnar</b>
+
+                                    </span>
+                                    <!--i class="fa fa-angle-down"></i-->
+                                </a>
+
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="dropdown dropdown-user">
+                                <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+                                    <!--img alt="" class="img-circle" src="../assets/layouts/layout/img/avatar3_small.jpg" /-->
+                                    <span class="username username-hide-on-mobile">
+                                        Welcome
+                                        <b>@CultureInfo.CurrentCulture.TextInfo.ToTitleCase(HttpContext.Current.Session["UserName"].ToString().ToLower())</b>
+                                        - @HttpContext.Current.Session["Type"].ToString()
+                                    </span>
+                                    <!--i class="fa fa-angle-down"></i-->
+                                </a>
+
+                            </li>
+                        }
+
+                        <li class="dropdown dropdown-user" style="padding-top:10px; color:#3598dc; font-size:20px;">
+                            <a href='~/PDF/readTrucksBuses.pdf' target='_blank' style="padding-top:6px; color:#35dcdc;">
+                                <i class="fa fa-question-circle red-tooltip" aria-hidden="true" data-toggle="tooltip" data-placement="bottom" data-html="true"
+                                   title="<div style='width:200px;height:40px;'>Click here to download the CPSC Trucks & Buses guidelines.</div>"></i>
+                            </a>
+                        </li>
+                            <li class="dropdown dropdown-user" style="padding-top:10px; color:#3598dc; font-size:20px;">
+                                <a href='~/PDF/CPSCSCVPU_Nov25.pdf' target='_blank' style="padding-top:6px; color:#3598dc;">
+                                    <i class="fa fa-question-circle red-tooltip" aria-hidden="true" data-toggle="tooltip" data-placement="bottom" data-html="true"
+                                       title="<div style='width:200px;height:40px;'>Click here to download the CPSC SCV PU guidelines.</div>"></i>
+                                </a>
+                            </li>
+                      
+                    </ul>
+                </div>
+                <!-- END TOP NAVIGATION MENU -->
+            </div>
+            <!-- END HEADER INNER -->
+        </div>
+        <!-- END HEADER -->
+        <!-- BEGIN HEADER & CONTENT DIVIDER -->
+        <div class="clearfix"> </div>
+        <!-- END HEADER & CONTENT DIVIDER -->
+        <!-- BEGIN CONTAINER -->
+        <div class="page-container">
+            <!-- BEGIN SIDEBAR -->
+            <div class="page-sidebar-wrapper">
+                <!-- BEGIN SIDEBAR -->
+                <!-- DOC: Set data-auto-scroll="false" to disable the sidebar from auto scrolling/focusing -->
+                <!-- DOC: Change data-auto-speed="200" to adjust the sub menu slide up/down speed -->
+                <div class="page-sidebar navbar-collapse collapse">
+                    <!-- BEGIN SIDEBAR MENU -->
+                    <!-- DOC: Apply "page-sidebar-menu-light" class right after "page-sidebar-menu" to enable light sidebar menu style(without borders) -->
+                    <!-- DOC: Apply "page-sidebar-menu-hover-submenu" class right after "page-sidebar-menu" to enable hoverable(hover vs accordion) sub menu mode -->
+                    <!-- DOC: Apply "page-sidebar-menu-closed" class right after "page-sidebar-menu" to collapse("page-sidebar-closed" class must be applied to the body element) the sidebar sub menu mode -->
+                    <!-- DOC: Set data-auto-scroll="false" to disable the sidebar from auto scrolling/focusing -->
+                    <!-- DOC: Set data-keep-expand="true" to keep the submenues expanded -->
+                    <!-- DOC: Set data-auto-speed="200" to adjust the sub menu slide up/down speed -->
+                    <ul class="page-sidebar-menu  page-header-fixed " data-keep-expanded="false" data-auto-scroll="true" data-slide-speed="200" style="padding-top: 0px">
+
+                        <li class="nav-item navbar-collapse collapse">
+                            <a>
+                                <div class="profile-header-container title">
+                                    <div class="profile-header-img">
+                                        @{
+                                            string filename = Session["Uid"].ToString() + ".jpg";
+
+                                            string path = Path.Combine(Server.MapPath("~/assets/profile"),
+                                                                                           Path.GetFileName(Session["Uid"] + ".jpg"));
+                                            if (File.Exists(path))
+                                            {
+                                                <img class="img-circle" src="../assets/profile/@filename?sz=120" />
+                                            }
+                                            else
+                                            {
+                                                <img class="img-circle" src="../assets/profile/dummy.png?sz=120" />
+                                            }
+
+
+                                        }
+                                        <!-- badge -->
+                                        <div class="img-circle rank-label-container nav-link nav-toggle">
+                                            <span class="img-circle label label-default rank-label">@Session["Type"].ToString()</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+@if (type1 == "Spl") { }
+else
+{
+    <li class="nav-item  ">
+        <a href="@Url.Action("Index", "Home")" class="nav-link nav-toggle">
+            <i class="glyphicon glyphicon-home"></i>
+            <span class="title">Home</span>
+            <!--span class="arrow"></span-->
+        </a>
+    </li>
+}
+                        @{ string tt = string.Empty;
+                            if (Session["Type"].ToString() == "Admin")
+                            {
+
+                                <li class="nav-item  ">
+                                    <a href="@Url.Action("CreateUser", "Login")" class="nav-link nav-toggle">
+                                        <i class="icon-users"></i>
+                                        <span class="title">Create User</span>
+                                        <!--span class="arrow"></span-->
+                                    </a>
+                                </li>
+                            }
+                        }
+                        <!--li class="nav-item  ">
+        <a href="javascript:;" class="nav-link nav-toggle">
+            <i class="glyphicon glyphicon-th-list"></i>
+            <span class="title">Data</span>
+            <span class="arrow"></span>
+        </a>
+        <ul class="sub-menu">
+        @{
+            if (type1 == "CSM" || type1 == "TSM") { }
+            else
+            {
+            <li class="nav-item  ">
+                <a href="@Url.Action("AMIndex", "KPI")" class="nav-link ">
+
+                    <span class="title">Target</span>
+                </a>
+            </li>
+            }
+       }
+            <li class="nav-item  ">
+                <a href="@Url.Action("AMActualIndex", "KPI")" class="nav-link ">
+                    <span class="title">Actual</span>
+                </a>
+            </li>
+        </ul>
+    </li-->
+                        @{
+                            if (type1 == "RSM" || type1 == "RM" || type1 == "SHQ" || type1 == "RSNM" || type1 == "RMCC" || type1 == "Service_Head" || type1 == "SS_Head"|| type1 == "CSM" || type1 == "Spl") { }
+                            else
+                            {
+                                <li class="nav-item  ">
+                                    <a href="javascript:;" class="nav-link nav-toggle">
+                                        <i class="glyphicon glyphicon-list-alt"></i>
+                                        <span class="title">Bulk Entry Monthly @*<span style="font-size: 10px;color:red;">(beta)</span>*@</span>
+                                        <span class="arrow"></span>
+                                    </a>
+                                    <ul class="sub-menu">
+                                        @{
+                                            if (type1 == "CSM" || type1 == "TSM" || type1 == "SNM") { }
+                                            else
+                                            {
+                                                <li class="nav-item  ">
+                                                    <a href="@Url.Action("BulkDataSheetTarget", "KPI")" class="nav-link ">
+
+                                                        <span class="title">Target</span>
+                                                    </a>
+                                                </li>
+                                            }
+                                        }
+
+@{
+    if (type1 == "SNM") { }
+    else
+    {
+                                        <li class="nav-item  ">
+                                            <a href="@Url.Action("BulkDataSheet", "KPI")" class="nav-link ">
+                                                <span class="title">Actual</span>
+                                            </a>
+                                        </li>
+        }
+    }
+@*@{
+    if (type1 == "SH" || type1 == "SNM" || type1=="SuperAdmin")
+    {
+                                        <li class="nav-item  ">
+                                            <a href="@Url.Action("BulkDataSheetManpowerTarget", "KPI")" class="nav-link ">
+                                                <span class="title">Manpower Target</span>
+                                            </a>
+                                        </li>
+        }
+    }*@
+
+                                    </ul>
+                                </li>
+                            }
+                        }
+
+                        @{
+                            if (type1 == "SuperAdmin" || type1 == "SH")
+                            {
+
+                                <li class="nav-item">
+                                    <a href="javascript:;" class="nav-link nav-toggle">
+                                        <i class="glyphicon glyphicon-th-list"></i>
+                                        <span class="title">MoM @*<span style="font-size: 10px;color:red;">(beta)</span>*@</span>
+                                        <span class="arrow"></span>
+                                    </a>
+                                    <ul class="sub-menu">
+
+                                        <li class="nav-item  ">
+                                            <a href="@Url.Action("Insert_MoM", "MoM")" class="nav-link ">
+                                                <span class="title">Fill MoM</span>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item  ">
+                                            <a href="@Url.Action("Modify_MoM", "MoM")" class="nav-link ">
+                                                <span class="title">Modify MoM</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            }
+                        }
+
+                        @if (type1 == "RM")
+                        {
+                            <li class="nav-item  ">
+                                <a href="@Url.Action("SamiriddhiBulkUpload", "BulkUpload")" class="nav-link nav-toggle">
+                                    <i class="glyphicon glyphicon-list-alt"></i>
+                                    <span class="title">Samiriddhi Data</span>
+                                    <!--span class="arrow"></span-->
+                                </a>
+                            </li>
+                        }
+
+                        @{
+                            if (type1 == "SuperAdmin" || type1 == "SH" || type1 == "SA" || type1 == "SS_Head" || type1 == "RMCC" || type1 == "SNM" || type1 == "RSNM")
+                            {
+
+                                <li class="nav-item">
+                                    <a href="javascript:;" class="nav-link nav-toggle">
+                                        <i class="glyphicon glyphicon-th-list"></i>
+                                        <span class="title">Action Plan @*<span style="font-size: 10px;color:red;">(beta)</span>*@</span>
+                                        <span class="arrow"></span>
+                                    </a>
+                                    <ul class="sub-menu">
+                                        <li class="nav-item  ">
+                                            <a href="@Url.Action("EnterActionPlan", "actionPlan")" class="nav-link ">
+                                                <span class="title">Enter Action Plan</span>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item  ">
+                                            <a href="@Url.Action("UpdateActionPlan", "actionPlan")" class="nav-link ">
+                                                <span class="title">Update Action Plan</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            }
+                        }
+
+                        @{
+                            if (type1 == "SuperAdmin" || type1 == "SH")
+                            {
+                                <li class="nav-item  ">
+                                    <a href="@Url.Action("DataFilling", "DataFilling")" class="nav-link nav-toggle">
+                                        <i class="glyphicon glyphicon-list-alt"></i>
+                                        <span class="title">Data Filling State Wise</span>
+                                    </a>
+                                </li>
+                            }
+                        }
+
+    @{
+                            if (type1 == "SuperAdmin" || type1 == "SPM" || type1 == "TSM")
+                            {
+                                <li class="nav-item  ">
+                                    <a href="@Url.Action("SalesManpowerAudit", "SalesManpowerAudit")" class="nav-link nav-toggle">
+                                        <i class="glyphicon glyphicon-list-alt"></i>
+                                        <span class="title">Sales Manpower Audit</span>
+                                    </a>
+                                </li>
+                            }
+                        }
+
+                        @{
+                            if (type1 == "Spl")
+                            {
+                                <li class="nav-item  ">
+                                    <a href="@Url.Action("Index", "BulkExcelUpload")" class="nav-link nav-toggle">
+                                        <i class="glyphicon glyphicon-list-alt"></i>
+                                        <span class="title">Bulk Excel Upload</span>
+                                    </a>
+                                </li>
+                            }
+                        }
+
+                        @{
+                            if (type1 == "SH")
+                            {
+
+                                <li class="nav-item">
+                                    <a href="javascript:;" class="nav-link nav-toggle">
+                                        <i class="glyphicon glyphicon-th-list"></i>
+                                        <span class="title">Unlock Request @*<span style="font-size: 10px;color:red;">(beta)</span>*@</span>
+                                        <span class="arrow"></span>
+                                    </a>
+                                    <ul class="sub-menu">
+
+                                        <li class="nav-item  ">
+                                            <a href="@Url.Action("Unlock_Target", "Home")" class="nav-link ">
+                                                <span class="title">Target</span>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item  ">
+                                            <a href="@Url.Action("Unlock_Actual", "Home")" class="nav-link ">
+                                                <span class="title">Actual</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            }
+                        }
+
+                        @*@{
+                            if (type1 == "RPM")
+                            {
+
+                                <li class="nav-item">
+                                    <a href="javascript:;" class="nav-link nav-toggle">
+                                        <i class="glyphicon glyphicon-list-alt"></i>
+                                        <span class="title">Bulk Entry By Excel</span>
+                                        <span class="arrow"></span>
+                                    </a>
+                                    <ul class="sub-menu">
+
+                                        <li class="nav-item  ">
+                                            <a href="@Url.Action("BulkUploadTargetIndex", "BulkUpload")" class="nav-link ">
+                                                <span class="title">Target</span>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item  ">
+                                            <a href="@Url.Action("BulkUploadActualIndex", "BulkUpload")" class="nav-link ">
+                                                <span class="title">Actual</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            }
+                        }*@
+                        @{
+                            if (type1 == "SH" || type1 == "SNM")
+                            {
+
+                                <li class="nav-item">
+                                    <a href="javascript:;" class="nav-link nav-toggle">
+                                        <i class="glyphicon glyphicon-list-alt"></i>
+                                        <span class="title">Bulk Entry By Excel @*<span style="font-size: 10px;color:red;">(beta)</span>*@</span>
+                                        <span class="arrow"></span>
+                                    </a>
+                                    <ul class="sub-menu">
+
+                                        <li class="nav-item  ">
+                                            <a href="@Url.Action("BulkUploadTargetIndex", "BulkUpload")" class="nav-link ">
+                                                <span class="title">Target</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                }
+                                else if (type1 == "RPM")
+                                //else if (type1 == "RPM" || type1 == "CSM")
+                                {
+
+                                <li class="nav-item">
+                                    <a href="javascript:;" class="nav-link nav-toggle">
+                                        <i class="glyphicon glyphicon-list-alt"></i>
+                                        <span class="title">Bulk Entry By Excel @*<span style="font-size: 10px;color:red;">(beta)</span>*@</span>
+                                        <span class="arrow"></span>
+                                    </a>
+                                    <ul class="sub-menu">
+
+                                        <li class="nav-item  ">
+                                            <a href="@Url.Action("BulkUploadActualIndex", "BulkUpload")" class="nav-link ">
+                                                <span class="title">Actual</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            }
+                            else if (type1 == "SSM")
+                            {
+
+                                <li class="nav-item">
+                                    <a href="javascript:;" class="nav-link nav-toggle">
+                                        <i class="glyphicon glyphicon-list-alt"></i>
+                                        <span class="title">Bulk Entry By Excel @*<span style="font-size: 10px;color:red;">(beta)</span>*@</span>
+                                        <span class="arrow"></span>
+                                    </a>
+                                    <ul class="sub-menu">
+
+                                        <li class="nav-item  ">
+                                            <a href="@Url.Action("BulkUploadTargetIndex", "BulkUpload")" class="nav-link ">
+                                                <span class="title">Target</span>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item  ">
+                                            <a href="@Url.Action("BulkUploadActualIndex", "BulkUpload")" class="nav-link ">
+                                                <span class="title">Actual</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            }
+                            else
+                            {
+
+                            }
+                        }
+                        @{
+                            if (type1 == "SPM" || type1 == "SSM" || type1 == "RPM")
+                            {
+
+                                <li class="nav-item">
+                                    <a href="javascript:;" class="nav-link nav-toggle">
+                                        <i class="glyphicon glyphicon-lock"></i>
+                                        <span class="title">Change Request @*<span style="font-size: 10px;color:red;">(beta)</span>*@</span>
+                                        <span class="arrow"></span>
+                                    </a>
+                                    <ul class="sub-menu">
+
+                                        <li class="nav-item  ">
+                                            <a href="@Url.Action("Change_Target", "ChangeReq")" class="nav-link ">
+                                                <span class="title">Target</span>
+                                            </a>
+                                        </li>
+
+                                        <li class="nav-item  ">
+                                            <a href="@Url.Action("Change_Actual", "ChangeReq")" class="nav-link ">
+                                                <span class="title">Actual</span>
+                                            </a>
+                                        </li>
+
+                                    </ul>
+                                </li>
+                            }
+                        }
+
+
+
+                        @*<li class="nav-item  ">
+            <a href="@Url.Action("Dashboard", "Home")" class="nav-link nav-toggle">
+                <i class="glyphicon glyphicon-dashboard"></i>
+                <span class="title">Dashboard</span>
+            </a>
+        </li>*@
+@if (type1 == "Spl") { }
+else
+{
+    <li class="nav-item">
+        <a href="javascript:;" class="nav-link nav-toggle">
+            <i class="glyphicon glyphicon-dashboard"></i>
+            <span class="title">Dashboard @*<span style="font-size: 10px;color:red;">(beta)</span>*@</span>
+            <span class="arrow"></span>
+        </a>
+        <ul class="sub-menu">
+
+            <li class="nav-item  ">
+
+                @*<a href="@Url.Action("Dashboard", "Home",new {dash_type_Tml="Monthly" })" class="nav-link ">*@
+                <a href="javascript:;" class="nav-link nav-toggle">
+                    <span class="title">Monthly</span>
+                    <span class="arrow"></span>
+                </a>
+                @*Changes*@
+                <ul class="sub-menu">
+                    <li class="nav-item  ">
+                        <a href="@Url.Action("Dashboard", "Home", new { dash_type_Tml = "MonthlyApril" })" class="nav-link ">
+                            <span class="title">April’18 – June’19</span>
+                        </a>
+                    </li>
+                    <li class="nav-item  ">
+                        <a href="@Url.Action("Dashboard", "Home", new { dash_type_Tml = "MonthlyJuly" })" class="nav-link ">
+                            <span class="title">July’19 – Apr’21</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item  ">
+                        <a href="@Url.Action("Dashboard", "Home", new { dash_type_Tml = "MonthlyJuly21" })" class="nav-link ">
+                            <span class="title">July’21 – Mar’22</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item  ">
+                        <a href="@Url.Action("Dashboard", "Home", new { dash_type_Tml = "MonthlyJuly23" })" class="nav-link ">
+                            <span class="title">CPSC FY23</span>
+                        </a>
+                    </li>
+                    <li class="nav-item  ">
+
+                        @*<a href="@Url.Action("Dashboard", "Home",new {dash_type_Tml="Monthly" })" class="nav-link ">*@
+                        <a href="javascript:;" class="nav-link nav-toggle">
+                            <span class="title">CPSC FY24 </span>
+                            <span class="arrow"></span>
+                        </a>
+                        <ul class="sub-menu">
+                            <li class="nav-item  ">
+                                <a href="@Url.Action("Dashboard", "Home", new { dash_type_Tml = "MonthlyJuly24" })" class="nav-link ">
+                                    <span class="title">Full Spread CPSC FY24</span>
+                                </a>
+                            </li>
+                            <li class="nav-item  ">
+                                <a href="@Url.Action("Dashboard", "Home", new { dash_type_Tml = "MonthlySCVJuly24" })" class="nav-link ">
+                                    <span class="title">Exclusive CPSC for Small Format Dealer FY24</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item  ">
+
+                        @*<a href="@Url.Action("Dashboard", "Home",new {dash_type_Tml="Monthly" })" class="nav-link ">*@
+                        <a href="javascript:;" class="nav-link nav-toggle">
+                            <span class="title">CPSC FY25(Apr'24-Oct'24)</span>
+                            <span class="arrow"></span>
+                        </a>
+                        <ul class="sub-menu">
+                            <li class="nav-item  ">
+                                <a href="@Url.Action("Dashboard", "Home", new { dash_type_Tml = "MonthlyJuly25" })" class="nav-link ">
+                                    <span class="title">Full Spread</span>
+                                </a>
+                            </li>
+                            <li class="nav-item  ">
+                                <a href="@Url.Action("Dashboard", "Home", new { dash_type_Tml = "MonthlySCVJuly25" })" class="nav-link ">
+                                    <span class="title">Exclusive CPSC for Small Format Dealer</span>
+                                </a>
+                            </li>
+                            
+                        </ul>
+                    </li>
+                    <li class="nav-item  ">
+
+                        @*<a href="@Url.Action("Dashboard", "Home",new {dash_type_Tml="Monthly" })" class="nav-link ">*@
+                        <a href="javascript:;" class="nav-link nav-toggle">
+                            <span class="title">CPSC FY25(Nov'24-Mar'25) </span>
+                            <span class="arrow"></span>
+                        </a>
+                        <ul class="sub-menu">
+                            
+                            <li class="nav-item  ">
+                                <a href="@Url.Action("Dashboard", "Home", new { dash_type_Tml = "MonthlyNov25" })" class="nav-link ">
+                                    <span class="title">Trucks & Buses</span>
+                                </a>
+                            </li>
+                            <li class="nav-item  ">
+                                <a href="@Url.Action("Dashboard", "Home", new { dash_type_Tml = "MonthlySCVNov25" })" class="nav-link ">
+                                    <span class="title">SCV PU</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item  ">
+
+                        @*<a href="@Url.Action("Dashboard", "Home",new {dash_type_Tml="Monthly" })" class="nav-link ">*@
+                        <a href="javascript:;" class="nav-link nav-toggle">
+                            <span class="title">CPSC FY26 </span>
+                            <span class="arrow"></span>
+                        </a>
+                        <ul class="sub-menu">
+
+                            <li class="nav-item  ">
+                                <a href="@Url.Action("Dashboard", "Home", new { dash_type_Tml = "MonthlyFY26" })" class="nav-link ">
+                                    <span class="title">Trucks & Buses</span>
+                                </a>
+                            </li>
+                            <li class="nav-item  ">
+                                <a href="@Url.Action("Dashboard", "Home", new { dash_type_Tml = "MonthlySCVFY26" })" class="nav-link ">
+                                    <span class="title">SCV PU</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    @*<li class="nav-item  ">
+                        <a href="@Url.Action("Dashboard", "Home", new { dash_type_Tml = "MonthlyJuly24" })" class="nav-link ">
+                            <span class="title">Full Spread CPSC FY24</span>
+                        </a>
+                    </li>
+                    <li class="nav-item  ">
+                        <a href="@Url.Action("Dashboard", "Home", new { dash_type_Tml = "MonthlySCVJuly24" })" class="nav-link ">
+                            <span class="title">Exclusive CPSC for Small Format Dealer FY24</span>
+                        </a>
+                    </li>*@
+                </ul>
+                @if (type1 == "SuperAdmin" || type1 == "SH" || type1 == "SSM" || type1 == "RMCC" || type1 == "RM" || type1 == "RPM" || type1 == "RSNM" || type1 == "SNM" || type1 == "Heads" || type1 == "Service_Head")
+                {
+                <li class="nav-item  ">
+                    <a href="@Url.Action("Dashboard", "Home", new { dash_type_Tml = "Con" })" class="nav-link ">
+                        <span class="title">Concurrent-Trucks & Buses</span>
+                    </a>
+                </li>
+                <li class="nav-item  ">
+                    <a href="@Url.Action("Dashboard", "Home", new { dash_type_Tml = "SCVCon" })" class="nav-link ">
+                        <span class="title">Concurrent-SCV PU</span>
+                    </a>
+                </li>
+                }
+            @if (type1 == "SuperAdmin" || type1 == "RSNM" || type1 == "RM")
+            {
+                <li class="nav-item  ">
+                    <a href="@Url.Action("Dashboard", "Home", new { dash_type_Tml = "SensitivityAnalysisJuly24" })" class="nav-link ">
+                        <span class="title">Profitability</span>
+                    </a>
+                </li>
+            }
+            </ul>
+        </li>
+}
+@if (type1 == "Spl" || type1 == "RM") { }
+else
+{
+    <li class="nav-item  ">
+        <a href="@Url.Action("ShowAllNotification", "KPI", new { Uid = Session["Uid"].ToString() })" class="nav-link nav-toggle">
+            <i class="glyphicon glyphicon-bell"></i>
+            <span class="title">Alerts</span>
+        </a>
+    </li>
+}
+
+
+                            @{
+                                if (type1 == "SuperAdmin")
+                                {
+
+                                    <li class="nav-item  ">
+                                        <a href="javascript:;" class="nav-link nav-toggle">
+                                            <i class="glyphicon glyphicon-th-list"></i>
+                                            <span class="title">Data completion Reports</span>
+                                            <span class="arrow"></span>
+                                        </a>
+                                        <ul class="sub-menu">
+                                            <li class="nav-item  ">
+                                                <a href="@Url.Action("Data_Complition_Target", "Home")" class="nav-link ">
+                                                    <span class="title">Target</span>
+                                                </a>
+                                            </li>
+                                            <li class="nav-item  ">
+                                                <a href="@Url.Action("Data_Complition_Actual", "Home")" class="nav-link ">
+                                                    <span class="title">Actual</span>
+                                                </a>
+                                            </li>
+                                            @*<li class="nav-item  ">
+                                <a href="@Url.Action("Data_Complition_Sales_Target", "Home")" class="nav-link ">
+                                    <span class="title">Target(Sales)</span>
+                                </a>
+                            </li>
+                            <li class="nav-item  ">
+                                <a href="@Url.Action("Data_Complition_Sales_Actual", "Home")" class="nav-link ">
+                                    <span class="title">Actual(Sales)</span>
+                                </a>
+                            </li>
+                            <li class="nav-item  ">
+                                <a href="@Url.Action("Data_Complition_AfterSales_Target", "Home")" class="nav-link ">
+                                    <span class="title">Target(AfterSales)</span>
+                                </a>
+                            </li>
+                            <li class="nav-item  ">
+                                <a href="@Url.Action("Data_Complition_AfterSales_Actual", "Home")" class="nav-link ">
+                                    <span class="title">Actual(AfterSales)</span>
+                                </a>
+                            </li>*@
+                                        </ul>
+                                    </li>
+                                } }
+
+                            @{
+                                if (type1 == "CSM" || type1 == "TSM" || type1 == "Spl" || type1 == "RM") { }
+                                else
+                                {
+                                    <li class="nav-item  ">
+                                        <a href="javascript:;" class="nav-link nav-toggle">
+                                            <i class="glyphicon glyphicon-th-list"></i>
+                                            <span class="title">Target Reports</span>
+                                            <span class="arrow"></span>
+                                        </a>
+                                        <ul class="sub-menu">
+                                            <li class="nav-item  ">
+                                                <a href="@Url.Action("DataReports", "KPI")" class="nav-link ">
+                                                    <span class="title">Pending Input Data</span>
+                                                </a>
+                                            </li>
+                                            <li class="nav-item  ">
+                                                <a href="@Url.Action("DataReportsPA", "KPI")" class="nav-link ">
+                                                    <span class="title">Pending Approval</span>
+                                                </a>
+                                            </li>
+                                            <li class="nav-item  ">
+                                                <a href="@Url.Action("DataReportsDS", "KPI")" class="nav-link ">
+                                                    <span class="title">Data Suspect</span>
+                                                </a>
+                                            </li>
+                                            <li class="nav-item  ">
+                                                <a href="@Url.Action("DataReportsDO", "KPI")" class="nav-link ">
+                                                    <span class="title">Data Ok</span>
+                                                </a>
+                                            </li>
+                                            <li class="nav-item  ">
+                                                <a href="@Url.Action("CurrentStatus_target", "Home")" class="nav-link ">
+                                                    <span class="title">Current Status</span>
+                                                </a>
+                                            </li>
+
+                                            @if (type1 == "SuperAdmin")
+                                            {
+                                                <li class="nav-item  ">
+                                                    <a href="@Url.Action("PandingInputTSM_CSMWise_Target", "Home")" class="nav-link ">
+                                                        <span class="title">TSM/CSM Pending Input Data</span>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item  ">
+                                                    <a href="@Url.Action("DelayedData_Target", "Home")" class="nav-link ">
+                                                        <span class="title">Delayed Entry</span>
+                                                    </a>
+                                                </li>
+                                            }
+
+                                        </ul>
+                                    </li>
+                                } }
+@if (type1 == "Spl" || type1 == "RM") { }
+else
+{
+                            <li class="nav-item  ">
+                                <a href="javascript:;" class="nav-link nav-toggle">
+                                    <i class="glyphicon glyphicon-th-list"></i>
+                                    <span class="title">Actual Reports</span>
+                                    <span class="arrow"></span>
+                                </a>
+                                <ul class="sub-menu">
+                                    <li class="nav-item  ">
+                                        <a href="@Url.Action("DataReports_actual", "KPI")" class="nav-link ">
+                                            <span class="title">Pending Input Data</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item  ">
+                                        <a href="@Url.Action("DataReportsPA_actual", "KPI")" class="nav-link ">
+                                            <span class="title">Pending Approval</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item  ">
+                                        <a href="@Url.Action("DataReportsDS_actual", "KPI")" class="nav-link ">
+                                            <span class="title">Data Suspect</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item  ">
+                                        <a href="@Url.Action("DataReportsDO_actual", "KPI")" class="nav-link ">
+                                            <span class="title">Data Ok</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item  ">
+                                        <a href="@Url.Action("CurrentStatus_actual", "Home")" class="nav-link ">
+                                            <span class="title">Current Status</span>
+                                        </a>
+                                    </li>
+                                    @if (type1 == "SuperAdmin")
+                                    {
+                                        <li class="nav-item  ">
+                                            <a href="@Url.Action("PandingInputTSM_CSMWise_Actual", "Home")" class="nav-link ">
+                                                <span class="title">TSM/CSM Wise Pending Input Data</span>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item  ">
+                                            <a href="@Url.Action("DelayedData_Actual", "Home")" class="nav-link ">
+                                                <span class="title">Delayed Entry</span>
+                                            </a>
+                                        </li>
+                                    }
+                                </ul>
+                            </li>
+}
+                            <li class="nav-item  ">
+                                <a href="@Url.Action("Login","Login")" class="nav-link nav-toggle">
+                                    <i class="glyphicon glyphicon-off"></i>
+                                    <span class="title">Logout</span>
+                                </a>
+                            </li>
+                            @*<li id="logo_sidebar" class="nav-item navbar-collapse collapse" style="position: fixed;display: inline-block;bottom: 18px;left: 35px;">
+                                <div class="logo_sidebar_content">
+                                    <img src="../assets/logo/whitelogo.png" alt="TATA Motors" class="sidebar_logo" />
+                                </div>
+                            </li>*@
+                        </ul>
+                    <!-- END SIDEBAR MENU -->
+                    <!-- END SIDEBAR MENU -->
+                </div>
+                <!-- END SIDEBAR -->
+            </div>
+            <!-- END SIDEBAR -->
+            <!-- BEGIN CONTENT -->
+            <div class="page-content-wrapper">
+                <!-- BEGIN CONTENT BODY -->
+                <div class="page-content" style="padding-top:4px;">
+                    <div class="page-bar" style="display:none;">
+                        <ul class="page-breadcrumb">
+                            <li>
+                                <a href="index.html">Home</a>
+                                <i class="fa fa-circle"></i>
+                            </li>
+                            <li>
+                                <span>Dashboard</span>
+                            </li>
+                        </ul>
+                        <!--div class="page-toolbar">
+                            <div id="dashboard-report-range" class="pull-right tooltips btn btn-sm" data-container="body" data-placement="bottom" data-original-title="Change dashboard date range">
+                                <i class="icon-calendar"></i>&nbsp;
+                                <span class="thin uppercase hidden-xs"></span>&nbsp;
+                                <i class="fa fa-angle-down"></i>
+                            </div>
+                        </div-->
+                    </div>
+                    <!-- END PAGE BAR -->
+                    <!-- BEGIN PAGE TITLE-->
+                    <!--h1 class="page-title" style="margin:5px 0;">
+                        Dashboard
+                        <!--small>statistics, charts, recent events and reports</small>
+                    </h1-->
+                    <!-- END PAGE TITLE-->
+                    <!-- END PAGE HEADER-->
+                    <!-- BEGIN DASHBOARD STATS 1-->
+                
+                        @RenderBody()
+                
+
+
+                    <!-- Pop up start -->
+                    <!--a class="btn purple btn-outline sbold" data-toggle="modal" href="#static" id="clickButton"></a-->
+                 
+                    <!-- Pop up end -->
+
+
+
+                   
+
+
+
+
+
+                </div>
+                <!-- END CONTENT BODY -->
+            </div>
+            <!-- END CONTENT -->
+            <!-- BEGIN QUICK SIDEBAR -->
+            <!-- END QUICK SIDEBAR -->
+        </div>
+        <!-- END CONTAINER -->
+        <!-- BEGIN FOOTER -->
+        <div class="page-footer" style="margin-left:50%;">
+            <div class="page-footer-inner"> 2023 &copy; TATA Motors</div>
+            <div class="scroll-to-top">
+                <i class="icon-arrow-up"></i>
+            </div>
+        </div>
+        <!-- END FOOTER -->
+    </div>
+
+    <!-- msg pop up start -->
+    <a id="msg_click" name="msg_click" class="btn btn-link" style="line-height:0;margin-top:-4px; display:none;" href="#user_msg" data-toggle="modal"><i class="fa fa-edit" style="color:orange;"></i></a>
+    <div style="width:715px; margin-left:24%; margin-top:10%;" id="user_msg" class="modal fade" tabindex="-1" data-backdrop="user_msg" data-keyboard="false">
+        <div class="modal-dialog" style="border:2px solid #cc0001; width:50%;">
+            <div class="modal-content">
+                <!--div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                    <div class="caption">
+                        <i class="icon-layers font-blue"></i>
+                        <span class="caption-subject font-blue bold uppercase">
+                            Confirm
+                        </span>
+                    </div>
+                </div-->
+                <div class="modal-body" id="staticModelBody" style="overflow:auto;max-height:500px;padding: 9px 0px 0px 0px; background:#eee;">
+
+                    <!-- Pop up body start-->
+                    <div class="portlet-body form">
+
+                        <div class="form-horizontal">
+                            <div class="form-wizard">
+                                <div class="form-body" style="padding: 0px 20px;">
+
+                                    <div id="bar" class="progress progress-striped" role="progressbar" style="display:none;">
+                                        <div class="progress-bar progress-bar-success"> </div>
+                                    </div>
+                                    <div class="tab-content">
+                                        <div class="alert alert-danger display-none">
+                                            <button class="close" data-dismiss="alert"></button> You have some form errors. Please check below.
+                                        </div>
+                                        <div class="alert alert-success display-none">
+                                            <button class="close" data-dismiss="alert"></button> Your form validation is successful!
+                                        </div>
+                                        <div class="tab-pane active" id="tab1">
+                                            <!--h3 class="block">Provide your account details</h3-->
+
+                                            <div class="form-group">
+                                                <div class="col-md-12" id="msg_2" style="text-align: center;font-weight: bold;font-size: 17px;">&nbsp;</div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- msg pop up end-->
+
+    <!-- END QUICK NAV -->
+    <!--[if lt IE 9]>
+    <script src="../assets/global/plugins/respond.min.js"></script>
+    <script src="../assets/global/plugins/excanvas.min.js"></script>
+    <script src="../assets/global/plugins/ie8.fix.min.js"></script>
+    <![endif]-->
+    <!-- BEGIN CORE PLUGINS -->
+    <script src="../assets/global/plugins/jquery.min.js" type="text/javascript"></script>
+    <script type="text/javascript" src="../Scripts/jquery.dataTables.min.js"></script>
+
+    <script src="../assets/global/plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/js.cookie.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/jquery-slimscroll/jquery.slimscroll.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/jquery.blockui.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/bootstrap-switch/js/bootstrap-switch.min.js" type="text/javascript"></script>
+    <!-- END CORE PLUGINS -->
+    <!-- BEGIN PAGE LEVEL PLUGINS -->
+    <script src="../assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="../assets/global/plugins/moment.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/bootstrap-daterangepicker/daterangepicker.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/morris/morris.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/morris/raphael-min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/counterup/jquery.waypoints.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/counterup/jquery.counterup.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/amcharts/amcharts/amcharts.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/amcharts/amcharts/serial.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/amcharts/amcharts/pie.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/amcharts/amcharts/radar.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/amcharts/amcharts/themes/light.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/amcharts/amcharts/themes/patterns.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/amcharts/amcharts/themes/chalk.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/amcharts/ammap/ammap.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/amcharts/ammap/maps/js/worldLow.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/amcharts/amstockcharts/amstock.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/fullcalendar/fullcalendar.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/horizontal-timeline/horizontal-timeline.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/flot/jquery.flot.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/flot/jquery.flot.resize.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/flot/jquery.flot.categories.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/jquery-easypiechart/jquery.easypiechart.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/jquery.sparkline.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/jqvmap/jqvmap/jquery.vmap.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/jqvmap/jqvmap/maps/jquery.vmap.russia.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/jqvmap/jqvmap/maps/jquery.vmap.world.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/jqvmap/jqvmap/maps/jquery.vmap.europe.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/jqvmap/jqvmap/maps/jquery.vmap.germany.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/jqvmap/jqvmap/maps/jquery.vmap.usa.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/jqvmap/jqvmap/data/jquery.vmap.sampledata.js" type="text/javascript"></script>
+    <!-- END PAGE LEVEL PLUGINS -->
+    <!-- BEGIN THEME GLOBAL SCRIPTS -->
+    <script src="../assets/global/scripts/app.min.js" type="text/javascript"></script>
+    <!-- END THEME GLOBAL SCRIPTS -->
+    <!-- BEGIN PAGE LEVEL SCRIPTS -->
+    <script src="../assets/pages/scripts/dashboard.min.js" type="text/javascript"></script>
+    <!-- END PAGE LEVEL SCRIPTS -->
+    <!-- BEGIN THEME LAYOUT SCRIPTS -->
+    <script src="../assets/layouts/layout/scripts/layout.min.js" type="text/javascript"></script>
+    <script src="../assets/layouts/layout/scripts/demo.min.js" type="text/javascript"></script>
+    <script src="../assets/layouts/global/scripts/quick-sidebar.min.js" type="text/javascript"></script>
+    <script src="../assets/layouts/global/scripts/quick-nav.min.js" type="text/javascript"></script>
+    <!-- END THEME LAYOUT SCRIPTS -->
+    <!-- BEGIN PAGE LEVEL SCRIPTS -->
+    <!--script src="../assets/pages/scripts/charts-amcharts.min.js" type="text/javascript"></script-->
+    <!--script src="../assets/pages/scripts/custom_bar.js" type="text/javascript"></script-->
+    <script src="../assets/pages/scripts/form-wizard.min.js" type="text/javascript"></script>
+
+    <script src="../assets/pages/scripts/ui-modals.min.js" type="text/javascript"></script>
+
+    <!-- row spanizer start-->
+    <script src="../assets/rowspan/jquery.rowspanizer.min.js" type="text/javascript"></script>
+    <!-- row spanizer start-->
+    <!-- markdown start-->
+    <script src="../assets/global/plugins/bootstrap-markdown/lib/markdown.js" type="text/javascript"></script>
+    <script src="./../assets/global/plugins/bootstrap-markdown/js/bootstrap-markdown.js" type="text/javascript"></script>
+
+
+    <!-- END PAGE LEVEL SCRIPTS -->
+    <script>
+        $(document).ready(function(){
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+    
+    
+
+
+    @using System.Data;
+    @using System.Data.SqlClient;
+    @using System.Globalization;
+    @using System.Web;
+    @using System.Configuration;
+    <!-- Pending Inputs -->
+    @{
+        string uidPI = Session["Uid"].ToString();
+
+        DataTable dtfPI;
+        string _sqlPI = string.Empty;
+        string CS_lay = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
+
+
+
+        DateTime actual_date = Convert.ToDateTime(Session["Actual_date"].ToString());
+
+        String month_curr_name = actual_date.AddMonths(0).ToString("MMM");/*DateTime.Now.ToString("MMM");*/
+        String month_last_name = actual_date.AddMonths(0).ToString("MMM");
+
+        int Month_curr = actual_date.Month;
+        int Year_curr = actual_date.Year;
+
+        using (SqlConnection cnPI = new SqlConnection(CS_lay))
+        {
+            SqlDataAdapter da = new SqlDataAdapter("getChartData_Actual", cnPI); // Using a Store Procedure.
+                                                                                 //SqlDataAdapter da = new SqlDataAdapter("SELECT 'this is a test text' as test", con); To use a hard coded query.
+            da.SelectCommand.CommandType = CommandType.StoredProcedure; // Comment if using hard coded query.
+            da.SelectCommand.CommandTimeout = 3600;
+            DataSet ds = new DataSet(); // Definition: Memory representation of the database.
+            da.SelectCommand.Parameters.AddWithValue("@ForYear", Year_curr); // Repeat for each parameter present in the Store Procedure.
+            da.SelectCommand.Parameters.AddWithValue("@ForMonth", Month_curr);
+            da.SelectCommand.Parameters.AddWithValue("@Userid", uidPI);
+
+            da.Fill(ds); // Fill the dataset with the query data
+            dtfPI = ds.Tables[0];
+
+        }
+    }
+
+
+
+
+
+    <script>
+        var chart = AmCharts.makeChart("chart_1", {
+            "type": "serial",
+            "theme": "light",
+            "rotate": false,
+            "legend": {
+                //"autoMargins": false,
+                //"borderAlpha": 0.2,
+                //"equalWidths": false,
+                //"horizontalGap": 10,
+                //"markerSize": 10,
+                //"useGraphSettings": true,
+                //"valueAlign": "left",
+                "position": "right",
+                "align": "left",
+                "valueWidth": 0,
+                "top": 30,
+                "left": 100,
+                "width": 130
+            },
+            "titles": [
+            {
+                "size": 15,
+                "text": "Actual - Data Entry Status (@month_last_name)",
+                "margin-top": 10
+            }],
+
+            "dataProvider": [{
+                "year": "",
+                "PendingInputs": "@dtfPI.Rows[0]["Pending_Item"].ToString()",
+                "PendingApproval": "@dtfPI.Rows[0]["PendingApp"].ToString()"
+            }, {
+                "year": "",
+                "DataOk": "@dtfPI.Rows[0]["DataOk"].ToString()",
+                "SuspectData": "@dtfPI.Rows[0]["SuppectedData"].ToString()"
+            }],
+            "valueAxes": [{
+                "stackType": "100%",
+                "axisAlpha": 1,
+                "axisColor": "#cccccc",
+                "gridAlpha": 0,
+                "labelsEnabled": true,
+                "position": "left",
+                "labelFrequency": 1,
+                "showFirstLabel": true,
+                "showLastLabel": true
+            }],
+            "graphs": [{
+                "balloonText": "[[title]], [[category]]<br><span style='font-size:14px;'><b>[[value]]</b> ([[percents]]%)</span>",
+                "fillAlphas": 0.9,
+                "fontSize": 11,
+                "labelText": "[[value]]",
+                "lineAlpha": 0.5,
+                "title": "Pending Inputs",
+                "type": "column",
+                "valueField": "PendingInputs"
+            }, {
+                "balloonText": "[[title]], [[category]]<br><span style='font-size:14px;'><b>[[value]]</b> ([[percents]]%)</span>",
+                "fillAlphas": 0.9,
+                "fontSize": 11,
+                "labelText": "[[value]]",
+                "lineAlpha": 0.5,
+                "title": "Approval Pending",
+                "type": "column",
+                "valueField": "PendingApproval"
+            }, {
+                "balloonText": "[[title]], [[category]]<br><span style='font-size:14px;'><b>[[value]]</b> ([[percents]]%)</span>",
+                "fillAlphas": 0.9,
+                "fontSize": 11,
+                "labelText": "[[value]]",
+                "lineAlpha": 0.5,
+                "title": "Data Ok",
+                "type": "column",
+                "valueField": "DataOk"
+            }, {
+                "balloonText": "[[title]], [[category]]<br><span style='font-size:14px;'><b>[[value]]</b> ([[percents]]%)</span>",
+                "fillAlphas": 0.9,
+                "fontSize": 11,
+                "labelText": "[[value]]",
+                "lineAlpha": 0.5,
+                "title": "Suspect Data",
+                "type": "column",
+                "valueField": "SuspectData"
+            }],
+            "marginTop": 40,
+            "marginRight": 0,
+            "marginLeft": 0,
+            "marginBottom": 10,
+            "autoMargins": false,
+            "categoryField": "year",
+            "categoryAxis": {
+                "gridPosition": "start",
+                "axisAlpha": 1,
+                "axisColor": "#cccccc",
+                "axisBeta": 1,
+                "gridAlpha": 0,
+                "labelsEnabled": true,
+                "labelFrequency": 1,
+                "showFirstLabel": true,
+                "showLastLabel": true
+            },
+            "export": {
+                "enabled": false
+            }
+        });
+
+        chart.addListener("clickGraphItem", handleClick)
+
+        function handleClick(event) {
+            //console.log(event);
+            //alert(event.item.graph.title);
+            if (event.item.graph.title == 'Pending Inputs') {
+                window.location = "../KPI/DataReports_actual";
+            }
+            else if (event.item.graph.title == 'Approval Pending') {
+                window.location = "../KPI/DataReportsPA_actual";
+            }
+            else if (event.item.graph.title == 'Data Ok') {
+                window.location = "../KPI/DataReportsDO_actual";
+            }
+            else if (event.item.graph.title == 'Suspected Data') {
+                window.location = "../KPI/DataReportsDS_actual";
+            }
+
+            //alert(event.item.category);
+            //console.log(event);
+        }
+
+
+    </script>
+
+
+    <!-- target chart populate -->
+    
+    @{
+        string uidtar = Session["Uid"].ToString();
+
+        DataTable dtftar;
+        string _sqltar = string.Empty;
+        string CS_laytar = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
+
+        DateTime target_date = Convert.ToDateTime(Session["Target_date"].ToString());
+
+        String month_curr_name_target = target_date.AddMonths(0).ToString("MMM");/*DateTime.Now.ToString("MMM");*/
+        String month_last_name_target = target_date.AddMonths(0).ToString("MMM");
+
+        String Month_curr_target = target_date.Month.ToString();
+        String Year_curr_target = target_date.Year.ToString();
+
+        using (SqlConnection cnPItar = new SqlConnection(CS_laytar))
+        {
+            SqlDataAdapter datar = new SqlDataAdapter("getChartData_Target", cnPItar); // Using a Store Procedure.
+                                                                                       //SqlDataAdapter da = new SqlDataAdapter("SELECT 'this is a test text' as test", con); To use a hard coded query.
+            datar.SelectCommand.CommandType = CommandType.StoredProcedure; // Comment if using hard coded query.
+            datar.SelectCommand.CommandTimeout = 3600;
+            DataSet dstar = new DataSet(); // Definition: Memory representation of the database.
+            datar.SelectCommand.Parameters.AddWithValue("@ForYear", Year_curr_target); // Repeat for each parameter present in the Store Procedure.
+            datar.SelectCommand.Parameters.AddWithValue("@ForMonth", Month_curr_target);
+            datar.SelectCommand.Parameters.AddWithValue("@Userid", uidtar);
+
+            datar.Fill(dstar); // Fill the dataset with the query data
+            dtftar = dstar.Tables[0];
+
+        }
+    }
+
+    <script>
+        var chart = AmCharts.makeChart("chart_2", {
+            "type": "serial",
+            "theme": "light",
+            "rotate": false,
+            "legend": {
+                //"autoMargins": false,
+                //"borderAlpha": 0.2,
+                //"equalWidths": false,
+                //"horizontalGap": 10,
+                //"markerSize": 10,
+                //"useGraphSettings": true,
+                //"valueAlign": "left",
+                "position": "right",
+                "align": "left",
+                "valueWidth": 0,
+                "top": 30,
+                "left": 100,
+                "width": 130
+            },
+            "titles": [
+            {
+                "size": 15,
+                "text": "Target - Data Entry Status (@month_curr_name_target)",
+                "margin-top": 10
+            }],
+
+            "dataProvider": [{
+                "year": "",
+                "PendingInputs": "@dtftar.Rows[0]["Pending_Item"].ToString()",
+                "PendingApproval": "@dtftar.Rows[0]["PendingApp"].ToString()"
+            }, {
+                "year": "",
+                "DataOk": "@dtftar.Rows[0]["DataOk"].ToString()",
+                "SuspectData": "@dtftar.Rows[0]["SuppectedData"].ToString()"
+            }],
+            "valueAxes": [{
+                "stackType": "100%",
+                "axisAlpha": 1,
+                "axisColor": "#cccccc",
+                "gridAlpha": 0,
+                "labelsEnabled": true,
+                "position": "left",
+                "labelFrequency": 1,
+                "showFirstLabel": true,
+                "showLastLabel": true
+            }],
+            "graphs": [{
+                "balloonText": "[[title]], [[category]]<br><span style='font-size:14px;'><b>[[value]]</b> ([[percents]]%)</span>",
+                "fillAlphas": 0.9,
+                "fontSize": 11,
+                "labelText": "[[value]]",
+                "lineAlpha": 0.5,
+                "title": "Pending Inputs",
+                "type": "column",
+                "valueField": "PendingInputs"
+            }, {
+                "balloonText": "[[title]], [[category]]<br><span style='font-size:14px;'><b>[[value]]</b> ([[percents]]%)</span>",
+                "fillAlphas": 0.9,
+                "fontSize": 11,
+                "labelText": "[[value]]",
+                "lineAlpha": 0.5,
+                "title": "Approval Pending",
+                "type": "column",
+                "valueField": "PendingApproval"
+            }, {
+                "balloonText": "[[title]], [[category]]<br><span style='font-size:14px;'><b>[[value]]</b> ([[percents]]%)</span>",
+                "fillAlphas": 0.9,
+                "fontSize": 11,
+                "labelText": "[[value]]",
+                "lineAlpha": 0.5,
+                "title": "Data Ok",
+                "type": "column",
+                "valueField": "DataOk"
+            }, {
+                "balloonText": "[[title]], [[category]]<br><span style='font-size:14px;'><b>[[value]]</b> ([[percents]]%)</span>",
+                "fillAlphas": 0.9,
+                "fontSize": 11,
+                "labelText": "[[value]]",
+                "lineAlpha": 0.5,
+                "title": "Suspect Data",
+                "type": "column",
+                "valueField": "SuspectData"
+            }],
+            "marginTop": 40,
+            "marginRight": 0,
+            "marginLeft": 0,
+            "marginBottom": 10,
+            "autoMargins": false,
+            "categoryField": "year",
+            "categoryAxis": {
+                "gridPosition": "start",
+                "axisAlpha": 1,
+                "axisColor": "#cccccc",
+                "axisBeta": 1,
+                "gridAlpha": 0,
+                "labelsEnabled": true,
+                "labelFrequency": 1,
+                "showFirstLabel": true,
+                "showLastLabel": true
+            },
+            "export": {
+                "enabled": false
+            }
+        });
+
+        chart.addListener("clickGraphItem", handleClick)
+
+        function handleClick(event) {
+            //console.log(event);
+            //alert(event.item.graph.title);
+            if (event.item.graph.title == 'Pending Inputs') {
+                window.location = "../KPI/DataReports";
+            }
+            else if (event.item.graph.title == 'Approval Pending') {
+                window.location = "../KPI/DataReportsPA";
+            }
+            else if (event.item.graph.title == 'Data Ok') {
+                window.location = "../KPI/DataReportsDO";
+            }
+            else if (event.item.graph.title == 'Suspected Data') {
+                window.location = "../KPI/DataReportsDS";
+            }
+
+            //alert(event.item.category);
+            //console.log(event);
+        }
+
+
+    </script>
+    
+</body>
+
+</html>

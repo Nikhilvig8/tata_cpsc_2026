@@ -1,0 +1,54 @@
+@using System.Data;
+@using System.Data.SqlClient;
+@using System.Globalization;
+@using System.Web;
+<!-- Pending Inputs -->
+
+@{
+    string input;
+    using (var reader = new StreamReader(Request.InputStream))
+    {
+        input = reader.ReadToEnd();
+    }
+}
+<div>
+    <h3>Input Stream</h3>
+    @Server.UrlDecode(input)
+</div>
+<div>
+    @if (Request.Form.Count > 0)
+    {
+        <h3>Request Form</h3>
+        foreach (string item in Request.Form)
+        {
+            <div>@item  :  @Request[item]</div>
+        }
+    }
+</div>
+
+@*{
+            string input;
+            using (var reader = new StreamReader(Request.InputStream))
+            {
+                input = reader.ReadToEnd();
+            }
+
+            string typeTSM = Session["Type"].ToString();
+
+            DataTable dtfTSM;
+            string _sqlTSM = string.Empty;
+
+            using (var cnTSM = new SqlConnection(@"Data Source=.;Initial Catalog=Tata;Integrated Security=False;User ID=sa;Password=sa@123;Connection Timeout=120"))
+            {
+                _sqlTSM = @" SELECT distinct DEALER_CODE,DEALER
+                          FROM [Tata].[dbo].[vw_Employees]
+                          where [LOGIN] = 'ABHALLA_508529TSM'";
+                var cmdTSM = new SqlCommand(_sqlTSM, cnTSM);
+                cnTSM.Open();
+                var daCampusTSM = new SqlDataAdapter();
+                DataTable dtTSM = new DataTable();
+                daCampusTSM.SelectCommand = cmdTSM;
+                daCampusTSM.Fill(dtTSM);
+                dtfTSM = dtTSM;
+            }
+    }*@

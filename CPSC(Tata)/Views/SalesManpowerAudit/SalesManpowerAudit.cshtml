@@ -1,0 +1,158 @@
+﻿
+@{
+    /**/
+
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="page-content-wrapper">
+    <div class="card mt-2">
+        <div class="card-body">
+            <div style="display: flex; justify-content: space-between">
+                <h4 style="margin-right:2rem" class="caption-subject font-blue bold uppercase">Current Manpower</h4>
+                <div style="margin-top:10px; margin-bottom:10px">
+                    <span style="margin-right:10px">Dealer:</span>@Html.DropDownList("Dealer", new SelectList(ViewBag.Dealer, "DealerCode", "DealerName"), new { @onchange = "DealersDetails(this.value)" })
+                </div>
+            </div>
+
+            <div class="portlet-body form" style="overflow:auto; max-height:475px;">
+
+
+                <div class="form-horizontal">
+                    <div class="form-wizard" style="width:99%;">
+                        <div class="form-body" style="padding:5px;">
+                            <div>Total Rows: <label id="totalrow"></label>  </div>
+                            <table class="table table-striped table-hover table-bordered" id="tblSalesManpowerAudit">
+                                <thead>
+                                    <tr>
+                                        <th>Employee Login</th>
+                                        <th>LOB</th>
+                                        <th>Position Type</th>
+                                        <th>Employee First Name</th>
+                                        <th>Employee Middle Name</th>
+                                        <th>Employee Last Name</th>
+                                        <th>IsActive</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+
+
+                        </div>
+
+
+                    </div>
+                    <!--col-md-offset-7 -->
+
+
+                </div>
+
+
+
+            </div>
+
+        </div>
+    </div>
+
+
+    <div class="butn-cvr" style=" margin-left: 88%;">
+        <button class="btn btn-info" id="Update" >Submit</button>
+    </div>
+
+
+</div>
+
+
+@*<link rel="stylesheet" type="text/css" href="~/assets/apps/css/all.min.css" />
+    <script type="text/javascript" src="~/Scripts/shieldui-all.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/jszip.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/Scripts/pdf.js"></script>*@
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script type="text/javascript">
+    DealersDetails();
+
+    function DealersDetails() {
+        var DealerCode = $("#Dealer").val();
+        //alert(DealerCode);
+        $.ajax
+            ({
+                type: "POST",
+                url: "/SalesManpowerAudit/SalesManpowerAuditDetails",
+                data:
+                {
+                    DealerCode: DealerCode
+                },
+                dataType: "json",
+                success: function (data) {
+                    var item = JSON.parse(data);
+                    var htm = '';
+                    //alert(item[0].IsActive);
+
+                    htm += '<tr>';
+                    htm += '<th>Employee Login</th>';
+                    htm += '<th>LOB</th>';
+                    htm += '<th>Position Type</th>';
+                    htm += '<th>Employee First Name</th>';
+                    htm += '<th>Employee Middle Name</th>';
+                    htm += '<th>Employee Last Name</th>';
+                    htm += '<th>IsActive</th>';
+                    htm += '</tr>';
+                    for (var i = 0; i < item.length; i++) {
+                        htm += '<tr id="TMLDistributorTb" class="TMLDistributorTb">';
+                        htm += '<td id="EmployeeLogin">' + item[i].EmployeeLogin + '</td>';
+                        htm += '<td>' + item[i].LOB + '</td>';
+                        htm += '<td>' + item[i].PositionType + '</td>';
+                        htm += '<td>' + item[i].EmployeeFirstName + '</td>';
+                        htm += '<td>' + item[i].EmployeeMiddleName + '</td>';
+                        htm += '<td>' + item[i].EmployeeLastName + '</td>';
+                        if (item[i].IsActive == "Yes") {
+                            htm += '<td> <select id="IsActive"> <option value="Yes" selected>Yes</option> <option value="No">No</option></select></td>';
+                        }
+                        else {
+                            htm += '<td> <select id="IsActive"> <option value="Yes" >Yes</option> <option value="No" selected>No</option></select></td>';
+                        }
+                        htm += '</tr>';
+                    }
+                    $('#tblSalesManpowerAudit').html(htm);
+                    $('#totalrow').html('<span>' + item[0].TotalRowCount+'</span>');
+
+
+                }
+            });
+    }
+
+    $("#Update").click(function () {
+        let data = [];
+        $('.TMLDistributorTb').each(function () {
+            let IsActive = $(this).find('#IsActive').val();
+            let EmployeeLogin = $(this).find('#EmployeeLogin').text();
+            var DealerCode = $("#Dealer").val();
+            data.push
+                ({
+                    IsActive: IsActive,
+                    EmployeeLogin: EmployeeLogin,
+                    DealerCode: DealerCode,
+                });
+        });
+        var jsoN = JSON.stringify(data);
+
+        $.ajax
+            ({
+                type: "Post",
+                cache: false,
+                url: "/SalesManpowerAudit/SalesManpowerAuditForDisable",
+                data: { json: "" + jsoN + "" },
+                success: function (drr) {
+                    alert(JSON.parse(drr));
+                    var url = "/SalesManpowerAudit/SalesManpowerAudit";
+                    window.location.href = url;
+                },
+                Error: function (err) {
+                    // alert('unsuccess');
+                    Console.log(err);
+                }
+            });
+
+    });
+</script>

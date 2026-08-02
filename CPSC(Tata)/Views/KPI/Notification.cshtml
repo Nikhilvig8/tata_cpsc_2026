@@ -1,0 +1,208 @@
+﻿@model InputOutput.Models.TransactionViewModel
+@{
+    ViewBag.Title = "Notification";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<div class="row">
+    <div class="col-md-12">
+
+        <div class="portlet light bordered" id="form_wizard_1">
+            <div class="portlet-title" style="min-height:30px; margin-bottom:0px;">
+                <div class="caption" style="padding:0px 0;">
+                    <!--i class="icon-layers font-blue"></i-->
+                    <span class="caption-subject font-blue bold uppercase">
+                        <img src="~/assets/logo/success.png" style="width:20px;" />&nbsp; <b>Approve / Dis-Approve</b>
+                    </span>
+                </div>
+
+            </div>
+            <div class="portlet-body form" style="overflow:auto; max-height:425px;">
+
+
+                <div class="form-horizontal">
+                    <div class="form-wizard" style="width:99%;">
+                        <div class="form-body" style="padding:5px;">
+
+
+
+                            @using (Html.BeginForm("Notification", "KPI", FormMethod.Post, new { id = "Notification", name = "Notification" }))
+                            {
+                                <div class="tab-pane active" id="tab1">
+                                    <!--h3 class="block">Provide your account details</h3-->
+                                    <input type="hidden" name="Unique_id" value=@Model.Trans.Unique_Id />
+                                    <input type="hidden" name="Flag" value=@Model.Trans.Flag />
+                                    <input type="hidden" name="Month" value=@Model.Trans.Month />
+                                    <input type="hidden" name="Dealer_Id" value=@Model.Trans.Dealer />
+                                    <input type="hidden" name="Division_Id" value=@Model.Trans.Out />
+                                    <input type="hidden" name="LOB_Id" value=@Model.Trans.LOB />
+                                    <style>
+                                        #th{font-size:12px; font-weight:bold;}
+                                        #td{font-size:10px;}
+                                        .input{font-size:10px;}
+                                    </style>
+
+                                        <div class="form-group">
+                                            <label class="control-label col-md-12" style="font-size:12px; font-weight:bold;">@Model.Trans.Dealer_Name</label>
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="hidden" name="month_Name" value=@Model.Trans.monthdesc />
+                                            <input type="hidden" name="Dealer_Name" value=@Model.Trans.Dealer_Name />
+                                            <input type="hidden" name="Division_Name" value=@Model.Trans.Out_Name />
+                                            <input type="hidden" name="LOB_Name" value=@Model.Trans.LOB_Name />
+
+                                            <label class="control-label col-md-2" style="font-size:12px;">@Model.Trans.monthdesc</label>
+                                            <label class="control-label col-md-3" style="font-size:12px;">@Model.Trans.Out_Name</label>
+                                            <label class="control-label col-md-2" style="font-size:12px;">@Model.Trans.LOB_Name</label>
+                                            <label class="control-label col-md-5" style="font-size:12px;">&nbsp;</label>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4" id="th">Parameter</label>
+                                            <label class="control-label col-md-2" id="th">Last Month Target</label>
+                                            <label class="control-label col-md-2" id="th">Last Month Actual</label>
+                                            <label class="control-label col-md-2" id="th">Target</label>
+                                            @if (Model.Trans.Flag == "Actual")
+                                            {
+                                                <label class="control-label col-md-2" id="th">Actual</label>
+                                            }
+                                        </div>
+
+                                        <!-- row 1 start-->
+                                        <!-- Tooltip start -->
+
+                                        @{int j = 1;}
+                                        @foreach (var data in Model.Trans_list)
+                                        {
+
+                                            <div class="form-group">
+                                                <!--label class="control-label col-md-1" style="font-weight:bold;">&nbsp;</label-->
+                                                @Html.Hidden("KPI" + j, @data.KPI)
+                                                <div class="col-md-4">
+                                                    <label class="control-label" name="KPI@(j)" id="td">
+                                                        @data.KPI
+
+                                                    </label>
+                                                </div>
+                                                <script src="~/Scripts/jquery3_1.js"></script>
+                                                <script>
+                                                $(document).ready(function () {
+                                                    var row_no1 = '@(j)';
+                                                    var lastRowNo1 = row_no1;
+                                                    var flag_script = "@Model.Trans.Flag";
+
+                                                    if (flag_script == "Actual") {
+                                                        var L12M_Min1 = $("#L_M_A" + lastRowNo1).val();
+                                                        var L12M_Max1 = $("#L_M_A" + lastRowNo1).val();
+                                                        var target_main1 = parseInt($("#Actual" + lastRowNo1).val());
+                                                        //alert(target_main1);
+                                                        if (isNaN(target_main1))
+                                                        { $("#Actual" + lastRowNo1).css("border-color", ""); }
+                                                        else
+                                                        {
+                                                            //alert(target_main1);
+                                                            var L12M_min_ten_per1 = parseInt(L12M_Min1) - parseInt((10 / 100) * L12M_Min1);
+                                                            var L12M_max_ten_per1 = parseInt(L12M_Max1) + parseInt(((10 / 100) * L12M_Max1));
+
+                                                            if (target_main1 < L12M_min_ten_per1 || target_main1 > L12M_max_ten_per1) {
+                                                                //$("#suspect" + lastRowNo).css("display", "");
+                                                                $("#Actual" + lastRowNo1).css("border", "2px solid #CC4700");
+                                                            }
+                                                            else {
+                                                                //$("#suspect" + lastRowNo).css("display", "none");
+                                                                $("#Actual" + lastRowNo1).css("border", "2px solid #84B761");
+                                                            }
+                                                        }
+                                                    }
+                                                    else if (flag_script == "Target") {
+                                                        //target
+
+                                                        var L12M_Min12 = $("#L_M_T" + lastRowNo1).val();
+                                                        var L12M_Max12 = $("#L_M_T" + lastRowNo1).val();
+                                                        var target_main12 = parseInt($("#Target" + lastRowNo1).val());
+                                                        if (isNaN(target_main12))
+                                                        { $("#Target" + lastRowNo1).css("border-color", ""); }
+                                                        else
+                                                        {
+                                                            //alert(target_main12);
+                                                            var L12M_min_ten_per12 = parseInt(L12M_Min12) - parseInt((10 / 100) * L12M_Min12);
+                                                            var L12M_max_ten_per12 = parseInt(L12M_Max12) + parseInt(((10 / 100) * L12M_Max12));
+
+                                                            if (target_main12 < L12M_min_ten_per12 || target_main12 > L12M_max_ten_per12) {
+                                                                //$("#suspect" + lastRowNo).css("display", "");
+                                                                $("#Target" + lastRowNo1).css("border", "2px solid #CC4700");
+                                                            }
+                                                            else {
+                                                                //$("#suspect" + lastRowNo).css("display", "none");
+                                                                $("#Target" + lastRowNo1).css("border", "2px solid #84B761");
+                                                            }
+                                                        }
+                                                    } else { }
+                                                   
+                                                });
+                                                </script>
+                                                <div class="col-md-2">
+                                                    <input type="number" class="form-control input" id="L_M_T@(j)" name="L_M_T" value="@data.Last_Month_Target" disabled="disabled" />
+                                                    <!--span class="help-block"> Provide your username </span-->
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <input type="number" class="form-control input" id="L_M_A@(j)" name="L_M_A" value="@data.Last_Month_Actual" disabled="disabled" />
+                                                    <!--span class="help-block"> Provide your username </span-->
+                                                </div>
+                                                <div class="col-md-2">
+                                                    @if (data.IsTargetRequired == 0)
+                                                    { }
+                                                    else
+                                                    { 
+                                                    <input type="number" class="form-control input" id="Target@(j)" name="Target@(j)" value="@data.Target" disabled="disabled" />
+                                                    <!--span class="help-block"> Provide your username </span-->
+                                                    }
+                                                </div>
+                                                @if (Model.Trans.Flag == "Actual")
+                                                {
+                                                    <div class="col-md-2">
+                                                        @if (data.IsActualRequired == 0)
+                                                        { }
+                                                        else
+                                                        {
+
+                                                        <input type="number" class="form-control input" id="Actual@(j)" name="Actual@(j)" value="@data.Actual" readonly />
+                                                        <!--span class="help-block"> Provide your username </span-->
+                                                        }
+                                                    </div>
+                                                }
+                                                
+                                                <!--div class="col-md-2">&nbsp;</div-->
+                                            </div>
+                                            j++;
+                                        }
+                                        <!-- row 1 end-->
+                                        <!-- Pop up body end-->
+                                        @Html.Hidden("Count", j - 1)
+
+
+
+                                    </div>
+                                <div class="modal-footer">
+
+                                    @{if (Model.Trans.TAFlag == "False")
+                                        {
+                                            <button type="button" data-dismiss="modal" class="btn green">Dis-Approved</button>
+
+                                            <input type="submit" value="Approved" name="submitButton" class="btn green button-submit" />
+                                        }
+                                    }
+                                </div>
+                                        }
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+

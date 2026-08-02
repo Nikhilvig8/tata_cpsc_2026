@@ -1,0 +1,313 @@
+﻿@model  InputOutput.Models.UploadFile
+@*@{
+        Layout = null;
+    }*@
+@{
+    //ViewBag.Title = "BulkUploadTargetIndex";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+
+@*<!DOCTYPE html>*@
+
+@*<html>
+    <head>
+        <meta name="viewport" content="width=device-width" />
+        <title>Index</title>
+    </head>
+    <body>*@
+<div class="row" style="min-height: 534px;max-height: 560px;">
+    <div class="col-md-12" style="min-height: 534px;max-height: 560px;">
+
+        <div class="portlet light bordered" id="form_wizard_1" style="min-height: 534px;max-height: 560px; margin-bottom:0px;">
+            <div class="card-body">
+                @*<h4 style="color:#23aaea"><b>Bulk Upload Cycle [Apr 1 @ViewBag.StartDate] to [Mar 31 @ViewBag.EndDate] </b></h4>*@
+                @Html.ValidationSummary("", new { @class = "text-danger" })
+
+
+                <div class="table-scroll" id="Target_Data_Table" style="height: 406px;">
+                    @if (Session["Type"].ToString() != null)
+                    {
+                        if (Session["result"].ToString() == "Start")
+                        {
+                            <p><FONT COLOR="Green">Login Successful !!!</FONT></p>
+                        }
+                        else if (Session["result"].ToString() == "succ")
+                        {
+                            <p><FONT COLOR="Green">Successfully updated !!!</FONT></p>
+                        }
+                        else
+                        {
+                            <p><FONT COLOR="RED">Error!!! @Session["result"]</FONT></p>
+                        }
+                    }
+                    else
+                    {
+                        <p></p>
+                    }
+
+
+                    <table class="after-sales-table action-plan-table data-entry-table DesiredInfo DataEntryDetail" id="DataEntryDetail">
+                        <thead>
+                            <tr>
+                                <th style="width: 10%;text-align:center"> File Name  </th>
+                                <th style="width: 5%;text-align:center"> Sample File </th>
+                                <th style="width: 15%;text-align:center" colspan="2">Action</th>
+                                @*<th style="width: 5%;text-align:center">Last Updated On</th>*@
+                            </tr>
+                        </thead>
+                        <tbody id="Data_Entry">
+                            @foreach (var cat in ViewBag.List)
+                            {
+                                using (Html.BeginForm(null, null, FormMethod.Post, new { enctype = "multipart/form-data" }))
+                                {
+                                    <tr class="form-group">
+                                        @{
+                                            DateTime dt = DateTime.Now.AddMonths(-1);
+                                            string semi = dt.AddMonths(-1).ToString("MMM");
+                                            //string PreviousYear = dt.AddMonths(-1).ToString("yyyy");
+                                            //DateTime dt = new DateTime(2021, 12, 30);
+                                            string downloadfile = @cat + ".xlsx";
+                                        }
+                                        @* @if (cat.FrequencyId == 3)
+                                            {
+
+                                                <td class="FileName" filename="@cat.Filename">@cat.Filename _ @dt.ToString("MMM") _ @dt.ToString("yyyy")<br/>DeadLine date:@DateTime.Now.ToString("dd/MM/yyyy")</td>
+                                            }
+                                            else if (cat.FrequencyId == 1)
+                                            {
+                                                <td class="FileName" filename="@cat.Filename">@cat.Filename _ @dt.ToString("yyyy")</td>
+                                            }
+                                            else
+                                            {
+                                                <td class="FileName" filename="@cat.Filename">@cat.Filename</td>
+                                            }*@
+                                        @*@if (DateTime.Now > Convert.ToDateTime(@cat.DeadLine_Date))
+                                            {
+                                                <td class="FileName" filename="@cat.Filename">@cat.Filename<br /><br />Next Upload  Date: <span style="background-color:green;color:white;font-weight:600">@cat.Next_Date</span><br /></td>
+                                            }
+                                            else
+                                            {
+                                                if (cat.FrequencyId == 3)
+                                                {
+                                                    <td class="FileName" filename="@cat.Filename">@cat.Filename (@dt.ToString("MMM")'@dt.ToString("yyyy"))<br /><br />Upload DeadLine Date: <span style="background-color:red;color:white;font-weight:600">@cat.DeadLine_Date</span></td>
+                                                }
+                                                else
+                                                {
+                                                    <td class="FileName" filename="@cat.Filename">@cat.Filename<br /><br />Upload DeadLine Date: <span style="background-color:red;color:white;font-weight:600">@cat.DeadLine_Date</span></td>
+                                                }
+
+                                            }*@
+                                        @*@if (cat.IsUpload == "1")
+                                            {
+                                                <td><a href='/BulkUpload/DownloadExcelEPPlus?filename=@cat.Filename'>Download</a></td>
+                                            }
+                                            else
+                                            {
+                                                <td>Download</td>
+                                            }
+                                            @*<td><a href='~/SampleFile/@downloadfile' download>Download</a></td>*@
+
+                                        <td filename=@cat>@cat</td>
+                                        <td><a href='/BulkExcelUpload/DownloadExcelEPPlus?filename=@cat'>Download</a></td>
+                                        <td>
+                                            @*@Html.TextBoxFor(model => model.ExcelFile, new { type = "file", style = "padding-top: 4px;" })
+                                            @Html.ValidationMessageFor(model => model.ExcelFile, "", new { @class = "text-danger" })*@
+                                            <input type="file" name="file" />
+                                        </td>
+
+                                        <td>
+                                            <button type="submit" filename=@cat>Upload Data</button>
+
+                                        </td>
+
+
+                                        @*@if (cat.IsUpload == "1")
+                                            {
+                                                <td>   <button class="ExcelUpload">Upload Data</button></td>
+
+                                            }
+                                            else
+                                            {
+                                                <td> <button disabled>Upload Data</button></td>
+                                            }
+
+                                            @if (cat.LastUpdateOn == null)
+                                            {
+                                                <td></td>
+                                            }
+                                            else
+                                            {
+                                                <td class="LastUpdateOn">@cat.LastUpdateOn</td>
+                                            }*@
+
+
+                                    </tr>
+                                                }
+                                            }
+                        </tbody>
+
+
+
+
+                    </table>
+                </div>
+                <br />
+
+
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+@*</div>
+
+    </div>*@
+@*</body>
+    </html>*@
+
+@*<script src="~/Scripts/jquery-3.3.1.js"></script>*@
+<script src="~/Scripts/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script type="text/javascript" src="//ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="//ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.0/jquery.dataTables.min.js"></script>
+
+
+<script>
+    $(document).ready(function () {
+        $('.DataEntryDetail').dataTable({
+            aLengthMenu: [
+                [-1],
+                ["All"]
+            ],
+            iDisplayLength: -1, searching: false, paging: false, info: false, "bSort": false
+        });
+    });
+    $('#Data_Entry').on("click", ".ExcelUpload", function (e) {
+
+
+        e.preventDefault();
+
+
+
+        var fileExtension = ['xlsx'];
+        var excelfile = $(this).closest("tr").find('.ExcelFile');
+        var LastUpdateOn = $(this).closest("tr").find('.LastUpdateOn');
+        var filename = $(this).closest("tr").find('.FileName').attr("filename");
+
+
+
+
+
+        if (excelfile.val().length == 0) {
+
+            alert("Please select a file.");
+
+            return false;
+
+        }
+
+        else {
+
+            var extension = excelfile.val().replace(/^.*\./, '');
+
+            if ($.inArray(extension, fileExtension) == -1) {
+
+                alert("Please select only excel files.");
+
+                return false;
+
+            }
+
+        }
+
+
+
+
+
+        var fdata = new FormData();
+
+        var fileUpload = excelfile.get(0);
+
+        var files = fileUpload.files;
+
+        fdata.append(files[0].name, files[0]);
+        fdata.append("file", files[0]);
+        fdata.append("filename", filename);
+
+        $.ajax({
+
+            type: "POST",
+
+            url: "/BulkExcelUpload/Importexcel",
+
+
+
+            data: new { enctype: "multipart/form-data" },
+            processData: false,
+            contentType: false,
+            success: function (response) {
+
+                if (response.length == 0) {
+                    alert('Some error occured while uploading');
+                    excelfile.val(null);
+                }
+                else {
+                    alert(response);
+
+                    excelfile.val(null);
+
+                    var currentdate = new Date();
+                    var datetime = currentdate.getDate() + "-"
+                        + (currentdate.getMonth() + 1) + "-"
+                        + currentdate.getFullYear() + " "
+                        + currentdate.getHours() + ":"
+                        + currentdate.getMinutes() + ":"
+                        + currentdate.getSeconds();
+                    LastUpdateOn.text(datetime);
+
+
+
+
+                }
+
+            },
+
+            error: function (e) {
+                alert(e);
+                excelfile.val(null);
+
+            }
+
+        });
+
+
+    });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

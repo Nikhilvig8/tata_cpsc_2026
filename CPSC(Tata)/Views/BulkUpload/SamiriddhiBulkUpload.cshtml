@@ -1,0 +1,188 @@
+﻿@model  InputOutput.Models.UploadFile
+@{
+    ViewBag.Title = "BulkUploadActualIndex";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+
+    DateTime A_d = Convert.ToDateTime(Session["Actual_Date"].ToString());
+    string Actual_Month = A_d.Month.ToString();
+    string Actual_Month_Des = A_d.Year.ToString() + "-" + A_d.ToString("MMMM");
+}
+
+@{
+    string result_data = string.Empty;
+    if (Session["result"] != null)
+    {
+        result_data = Session["result"].ToString();
+    }
+    Session["result"] = string.Empty;
+}
+
+<script type="text/javascript">
+    $(document).ready(function ()//When the dom is ready
+    {
+        //alert('Hi');
+
+        var result_data = '@result_data';
+        //alert(result_data);
+        if (result_data == 'succ') {
+            $("#success_msg").trigger('click');
+            setTimeout(function () {
+                $('#success_msg_popup').modal('hide')
+            }, 5000);
+            // result_data = '';
+            // SetUserName();
+        }
+        $("#M_Y").text('@Actual_Month_Des');
+
+        $('#download').click(function () {
+            //alert('Hi');
+            var today = new Date();
+            var proc_name = 'getSamriddhiData';
+            var target_actual = 'Actual';
+            var filename = 'Actuals_' + '@Session["Uid"].ToString()_'+'@DateTime.Now.ToShortDateString()'+'.xlsx';
+            //alert(filename);
+                $("#Dealer").css("border-color", "gray");
+
+                var url_at = '@Url.Action("DTToExcel", "BulkUpload")';
+
+            var url_com_at = url_at + "?Proc=" + proc_name + "&flag=" + target_actual + "&filename=" + filename;
+                //alert(url_com_at);
+                var jsonComp_at = $.getJSON(url_com_at, function (result) {
+                    if (result == true)
+                    {
+                        var url_at1 = '@Url.Action("Download", "BulkUpload")';
+
+                        var url_com_at1 = url_at1 + "?file=" + filename;
+                        window.location.href = url_com_at1;
+                    }
+                    else
+                    {
+                        $("#msg_2").html("<span style='color:red;'>Something went wrong.</span>");
+                        var data1 = "<span style='color:red;'>Something went wrong.</span>";
+                        $('#msg_click').click();
+                        setTimeout(function () { $('#user_msg').modal('hide'); }, 5000);
+                        //$('#msg').hide().html(data1).fadeIn('slow').delay(5000).hide(1);
+                    }
+
+                });
+
+             });
+        });
+</script>
+@using System.Data;
+@using System.Data.SqlClient;
+@using System.Globalization;
+@using System.Web;
+@using DataUtilityLayer;
+@using System.Configuration;
+
+<div class="row" style="min-height: 534px;max-height: 560px;">
+    <div class="col-md-12" style="min-height: 460px;max-height: 560px;">
+
+        <div class="portlet light bordered" id="form_wizard_1" style="min-height: 560px;max-height: 560px; margin-bottom:0px;">
+            <div class="portlet-title" style="min-height:30px; margin-bottom:0px;">
+                <div class="caption" style="padding:0px 0;">
+                    <i class="icon-layers font-blue"></i>
+                    <span class="caption-subject font-blue bold uppercase">
+                        Samiriddhi Bulk Upload
+                    </span>
+                </div>
+
+            </div>
+            <div class="portlet-body form" style="overflow:auto; max-height:515px; min-height:460px;">
+
+                @using (Html.BeginForm(null, null, FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {
+                    <div class="form-horizontal">
+                        <div class="form-wizard" style="width:99%;">
+                            <div class="form-body" style="padding:5px;">
+                                <!-- BEGIN FORM-->
+                                <div class="form-body" style="padding-top: 140px;">
+                                    <div style="text-align:center; font-size:16px; font-weight:500; color:#3598dc; margin-bottom:20px;"><sup></sup></div>
+
+                                    <div class="form-group">
+                                        <div class="col-md-3"></div>
+                                        <label class="control-label col-md-2">
+                                            Month
+
+                                        </label>
+                                        <div class="col-md-4">
+                                            <input type="hidden" id="year" value="" name="year" />
+                                            <label class="control-label" id="M_Y" name="M_Y"></label>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="form-group">
+                                        <div class="col-md-3"></div>
+                                        <label class="control-label col-md-2">Download Data</label>
+                                        <div class="col-md-7">
+                                            <button type="button" id="download" name="download" title="Dump For Monthly Entry">Download</button>
+
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <div class="col-md-3"></div>
+
+                                        <label class="control-label col-md-2">Upload</label>
+                                        <div class="col-md-7">
+                                            @Html.TextBoxFor(model => model.ExcelFile, new { type = "file", style = "padding-top: 4px;" })
+                                            @Html.ValidationMessageFor(model => model.ExcelFile, "", new { @class = "text-danger" })
+
+
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <div class="col-md-2"></div>
+
+
+                                        <div class="col-md-7">
+                                            @Html.ValidationSummary("", new { @class = "text-danger" })
+
+                                        </div>
+                                    </div>
+                                    <div class="form-actions">
+                                        <div class="row" style="margin-top:50px;">
+
+                                            <div class="col-md-offset-4 col-md-8">
+                                                <button type="submit" class="btn green" id="create" name="create" disabled>Submit</button>
+                                                <button type="button" class="btn default" style="background-color: #3598dc;border-color: #3598dc;color: #ffffff;" id="cancel" name="cancel">Cancel</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- END FORM-->
+
+
+
+                                </div>
+
+                                <a class="btn purple btn-outline sbold" data-toggle="modal" href="#success_msg_popup" id="success_msg" style="display:none;"></a>
+                                <div id="success_msg_popup" class="modal fade" tabindex="-1" data-backdrop="static" data-keyboard="false">
+                                    <div class="modal-dialog" style="border:2px solid #3598dc; width:30%;">
+                                        <div class="modal-content">
+                                            <div class="modal-body" style="overflow:auto;max-height:400px;">
+                                                <p style="margin:0px; color:green; text-align:center; font-weight:bold; font-size:14px;">Data has been Sucessfully Submitted.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <!--col-md-offset-7 -->
+
+
+
+
+                        </div>
+
+
+
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

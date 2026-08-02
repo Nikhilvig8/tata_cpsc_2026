@@ -1,0 +1,136 @@
+﻿@model InputOutput.Models.TransactionViewModel
+@{
+    ViewBag.Title = "DealerScorecard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script src="~/Scripts/jquery3_1.js"></script>
+<script type="text/javascript">
+    $(document).ready(function ()//When the dom is ready
+    {
+
+        $("#Month_main").bind('change', function () {
+            $('#tableData').html("");
+            //alert('hello');
+            var user1 = '@Session["Uid"].ToString()';//Get the value in the username textbox
+            var str = $("#Month_main").val();
+            //alert(str);
+            var res = str.split("/");
+            var month = res[0];
+            var year = res[2];
+            var yearSplit = year.split(" ");
+            var year1 = yearSplit[0];
+            //var year = '2016';
+            var url = '@Url.Action("GetScorecard", "DropDown")';
+
+            var url_com = url + "?user=" + user1 + "&month=" + month + "&year=" + year1;
+             //alert(url_com);
+            
+            $.getJSON(url_com, function (result) {
+                //alert(result);
+                var ddl = $('#Out');
+                var data = result;
+                var html = "";
+                var curDealer = "";
+                ddl.empty();
+                $.each(eval(data.replace(/[\r\n]/, "")), function (i, item) {
+                    if (curDealer != item.Dealer_Name)
+                    {
+                        html += ('<tr><td id="td" rowspan="' + item.RowSpan + '" width="50%">' + item.Dealer_Name + '</td><td width="25%"  id="td">' + item.LOB + '</td><td id="td" width="25%">' + item.Score + '</td></tr>');
+                        curDealer = item.Dealer_Name;
+                    }
+                    else
+                    {
+                        html += ('<tr><td id="td" width="25%">' + item.LOB + '</td><td id="td" width="25%">' + item.Score + '</td></tr>');
+                    }
+                    //html += ('<tr><td>' + item.Dealer_Name + '</td><td>' + item.LOB + '</td><td>' + item.Score + '</td></tr>');
+                });
+                //alert(html);
+                $('#tableData').append(html);
+                
+            });
+
+            return false;
+        });
+    });
+</script>
+@using System.Data;
+@using System.Data.SqlClient;
+@using System.Globalization;
+@using System.Web;
+@using DataUtilityLayer;
+@using System.Configuration;
+@{
+    SqlCommand cmdObj = new SqlCommand();
+    string uid2 = Session["Uid"].ToString();
+    string CS1 = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
+    DataTable dtf21;
+    string _sql2 = string.Empty;
+    _sql2 = @"getScoreCardMonths";
+    using (SqlConnection cn = new SqlConnection(CS1))
+    {
+        DataTable dt = new DataTable();
+        //var cmd = new SqlCommand(_sql, cn);
+        var daCampus = new SqlDataAdapter(_sql2, cn);
+        daCampus.SelectCommand.CommandType = CommandType.StoredProcedure;
+        //daCampus.SelectCommand.Parameters.AddWithValue("@FW", Session["Uid"].ToString());
+
+        daCampus.Fill(dt);
+        dtf21 = dt;
+    }
+
+}
+<div class="row">
+    <div class="col-md-12">
+
+        <div class="portlet light bordered" id="form_wizard_1">
+            <div class="portlet-title" style="min-height:30px; margin-bottom:0px;">
+                <div class="caption" style="padding:0px 0; width:85%;float:left;">
+                    @*<i class="icon-layers font-blue"></i>*@
+                    <i class="glyphicon glyphicon-list-alt font-blue"></i>
+                    <span class="caption-subject font-blue bold uppercase">
+                        Dealer Scorecard
+                    </span>
+                </div>
+                <div style="width:15%;float:left;">
+                    <select id="Month_main" name="Month" class="form-control">
+                        <option value="">Month</option>
+                        @{if (dtf21.Rows.Count > 0)
+                            {
+                                for (int i = 0; i < dtf21.Rows.Count; i++)
+                                {
+                                    <option value="@dtf21.Rows[i]["MonthValue"].ToString()">@dtf21.Rows[i]["MonthDesc"].ToString()</option>
+                                    }
+                                }
+                            }
+                    </select>
+                </div>
+                </div>
+                <div class="portlet-body form">
+
+                    <div class="portlet-body">
+
+                        <style>
+                            #td {font-size: 11px; padding:4px;}
+                             #th {font-size: 12px; padding:4px;}
+                        </style>
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr style="background-color:#ccc;">
+                                    <th id="th">Dealer Name</th>
+                                    <th id="th">LOB</th>
+                                    <th id="th">Score</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableData">
+                                
+                            </tbody>
+                        </table>
+
+                    </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+
+
