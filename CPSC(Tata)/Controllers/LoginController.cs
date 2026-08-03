@@ -27,6 +27,16 @@ namespace InputOutput.Controllers
         
         public ActionResult Login()
         {
+            // Self-hosted CAPTCHA: a fresh arithmetic challenge is generated on every render of
+            // the login page (including every redirect back to it after a failed attempt), so a
+            // solved answer can never be replayed. No external service, no keys, no database -
+            // this is the active bot check while ReCaptchaSiteKey is still a placeholder (see
+            // Login.cshtml and LoginCheck's VerifyCaptchaAsync for the matching client/server side).
+            var rng = new Random();
+            int a = rng.Next(1, 10);
+            int b = rng.Next(1, 10);
+            Session["CaptchaAnswer"] = a + b;
+            ViewBag.CaptchaQuestion = $"What is {a} + {b}?";
             return View();
         }
 
@@ -159,11 +169,6 @@ namespace InputOutput.Controllers
             user.UserName = collection.Get("username").ToString();
             user.Password = collection.Get("password").ToString();
 
-            // Discard whatever session existed before this login attempt (mitigates session
-            // fixation - an attacker-planted pre-auth session ID shouldn't carry into an
-            // authenticated context). Applies uniformly ahead of every branch below.
-            Session.Clear();
-
             string clientIp = LoginThrottle.ResolveClientIp(Request);
 
             // Lockout gate: checked (and, on the honeypot/credential-failure paths below,
@@ -194,12 +199,20 @@ namespace InputOutput.Controllers
                 return RedirectToAction("Login", "Login");
             }
 
-            if (!await VerifyRecaptchaAsync(collection.Get("g-recaptcha-response")))
+            if (!await VerifyCaptchaAsync(collection))
             {
                 LoginThrottle.RegisterFailure(user.UserName, clientIp);
                 Session["Popup"] = "5";
                 return RedirectToAction("Login", "Login");
             }
+
+            // Discard whatever session existed before this login attempt (mitigates session
+            // fixation - an attacker-planted pre-auth session ID shouldn't carry into an
+            // authenticated context). Deliberately placed after the CAPTCHA check above, which
+            // needs the challenge answer that was stashed in Session by the GET /Login action -
+            // clearing any earlier would make the self-hosted CAPTCHA fail every attempt. Still
+            // applies uniformly ahead of every credential branch below.
+            Session.Clear();
 
             if (ModelState.IsValid && user.UserName == "IshwarK" && user.Password == "IshwarK8")
             {
@@ -405,6 +418,38 @@ namespace InputOutput.Controllers
                 }
             }
             return View(user);
+        }
+
+        // Routes to whichever CAPTCHA is actually active for the current request, matching
+        // Login.cshtml's rendering: Google reCAPTCHA once real keys are configured, otherwise the
+        // self-hosted arithmetic challenge (no external service, no keys, no database).
+        private async Task<bool> VerifyCaptchaAsync(FormCollection collection)
+        {
+            string recaptchaSiteKey = ConfigurationManager.AppSettings["ReCaptchaSiteKey"];
+            if (!string.IsNullOrEmpty(recaptchaSiteKey) && recaptchaSiteKey != "REPLACE_WITH_RECAPTCHA_SITE_KEY")
+            {
+                return await VerifyRecaptchaAsync(collection.Get("g-recaptcha-response"));
+            }
+
+            return VerifySelfHostedCaptcha(collection.Get("captchaAnswer"));
+        }
+
+        private bool VerifySelfHostedCaptcha(string submittedAnswer)
+        {
+            object expected = Session["CaptchaAnswer"];
+            // Single-use: consume it immediately regardless of outcome so a solved answer can't be
+            // replayed against a second submit.
+            Session.Remove("CaptchaAnswer");
+
+            if (expected == null || string.IsNullOrWhiteSpace(submittedAnswer))
+            {
+                return false;
+            }
+
+            int expectedValue, submittedValue;
+            return int.TryParse(expected.ToString(), out expectedValue)
+                && int.TryParse(submittedAnswer.Trim(), out submittedValue)
+                && expectedValue == submittedValue;
         }
 
         private async Task<bool> VerifyRecaptchaAsync(string recaptchaResponse)

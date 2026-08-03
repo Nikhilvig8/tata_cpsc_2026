@@ -177,6 +177,17 @@
                                 <div class="g-recaptcha" data-sitekey="@recaptchaSiteKey"></div>
                             </div>
                         }
+                        else
+                        {
+                            @* Self-hosted CAPTCHA: application-level only, no external service, no
+                               keys, no database. Active automatically whenever ReCaptchaSiteKey is
+                               unset - once you add real Google keys later, this block stops
+                               rendering and the block above takes over instead. *@
+                            <div class="form-group form-group-css">
+                                <label style="color:#ffffff; font-weight:normal;">@ViewBag.CaptchaQuestion</label>
+                                <input class="form-control form-control-solid placeholder-no-fix" type="text" autocomplete="off" placeholder="Your answer" name="captchaAnswer" style="background:#3f5caa; color:#fff;" />
+                            </div>
+                        }
                         <div class="form-group form-group-css">
 
                             @{
