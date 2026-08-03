@@ -16,6 +16,8 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Configuration;
 using System.Net.Http;
+using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace InputOutput.Controllers
 {
@@ -27,16 +29,72 @@ namespace InputOutput.Controllers
         
         public ActionResult Login()
         {
-            // Self-hosted CAPTCHA: a fresh arithmetic challenge is generated on every render of
-            // the login page (including every redirect back to it after a failed attempt), so a
-            // solved answer can never be replayed. No external service, no keys, no database - see
-            // Login.cshtml and LoginCheck's VerifySelfHostedCaptcha for the matching client/server side.
-            var rng = new Random();
-            int a = rng.Next(1, 10);
-            int b = rng.Next(1, 10);
-            Session["CaptchaAnswer"] = a + b;
-            ViewBag.CaptchaQuestion = $"What is {a} + {b}?";
             return View();
+        }
+
+        // Self-hosted alphanumeric CAPTCHA image: application-level only, no external service, no
+        // keys, no database. Login.cshtml's <img> tag requests this in a separate request, which
+        // generates a fresh random code, stashes it in Session["CaptchaAnswer"], and draws it
+        // distorted (rotation + noise lines/dots) so it can't just be scraped as plain text - see
+        // VerifySelfHostedCaptcha below for the matching server-side check.
+        private const string CaptchaChars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no 0/O/1/I/L mixups
+        private static readonly Random CaptchaRng = new Random();
+
+        public ActionResult CaptchaImage()
+        {
+            var sb = new StringBuilder();
+            for (int i = 0; i < 6; i++)
+            {
+                sb.Append(CaptchaChars[CaptchaRng.Next(CaptchaChars.Length)]);
+            }
+            string code = sb.ToString();
+            Session["CaptchaAnswer"] = code;
+
+            const int width = 160;
+            const int height = 50;
+
+            using (var bitmap = new Bitmap(width, height))
+            using (var g = Graphics.FromImage(bitmap))
+            {
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                g.Clear(Color.White);
+
+                using (var pen = new Pen(Color.LightGray))
+                {
+                    for (int i = 0; i < 6; i++)
+                    {
+                        g.DrawLine(pen, CaptchaRng.Next(width), CaptchaRng.Next(height), CaptchaRng.Next(width), CaptchaRng.Next(height));
+                    }
+                }
+
+                using (var font = new Font(FontFamily.GenericSansSerif, 22, FontStyle.Bold))
+                {
+                    int x = 8;
+                    foreach (char c in code)
+                    {
+                        using (var brush = new SolidBrush(Color.FromArgb(CaptchaRng.Next(30, 120), CaptchaRng.Next(30, 120), CaptchaRng.Next(30, 120))))
+                        {
+                            var state = g.Save();
+                            g.TranslateTransform(x, 10);
+                            g.RotateTransform(CaptchaRng.Next(-20, 20));
+                            g.DrawString(c.ToString(), font, brush, 0, 0);
+                            g.Restore(state);
+                        }
+                        x += 24;
+                    }
+                }
+
+                for (int i = 0; i < 40; i++)
+                {
+                    bitmap.SetPixel(CaptchaRng.Next(width), CaptchaRng.Next(height), Color.Gray);
+                }
+
+                using (var ms = new MemoryStream())
+                {
+                    bitmap.Save(ms, ImageFormat.Png);
+                    return File(ms.ToArray(), "image/png");
+                }
+            }
         }
 
         
@@ -434,10 +492,7 @@ namespace InputOutput.Controllers
                 return false;
             }
 
-            int expectedValue, submittedValue;
-            return int.TryParse(expected.ToString(), out expectedValue)
-                && int.TryParse(submittedAnswer.Trim(), out submittedValue)
-                && expectedValue == submittedValue;
+            return string.Equals(expected.ToString(), submittedAnswer.Trim(), StringComparison.OrdinalIgnoreCase);
         }
 
         
