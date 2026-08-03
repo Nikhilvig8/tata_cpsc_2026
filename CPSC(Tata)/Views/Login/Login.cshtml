@@ -154,11 +154,19 @@
 
                   @using (Html.BeginForm("LoginCheck", "Login", FormMethod.Post))
                   {
+                        @Html.AntiForgeryToken()
                         <div class="form-group form-group-css">
                             <input class="form-control form-control-solid placeholder-no-fix username" type="text" autocomplete="off" placeholder="Enter Username" name="username" style="background:#3f5caa" />
                         </div>
                         <div class="form-group form-group-css">
                             <input class="form-control form-control-solid placeholder-no-fix pass" id="pass" type="password" autocomplete="off" placeholder="Enter Password" name="password" style="background:#3f5caa" />
+                        </div>
+                        @* Honeypot: off-screen (not display:none - some bots skip fields hidden
+                           that way), out of tab order, no autofill hint. A real user never sees or
+                           fills this; a bot that fills every field on the form will. See
+                           LoginController.LoginCheck for the matching server-side check. *@
+                        <div style="position:absolute; left:-9999px; top:-9999px; height:0; width:0; overflow:hidden;" aria-hidden="true">
+                            <input type="text" name="website" tabindex="-1" autocomplete="off" value="" />
                         </div>
                         @{
                             string recaptchaSiteKey = System.Configuration.ConfigurationManager.AppSettings["ReCaptchaSiteKey"];

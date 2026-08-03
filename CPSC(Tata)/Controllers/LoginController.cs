@@ -151,6 +151,7 @@ namespace InputOutput.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<ActionResult> LoginCheck(FormCollection collection)
         {
             string UserType = string.Empty;
@@ -163,17 +164,39 @@ namespace InputOutput.Controllers
             // authenticated context). Applies uniformly ahead of every branch below.
             Session.Clear();
 
-            string throttleKey = user.UserName + "|" + Users.GetVisitorIPAddress();
-            TimeSpan lockoutRemaining;
-            if (LoginThrottle.IsLocked(throttleKey, out lockoutRemaining))
+            string clientIp = LoginThrottle.ResolveClientIp(Request);
+
+            // Lockout gate: checked (and, on the honeypot/credential-failure paths below,
+            // incremented) even for usernames that don't exist, so lockout behavior itself can
+            // never be used to fingerprint whether an account is real. This is the one message
+            // allowed to differ from "Invalid login attempt." per VAPT guidance - it doesn't
+            // confirm anything about the username, only that this username+IP is rate-limited.
+            if (LoginThrottle.IsLocked(user.UserName, clientIp))
             {
                 Session["Popup"] = "4";
                 return RedirectToAction("Login", "Login");
             }
 
+            // Honeypot: "website" is a hidden (off-screen, not display:none) field with
+            // tabindex="-1" and autocomplete="off" that no real user can see or tab into, but that
+            // naive bots filling every field on the form will populate. A non-empty value here is
+            // treated as bot traffic: same generic failure response, same Popup code, same throttle
+            // registration as a wrong password - no distinct branch a pentester or bot could
+            // distinguish by response content or status code.
+            string honeypotValue = collection.Get("website");
+            if (!string.IsNullOrEmpty(honeypotValue))
+            {
+                LoginThrottle.RegisterFailure(user.UserName, clientIp);
+                // Small fixed delay so a bot can't distinguish "rejected instantly by honeypot"
+                // from "rejected after a real credential check" by response timing alone.
+                await Task.Delay(150);
+                Session["Popup"] = "0";
+                return RedirectToAction("Login", "Login");
+            }
+
             if (!await VerifyRecaptchaAsync(collection.Get("g-recaptcha-response")))
             {
-                LoginThrottle.RegisterFailure(throttleKey);
+                LoginThrottle.RegisterFailure(user.UserName, clientIp);
                 Session["Popup"] = "5";
                 return RedirectToAction("Login", "Login");
             }
@@ -317,7 +340,7 @@ namespace InputOutput.Controllers
             {
                 if (await user.IsValidOID1(user.UserName, user.Password))
                 {
-                    LoginThrottle.Reset(throttleKey);
+                    LoginThrottle.Reset(user.UserName, clientIp);
                     FormsAuthentication.SetAuthCookie(user.UserName, user.RememberMe);
                     UserType = Session["Type"].ToString();
                     if (UserType != "")
@@ -376,7 +399,7 @@ namespace InputOutput.Controllers
                 {
                     //ModelState.AddModelError("", "Login data is incorrect!");
 
-                    LoginThrottle.RegisterFailure(throttleKey);
+                    LoginThrottle.RegisterFailure(user.UserName, clientIp);
                     Session["Popup"] = "0";
                     return RedirectToAction("Login", "Login");
                 }
