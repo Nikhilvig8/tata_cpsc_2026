@@ -168,28 +168,13 @@
                         <div style="position:absolute; left:-9999px; top:-9999px; height:0; width:0; overflow:hidden;" aria-hidden="true">
                             <input type="text" name="website" tabindex="-1" autocomplete="off" value="" />
                         </div>
-                        @{
-                            string recaptchaSiteKey = System.Configuration.ConfigurationManager.AppSettings["ReCaptchaSiteKey"];
-                            bool showGoogleRecaptcha = !string.IsNullOrEmpty(recaptchaSiteKey) && recaptchaSiteKey != "REPLACE_WITH_RECAPTCHA_SITE_KEY";
-                            if (showGoogleRecaptcha)
-                            {
-                                <div class="form-group form-group-css">
-                                    <div class="g-recaptcha" data-sitekey="@recaptchaSiteKey"></div>
-                                </div>
-                            }
-                            else
-                            {
-                                @* Self-hosted CAPTCHA: application-level only, no external service,
-                                   no keys, no database. Active automatically whenever
-                                   ReCaptchaSiteKey is unset - once you add real Google keys later,
-                                   this block stops rendering and the block above takes over
-                                   instead. *@
-                                <div class="form-group form-group-css">
-                                    <label style="color:#ffffff; font-weight:normal;">@ViewBag.CaptchaQuestion</label>
-                                    <input class="form-control form-control-solid placeholder-no-fix" type="text" autocomplete="off" placeholder="Your answer" name="captchaAnswer" style="background:#3f5caa; color:#fff;" />
-                                </div>
-                            }
-                        }
+                        @* Self-hosted CAPTCHA: application-level only, no external service, no
+                           keys, no database. See LoginController.Login() (GET) for the matching
+                           challenge generation and VerifySelfHostedCaptcha for verification. *@
+                        <div class="form-group form-group-css">
+                            <label style="color:#ffffff; font-weight:normal;">@ViewBag.CaptchaQuestion</label>
+                            <input class="form-control form-control-solid placeholder-no-fix" type="text" autocomplete="off" placeholder="Your answer" name="captchaAnswer" style="background:#3f5caa; color:#fff;" />
+                        </div>
                         <div class="form-group form-group-css">
 
                             @{
@@ -233,22 +218,6 @@
             </div>
         </div>
     </div>
-    @{
-        string recaptchaSiteKeyScript = System.Configuration.ConfigurationManager.AppSettings["ReCaptchaSiteKey"];
-        bool showGoogleRecaptchaScript = !string.IsNullOrEmpty(recaptchaSiteKeyScript) && recaptchaSiteKeyScript != "REPLACE_WITH_RECAPTCHA_SITE_KEY";
-        if (showGoogleRecaptchaScript)
-        {
-            <!-- Locally hosted copy of https://www.google.com/recaptcha/api.js (see
-                 assets/global/plugins/recaptcha/api.js). Note: this loader itself pulls a
-                 version-pinned script from gstatic.com at runtime and the widget renders inside a
-                 google.com iframe either way - self-hosting this one file does not remove the
-                 external dependency on google.com/gstatic.com, and Google explicitly does not
-                 support copying this file (it embeds a release hash that WILL go stale and need
-                 re-downloading periodically). CSP below allows the domains this still needs to
-                 reach. -->
-            <script src="@Url.Content("~/assets/global/plugins/recaptcha/api.js")" async defer></script>
-        }
-    }
     <a id="msg_click" name="msg_click" class="btn btn-link" style="line-height:0;margin-top:-4px; display:none;" href="#user_msg" data-toggle="modal"><i class="fa fa-edit" style="color:orange;"></i></a>
     <div style="width:715px; margin-left:24%; margin-top:10%;" id="user_msg" class="modal fade" tabindex="-1" data-backdrop="user_msg" data-keyboard="false">
         <div class="modal-dialog" style="border:2px solid #cc0001; width:50%;">

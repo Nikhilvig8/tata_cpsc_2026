@@ -29,9 +29,8 @@ namespace InputOutput.Controllers
         {
             // Self-hosted CAPTCHA: a fresh arithmetic challenge is generated on every render of
             // the login page (including every redirect back to it after a failed attempt), so a
-            // solved answer can never be replayed. No external service, no keys, no database -
-            // this is the active bot check while ReCaptchaSiteKey is still a placeholder (see
-            // Login.cshtml and LoginCheck's VerifyCaptchaAsync for the matching client/server side).
+            // solved answer can never be replayed. No external service, no keys, no database - see
+            // Login.cshtml and LoginCheck's VerifySelfHostedCaptcha for the matching client/server side.
             var rng = new Random();
             int a = rng.Next(1, 10);
             int b = rng.Next(1, 10);
@@ -199,7 +198,7 @@ namespace InputOutput.Controllers
                 return RedirectToAction("Login", "Login");
             }
 
-            if (!await VerifyCaptchaAsync(collection))
+            if (!VerifySelfHostedCaptcha(collection.Get("captchaAnswer")))
             {
                 LoginThrottle.RegisterFailure(user.UserName, clientIp);
                 Session["Popup"] = "5";
@@ -420,20 +419,9 @@ namespace InputOutput.Controllers
             return View(user);
         }
 
-        // Routes to whichever CAPTCHA is actually active for the current request, matching
-        // Login.cshtml's rendering: Google reCAPTCHA once real keys are configured, otherwise the
-        // self-hosted arithmetic challenge (no external service, no keys, no database).
-        private async Task<bool> VerifyCaptchaAsync(FormCollection collection)
-        {
-            string recaptchaSiteKey = ConfigurationManager.AppSettings["ReCaptchaSiteKey"];
-            if (!string.IsNullOrEmpty(recaptchaSiteKey) && recaptchaSiteKey != "REPLACE_WITH_RECAPTCHA_SITE_KEY")
-            {
-                return await VerifyRecaptchaAsync(collection.Get("g-recaptcha-response"));
-            }
-
-            return VerifySelfHostedCaptcha(collection.Get("captchaAnswer"));
-        }
-
+        // Self-hosted CAPTCHA verification: application-level only, no external service, no keys,
+        // no database. The matching challenge is generated in Login() (GET) and stored in
+        // Session["CaptchaAnswer"].
         private bool VerifySelfHostedCaptcha(string submittedAnswer)
         {
             object expected = Session["CaptchaAnswer"];
@@ -450,44 +438,6 @@ namespace InputOutput.Controllers
             return int.TryParse(expected.ToString(), out expectedValue)
                 && int.TryParse(submittedAnswer.Trim(), out submittedValue)
                 && expectedValue == submittedValue;
-        }
-
-        private async Task<bool> VerifyRecaptchaAsync(string recaptchaResponse)
-        {
-            string secretKey = ConfigurationManager.AppSettings["ReCaptchaSecretKey"];
-            if (string.IsNullOrEmpty(secretKey) || secretKey == "REPLACE_WITH_RECAPTCHA_SECRET_KEY")
-            {
-                // Not configured yet - don't lock everyone out of login because of it.
-                return true;
-            }
-            if (string.IsNullOrEmpty(recaptchaResponse))
-            {
-                return false;
-            }
-            try
-            {
-                using (var client = new HttpClient())
-                {
-                    var values = new Dictionary<string, string>
-                    {
-                        { "secret", secretKey },
-                        { "response", recaptchaResponse },
-                        { "remoteip", Users.GetVisitorIPAddress() }
-                    };
-                    var response = await client.PostAsync("https://www.google.com/recaptcha/api/siteverify", new FormUrlEncodedContent(values));
-                    string body = await response.Content.ReadAsStringAsync();
-                    var json = Newtonsoft.Json.Linq.JObject.Parse(body);
-                    return (bool?)json["success"] == true;
-                }
-            }
-            catch
-            {
-                // If Google's endpoint can't be reached (e.g. no outbound internet access from
-                // this server), fail OPEN rather than locking out every login - a captcha outage
-                // should not become a site-wide login outage. Confirm outbound HTTPS to
-                // google.com is allowed from the app server if you need this to fail closed instead.
-                return true;
-            }
         }
 
         

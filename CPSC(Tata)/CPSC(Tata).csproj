@@ -1821,7 +1821,6 @@
     <Content Include="assets\global\plugins\backstretch\jquery.backstretch.js" />
     <Content Include="assets\global\plugins\backstretch\jquery.backstretch.min.js" />
     <Content Include="assets\global\plugins\bootbox\bootbox.min.js" />
-    <Content Include="assets\global\plugins\recaptcha\api.js" />
     <Content Include="assets\global\plugins\bootstrap-colorpicker\css\colorpicker.css" />
     <Content Include="assets\global\plugins\bootstrap-colorpicker\img\alpha.png" />
     <Content Include="assets\global\plugins\bootstrap-colorpicker\img\hue.png" />
