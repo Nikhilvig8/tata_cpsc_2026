@@ -594,7 +594,8 @@ namespace InputOutput.Controllers
                 return new HttpStatusCodeResult(404);
             }
 
-            string uri = TotpHelper.GetProvisioningUri("TATA Motors CPSC", Session["Uid"].ToString(), secret);
+            string accountLabel = (Session["UserName"] as string) ?? Session["Uid"].ToString();
+            string uri = TotpHelper.GetProvisioningUri("TATA Motors CPSC", accountLabel, secret);
 
             using (var qrGenerator = new QRCodeGenerator())
             using (var qrData = qrGenerator.CreateQrCode(uri, QRCodeGenerator.ECCLevel.Q))
@@ -626,7 +627,11 @@ namespace InputOutput.Controllers
                 return View("SetupMfa");
             }
 
-            string username = Session["Uid"].ToString();
+            // Must match the identifier LoginCheck's MFA gate looks the secret up with
+            // (user.UserName, the literal username typed at login - i.e. the "Username" DB
+            // column, not "Uid"). Session["UserName"] is populated from that same column
+            // wherever Session["Uid"] is, so this is a like-for-like swap, not a new field.
+            string username = (Session["UserName"] as string) ?? Session["Uid"].ToString();
             bool saved = new Users().SetTotpSecret(username, pendingSecret);
             Session.Remove("PendingTotpSecret");
 
