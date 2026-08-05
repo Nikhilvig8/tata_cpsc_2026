@@ -218,6 +218,22 @@ namespace InputOutput.Controllers
             return View();
         }
 
+        // Applied to every successful-login branch (including the two hardcoded-credential ones),
+        // so MFA can't be bypassed by whichever path was used to satisfy the first factor. Stashes
+        // pending state in Session and returns true if the caller should redirect to VerifyMfa
+        // instead of completing the login.
+        private bool RequiresMfaGate(string username, bool rememberMe)
+        {
+            string totpSecret = new Users().GetTotpSecret(username);
+            if (string.IsNullOrEmpty(totpSecret))
+            {
+                return false;
+            }
+            Session["PendingMfaUser"] = username;
+            Session["PendingMfaRememberMe"] = rememberMe;
+            return true;
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> LoginCheck(FormCollection collection)
@@ -276,6 +292,18 @@ namespace InputOutput.Controllers
             {
                 if (true)
                 {
+                    // Set before the MFA gate (not after, as the rest of this branch does further
+                    // down) - VerifyMfaCode needs Session["Type"]/["Uid"] populated already if it
+                    // ends up redirecting here, same as the other two login branches get from their
+                    // DB lookups before reaching this same gate.
+                    Session["Type"] = "Spl";
+                    Session["Uid"] = "IshwarK";
+
+                    if (RequiresMfaGate(user.UserName, user.RememberMe))
+                    {
+                        return RedirectToAction("VerifyMfa", "Login");
+                    }
+
                     FormsAuthentication.SetAuthCookie(user.UserName, user.RememberMe);
                     UserType = "Spl";
                     if (UserType != "")
@@ -345,6 +373,11 @@ namespace InputOutput.Controllers
             {
                 if (user.IsValid(user.UserName, "PraSad@mb0k@r0397"))
                 {
+                    if (RequiresMfaGate(user.UserName, user.RememberMe))
+                    {
+                        return RedirectToAction("VerifyMfa", "Login");
+                    }
+
                     FormsAuthentication.SetAuthCookie(user.UserName, user.RememberMe);
                     UserType = Session["Type"].ToString();
                     if (UserType != "")
@@ -413,15 +446,8 @@ namespace InputOutput.Controllers
                 {
                     LoginThrottle.Reset(user.UserName, clientIp);
 
-                    // App-level TOTP MFA gate: only applies to accounts that have explicitly
-                    // enrolled (TotpSecret set - see Users.GetTotpSecret). Password is correct at
-                    // this point, but the FormsAuth cookie is deliberately NOT set yet - login only
-                    // completes once VerifyMfaCode confirms the authenticator code too.
-                    string totpSecret = user.GetTotpSecret(user.UserName);
-                    if (!string.IsNullOrEmpty(totpSecret))
+                    if (RequiresMfaGate(user.UserName, user.RememberMe))
                     {
-                        Session["PendingMfaUser"] = user.UserName;
-                        Session["PendingMfaRememberMe"] = user.RememberMe;
                         return RedirectToAction("VerifyMfa", "Login");
                     }
 
