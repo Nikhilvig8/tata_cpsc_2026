@@ -382,6 +382,7 @@ public new  bool IsValid(string _username, string _password)
 
         public bool SetTotpSecret(string username, string secret)
         {
+            int rowsAffected = -1;
             try
             {
                 using (var cn = new SqlConnection(conn))
@@ -390,14 +391,34 @@ public new  bool IsValid(string _username, string _password)
                     cmd.Parameters.Add(new SqlParameter("@Username", SqlDbType.NVarChar)).Value = username;
                     cmd.Parameters.Add(new SqlParameter("@TotpSecret", SqlDbType.NVarChar)).Value = secret;
                     cn.Open();
-                    cmd.ExecuteNonQuery();
-                    return true;
+                    rowsAffected = cmd.ExecuteNonQuery();
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                try
+                {
+                    System.IO.File.AppendAllText(
+                        System.Web.HttpContext.Current.Server.MapPath("~/Logs/Logs.txt"),
+                        $"\r\n[TOTP-DIAG] SetTotpSecret(username='{username}') threw: {ex.Message} - {DateTime.Now}\r\n");
+                }
+                catch { }
                 return false;
             }
+
+            // ExecuteNonQuery returning 0 means the UPDATE ran without error but matched no rows -
+            // i.e. @Username didn't exactly match any [LOGIN] value, so nothing was actually saved
+            // even though no exception was thrown. Previously this method returned true regardless,
+            // which would show "enrollment successful" in the UI while silently saving nothing.
+            try
+            {
+                System.IO.File.AppendAllText(
+                    System.Web.HttpContext.Current.Server.MapPath("~/Logs/Logs.txt"),
+                    $"\r\n[TOTP-DIAG] SetTotpSecret(username='{username}') rowsAffected={rowsAffected} - {DateTime.Now}\r\n");
+            }
+            catch { }
+
+            return rowsAffected > 0;
         }
 
         public  bool IsValidOID(string _username, string _password)
