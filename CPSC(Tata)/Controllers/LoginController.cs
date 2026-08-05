@@ -224,6 +224,15 @@ namespace InputOutput.Controllers
         // instead of completing the login.
         private bool RequiresMfaGate(string username, bool rememberMe)
         {
+            // The exact identifier that was typed to log in - proven (via logging) to reliably
+            // match [LOGIN] in the DB. Neither Session["Uid"] nor Session["UserName"] can be
+            // trusted for this: in this schema they turned out to map to other fields (an
+            // operator ID and a concatenated First+Last "display name" respectively), not the
+            // login value - so SetupMfa/ConfirmMfaSetup/MfaQrCode, which run in a later, separate
+            // request after login, need their own dedicated copy of this value rather than reusing
+            // those fields.
+            Session["LoginUsername"] = username;
+
             string totpSecret = new Users().GetTotpSecret(username);
             if (string.IsNullOrEmpty(totpSecret))
             {
@@ -620,7 +629,7 @@ namespace InputOutput.Controllers
                 return new HttpStatusCodeResult(404);
             }
 
-            string accountLabel = (Session["UserName"] as string) ?? Session["Uid"].ToString();
+            string accountLabel = (Session["LoginUsername"] as string) ?? Session["Uid"].ToString();
             string uri = TotpHelper.GetProvisioningUri("TATA Motors CPSC", accountLabel, secret);
 
             using (var qrGenerator = new QRCodeGenerator())
@@ -653,11 +662,10 @@ namespace InputOutput.Controllers
                 return View("SetupMfa");
             }
 
-            // Must match the identifier LoginCheck's MFA gate looks the secret up with
-            // (user.UserName, the literal username typed at login - i.e. the "Username" DB
-            // column, not "Uid"). Session["UserName"] is populated from that same column
-            // wherever Session["Uid"] is, so this is a like-for-like swap, not a new field.
-            string username = (Session["UserName"] as string) ?? Session["Uid"].ToString();
+            // Session["LoginUsername"] is the literal value typed at login (stashed by
+            // RequiresMfaGate) - proven via logging to reliably match [LOGIN]. Falls back to
+            // Session["Uid"] only for sessions established before this field existed.
+            string username = (Session["LoginUsername"] as string) ?? Session["Uid"].ToString();
             bool saved = new Users().SetTotpSecret(username, pendingSecret);
             Session.Remove("PendingTotpSecret");
 
