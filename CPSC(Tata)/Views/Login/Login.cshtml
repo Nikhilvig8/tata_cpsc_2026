@@ -212,9 +212,15 @@
                                 <button type="submit" class="btn btn-block green uppercase login-button" id="Login"style="background: #ffffff;border-color: #ffffff;color: #3f5caa;">SIGN IN</button>
                             </div>
                             }
+                        @* SSO button hidden for now - Keycloak's TOTP enrollment step is throwing an
+                           internal server error on Tata's side, so the SSO login flow can't
+                           actually complete yet. SsoLogin/OidcCallback are untouched - just
+                           uncomment this to bring the button back once Central Auth resolves it. *@
+                        @*
                         <div class="form-group form-group-css" style="text-align:center; margin-top:10px;">
                             <a href="@Url.Action("SsoLogin","Login")" class="btn btn-block uppercase" style="background:#3f5caa;border-color:#ffffff;color:#ffffff;">Sign in with Company SSO</a>
                         </div>
+                        *@
                         </div>
             </div>
         </div>
