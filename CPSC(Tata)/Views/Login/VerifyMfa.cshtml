@@ -1,0 +1,43 @@
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Verify Code | TATA Motors</title>
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <style>
+        body { font-family: Arial, Helvetica, sans-serif; background:#3f5caa; margin:0; }
+        .box { max-width:360px; margin:80px auto; background:#fff; padding:30px; border-radius:4px; box-shadow:0 2px 10px rgba(0,0,0,0.2); }
+        h3 { color:#3f5caa; margin-top:0; }
+        input[type=text] { width:100%; box-sizing:border-box; padding:10px; font-size:18px; letter-spacing:4px; text-align:center; margin:15px 0; border:1px solid #ccc; border-radius:3px; }
+        button { width:100%; padding:10px; background:#3f5caa; color:#fff; border:0; border-radius:3px; font-weight:bold; cursor:pointer; }
+        .msg { color:#da1f26; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h3>Enter Authenticator Code</h3>
+        <p>Open your authenticator app and enter the 6-digit code for this account.</p>
+        @if (Session["MfaPopup"] != null)
+        {
+            if (Session["MfaPopup"].ToString() == "0")
+            {
+                <p class="msg">Invalid code. Please try again.</p>
+            }
+            else if (Session["MfaPopup"].ToString() == "4")
+            {
+                <p class="msg">Too many failed attempts. Please try again in a few minutes.</p>
+            }
+            Session["MfaPopup"] = string.Empty;
+        }
+        @using (Html.BeginForm("VerifyMfaCode", "Login", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            <input type="text" name="code" maxlength="6" autocomplete="off" placeholder="000000" autofocus="autofocus" />
+            <button type="submit">Verify</button>
+        }
+    </div>
+</body>
+</html>

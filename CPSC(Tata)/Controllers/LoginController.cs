@@ -411,6 +411,19 @@ namespace InputOutput.Controllers
                 if (await user.IsValidOID1(user.UserName, user.Password))
                 {
                     LoginThrottle.Reset(user.UserName, clientIp);
+
+                    // App-level TOTP MFA gate: only applies to accounts that have explicitly
+                    // enrolled (TotpSecret set - see Users.GetTotpSecret). Password is correct at
+                    // this point, but the FormsAuth cookie is deliberately NOT set yet - login only
+                    // completes once VerifyMfaCode confirms the authenticator code too.
+                    string totpSecret = user.GetTotpSecret(user.UserName);
+                    if (!string.IsNullOrEmpty(totpSecret))
+                    {
+                        Session["PendingMfaUser"] = user.UserName;
+                        Session["PendingMfaRememberMe"] = user.RememberMe;
+                        return RedirectToAction("VerifyMfa", "Login");
+                    }
+
                     FormsAuthentication.SetAuthCookie(user.UserName, user.RememberMe);
                     UserType = Session["Type"].ToString();
                     if (UserType != "")
@@ -475,6 +488,123 @@ namespace InputOutput.Controllers
                 }
             }
             return View(user);
+        }
+
+        // --- App-level TOTP authenticator MFA: login-time verification ---
+        // Reached only via the redirect in LoginCheck's OID1 branch above, for accounts that have
+        // enrolled (see SetupMfa/ConfirmMfaSetup below). Password has already been verified at
+        // this point; FormsAuth cookie is only set once the code checks out too.
+        public ActionResult VerifyMfa()
+        {
+            if (Session["PendingMfaUser"] == null)
+            {
+                return RedirectToAction("Login", "Login");
+            }
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> VerifyMfaCode(FormCollection collection)
+        {
+            string pendingUser = Session["PendingMfaUser"] as string;
+            if (string.IsNullOrEmpty(pendingUser))
+            {
+                return RedirectToAction("Login", "Login");
+            }
+
+            string clientIp = LoginThrottle.ResolveClientIp(Request);
+
+            // Same per-user/per-IP throttle as password login - a 6-digit code has only a million
+            // possibilities, so brute-force protection matters here too, not just on LoginCheck.
+            if (LoginThrottle.IsLocked(pendingUser, clientIp))
+            {
+                Session["MfaPopup"] = "4";
+                return RedirectToAction("VerifyMfa", "Login");
+            }
+
+            string secret = new Users().GetTotpSecret(pendingUser);
+            string submittedCode = collection.Get("code");
+
+            if (string.IsNullOrEmpty(secret) || !TotpHelper.ValidateCode(secret, submittedCode))
+            {
+                LoginThrottle.RegisterFailure(pendingUser, clientIp);
+                Session["MfaPopup"] = "0";
+                return RedirectToAction("VerifyMfa", "Login");
+            }
+
+            LoginThrottle.Reset(pendingUser, clientIp);
+            bool rememberMe = Session["PendingMfaRememberMe"] as bool? ?? false;
+            Session.Remove("PendingMfaUser");
+            Session.Remove("PendingMfaRememberMe");
+
+            // Session["Type"]/["Uid"] etc. are already populated from IsValidOID1's lookup earlier
+            // in this same session, so login completes exactly like the non-MFA path did.
+            FormsAuthentication.SetAuthCookie(pendingUser, rememberMe);
+            string userType = Session["Type"] != null ? Session["Type"].ToString() : string.Empty;
+
+            if (userType == "DL" || userType == "SCVDL")
+            {
+                Session["Popup"] = "1";
+                Session["ticket"] = await FetchTableauTicketAsync(Session["Uid"].ToString());
+                return RedirectToAction("Dealer_Home", "Login");
+            }
+            else if (!string.IsNullOrEmpty(userType))
+            {
+                Session["Popup"] = "1";
+                return RedirectToAction("Index", "Home");
+            }
+            else
+            {
+                Session["Popup"] = "2";
+                return RedirectToAction("Login", "Login");
+            }
+        }
+
+        // --- App-level TOTP authenticator MFA: self-service enrollment ---
+        // Must be reached while already logged in (Session["Uid"] set via a normal password
+        // login), so nobody can enroll MFA onto an account they don't already control. The secret
+        // is only persisted (via Users.SetTotpSecret) after ConfirmMfaSetup proves the user's
+        // authenticator app actually produces matching codes for it - never on GET, so a wrong/
+        // abandoned setup attempt can't strand someone with an unconfirmed secret.
+        public ActionResult SetupMfa()
+        {
+            if (Session["Uid"] == null)
+            {
+                return RedirectToAction("Login", "Login");
+            }
+
+            string secret = TotpHelper.GenerateSecret();
+            Session["PendingTotpSecret"] = secret;
+            ViewBag.ManualEntryCode = TotpHelper.FormatForDisplay(secret);
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ConfirmMfaSetup(FormCollection collection)
+        {
+            if (Session["Uid"] == null)
+            {
+                return RedirectToAction("Login", "Login");
+            }
+
+            string pendingSecret = Session["PendingTotpSecret"] as string;
+            string submittedCode = collection.Get("code");
+
+            if (string.IsNullOrEmpty(pendingSecret) || !TotpHelper.ValidateCode(pendingSecret, submittedCode))
+            {
+                ViewBag.SetupError = true;
+                ViewBag.ManualEntryCode = string.IsNullOrEmpty(pendingSecret) ? null : TotpHelper.FormatForDisplay(pendingSecret);
+                return View("SetupMfa");
+            }
+
+            string username = Session["Uid"].ToString();
+            bool saved = new Users().SetTotpSecret(username, pendingSecret);
+            Session.Remove("PendingTotpSecret");
+
+            ViewBag.SetupComplete = saved;
+            return View("SetupMfaResult");
         }
 
         // Self-hosted CAPTCHA verification: application-level only, no external service, no keys,

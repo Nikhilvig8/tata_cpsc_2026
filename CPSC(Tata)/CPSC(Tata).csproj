@@ -263,6 +263,7 @@
     <Compile Include="App_Code\NoCacheAttribute.cs" />
     <Compile Include="App_Code\LoginThrottle.cs" />
     <Compile Include="App_Code\PkceHelper.cs" />
+    <Compile Include="App_Code\TotpHelper.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />

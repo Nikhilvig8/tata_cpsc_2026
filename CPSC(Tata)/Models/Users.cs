@@ -338,6 +338,53 @@ public new  bool IsValid(string _username, string _password)
             return usernameClaim != null ? usernameClaim.Value : null;
         }
 
+        // --- App-level TOTP authenticator MFA support ---
+        // REQUIRES two stored procedures ("GetTotpSecret", "SetTotpSecret") and a nullable
+        // TotpSecret column on the users table - see the SQL provided alongside this change, since
+        // this couldn't be created without database access. Null/missing secret = user hasn't
+        // enrolled MFA, login proceeds exactly as before (opt-in, not required for existing users).
+        public string GetTotpSecret(string username)
+        {
+            try
+            {
+                using (var cn = new SqlConnection(conn))
+                {
+                    var cmd = new SqlCommand("GetTotpSecret", cn) { CommandType = CommandType.StoredProcedure };
+                    cmd.Parameters.Add(new SqlParameter("@Username", SqlDbType.NVarChar)).Value = username;
+                    cn.Open();
+                    object result = cmd.ExecuteScalar();
+                    return result == null || result == DBNull.Value ? null : result.ToString();
+                }
+            }
+            catch
+            {
+                // Missing proc/column, or any DB error: treat as "not enrolled" rather than
+                // blocking login entirely - fixing the DB side later just activates MFA for
+                // whoever has since enrolled, with zero impact on everyone else in the meantime.
+                return null;
+            }
+        }
+
+        public bool SetTotpSecret(string username, string secret)
+        {
+            try
+            {
+                using (var cn = new SqlConnection(conn))
+                {
+                    var cmd = new SqlCommand("SetTotpSecret", cn) { CommandType = CommandType.StoredProcedure };
+                    cmd.Parameters.Add(new SqlParameter("@Username", SqlDbType.NVarChar)).Value = username;
+                    cmd.Parameters.Add(new SqlParameter("@TotpSecret", SqlDbType.NVarChar)).Value = secret;
+                    cn.Open();
+                    cmd.ExecuteNonQuery();
+                    return true;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public  bool IsValidOID(string _username, string _password)
         {
             if (_username.Contains("&") || _password.Contains("&") || _username.Contains("'") || _password.Contains("'") || _username.Contains("\"") || _password.Contains("\"") || _username.Contains("<") || _password.Contains("<") || _username.Contains(">") || _password.Contains(">"))
