@@ -66,15 +66,42 @@ namespace InputOutput
             byte[] secretBytes = Base32Decode(base32Secret);
             long currentStep = ToUnixTimeSeconds(DateTime.UtcNow) / StepSeconds;
 
+            bool matched = false;
             for (int drift = -driftSteps; drift <= driftSteps; drift++)
             {
                 string expected = ComputeCode(secretBytes, currentStep + drift);
                 if (FixedTimeEquals(expected, submittedCode))
                 {
-                    return true;
+                    matched = true;
+                    break;
                 }
             }
-            return false;
+
+            // Temporary diagnostic: checks a much wider +/-5 minute window (NOT used to accept
+            // the code, only to log whether the submitted code belongs to this secret at all, or
+            // to a different secret entirely - never logs the secret itself). Remove once the
+            // "invalid code" issue is resolved.
+            try
+            {
+                int? wideMatchDrift = null;
+                for (int drift = -10; drift <= 10; drift++)
+                {
+                    if (FixedTimeEquals(ComputeCode(secretBytes, currentStep + drift), submittedCode))
+                    {
+                        wideMatchDrift = drift;
+                        break;
+                    }
+                }
+                string diag = wideMatchDrift.HasValue
+                    ? $"matches this secret at drift={wideMatchDrift.Value} steps ({wideMatchDrift.Value * StepSeconds}s)"
+                    : "does not match this secret within +/-10 steps (+/-5 min) - likely a different secret entirely";
+                System.IO.File.AppendAllText(
+                    System.Web.HttpContext.Current.Server.MapPath("~/Logs/Logs.txt"),
+                    $"\r\n[TOTP-DIAG] submitted='{submittedCode}' acceptedWithinNormalWindow={matched} {diag} - {DateTime.Now}\r\n");
+            }
+            catch { }
+
+            return matched;
         }
 
         private static string ComputeCode(byte[] secretBytes, long counter)
