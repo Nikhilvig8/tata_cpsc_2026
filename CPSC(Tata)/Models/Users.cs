@@ -353,14 +353,29 @@ public new  bool IsValid(string _username, string _password)
                     cmd.Parameters.Add(new SqlParameter("@Username", SqlDbType.NVarChar)).Value = username;
                     cn.Open();
                     object result = cmd.ExecuteScalar();
-                    return result == null || result == DBNull.Value ? null : result.ToString();
+                    bool found = result != null && result != DBNull.Value;
+                    try
+                    {
+                        System.IO.File.AppendAllText(
+                            System.Web.HttpContext.Current.Server.MapPath("~/Logs/Logs.txt"),
+                            $"\r\n[TOTP] GetTotpSecret(username='{username}') -> {(found ? "found a value" : "no row / null value")} - {DateTime.Now}\r\n");
+                    }
+                    catch { /* logging must never break the login path */ }
+                    return found ? result.ToString() : null;
                 }
             }
-            catch
+            catch (Exception ex)
             {
                 // Missing proc/column, or any DB error: treat as "not enrolled" rather than
                 // blocking login entirely - fixing the DB side later just activates MFA for
                 // whoever has since enrolled, with zero impact on everyone else in the meantime.
+                try
+                {
+                    System.IO.File.AppendAllText(
+                        System.Web.HttpContext.Current.Server.MapPath("~/Logs/Logs.txt"),
+                        $"\r\n[TOTP] GetTotpSecret(username='{username}') threw: {ex.Message} - {DateTime.Now}\r\n");
+                }
+                catch { }
                 return null;
             }
         }
