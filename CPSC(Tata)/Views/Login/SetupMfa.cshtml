@@ -9,27 +9,39 @@
     <meta content="width=device-width, initial-scale=1" name="viewport" />
     <style>
         body { font-family: Arial, Helvetica, sans-serif; background:#3f5caa; margin:0; }
-        .box { max-width:420px; margin:60px auto; background:#fff; padding:30px; border-radius:4px; box-shadow:0 2px 10px rgba(0,0,0,0.2); }
+        .box { max-width:460px; margin:40px auto; background:#fff; padding:30px; border-radius:4px; box-shadow:0 2px 10px rgba(0,0,0,0.2); }
         h3 { color:#3f5caa; margin-top:0; }
-        .code { font-family: Consolas, monospace; font-size:20px; letter-spacing:2px; background:#f0f0f0; padding:12px; text-align:center; border-radius:3px; margin:15px 0; word-break:break-all; }
+        h4 { color:#3f5caa; margin-bottom:6px; }
+        .code { font-family: Consolas, monospace; font-size:20px; letter-spacing:2px; background:#f0f0f0; padding:12px; text-align:center; border-radius:3px; margin:10px 0 20px; word-break:break-all; }
+        .qr-wrap { text-align:center; margin:10px 0 20px; }
+        .qr-wrap img { border:1px solid #eee; padding:8px; }
         input[type=text] { width:100%; box-sizing:border-box; padding:10px; font-size:18px; letter-spacing:4px; text-align:center; margin:15px 0; border:1px solid #ccc; border-radius:3px; }
         button { width:100%; padding:10px; background:#3f5caa; color:#fff; border:0; border-radius:3px; font-weight:bold; cursor:pointer; }
         .msg { color:#da1f26; }
         ol { padding-left:20px; }
+        .divider { text-align:center; color:#999; margin:20px 0; font-size:13px; text-transform:uppercase; }
     </style>
 </head>
 <body>
     <div class="box">
         <h3>Set Up Two-Factor Authentication</h3>
-        <ol>
-            <li>Install an authenticator app (Google Authenticator, Microsoft Authenticator, Authy, etc.) if you don't already have one.</li>
-            <li>Choose "Enter a setup key" / "Manual entry" and type in the code below.</li>
-            <li>Enter the 6-digit code the app shows you to confirm setup.</li>
-        </ol>
+        <p>Install an authenticator app (Google Authenticator, Microsoft Authenticator, Authy, etc.) if you don't already have one, then use either option below.</p>
+
+        <h4>Option 1: Scan QR code with camera</h4>
+        <div class="qr-wrap">
+            <img src="@Url.Action("MfaQrCode", "Login")" alt="Scan this QR code with your authenticator app" width="200" height="200" />
+        </div>
+
+        <div class="divider">or</div>
+
+        <h4>Option 2: Enter setup key manually</h4>
+        <p>Choose "Enter a setup key" / "Manual entry" in your authenticator app and type in the code below.</p>
         <div class="code">@ViewBag.ManualEntryCode</div>
+
+        <p>Then enter the 6-digit code the app shows you to confirm setup:</p>
         @if (ViewBag.SetupError == true)
         {
-            <p class="msg">That code didn't match. Double-check the setup key was entered correctly and try the current code again.</p>
+            <p class="msg">That code didn't match. Double-check the QR scan / setup key and try the current code again.</p>
         }
         @using (Html.BeginForm("ConfirmMfaSetup", "Login", FormMethod.Post))
         {

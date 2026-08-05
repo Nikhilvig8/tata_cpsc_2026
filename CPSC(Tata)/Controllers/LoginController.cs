@@ -18,6 +18,7 @@ using System.Configuration;
 using System.Net.Http;
 using System.Drawing;
 using System.Drawing.Imaging;
+using QRCoder;
 
 namespace InputOutput.Controllers
 {
@@ -578,6 +579,32 @@ namespace InputOutput.Controllers
             Session["PendingTotpSecret"] = secret;
             ViewBag.ManualEntryCode = TotpHelper.FormatForDisplay(secret);
             return View();
+        }
+
+        // Scannable QR code for the enrollment in progress - same secret as the manual entry code
+        // above, just encoded as the standard otpauth:// URI authenticator apps read via camera.
+        // Rendered with QRCoder (vendored under packages\QRCoder.1.4.3, MIT licensed) - pure local
+        // image generation, no external service call, same "free/no dependency at runtime"
+        // principle as the CAPTCHA image.
+        public ActionResult MfaQrCode()
+        {
+            string secret = Session["PendingTotpSecret"] as string;
+            if (string.IsNullOrEmpty(secret) || Session["Uid"] == null)
+            {
+                return new HttpStatusCodeResult(404);
+            }
+
+            string uri = TotpHelper.GetProvisioningUri("TATA Motors CPSC", Session["Uid"].ToString(), secret);
+
+            using (var qrGenerator = new QRCodeGenerator())
+            using (var qrData = qrGenerator.CreateQrCode(uri, QRCodeGenerator.ECCLevel.Q))
+            using (var qrCode = new QRCode(qrData))
+            using (var bitmap = qrCode.GetGraphic(8))
+            using (var ms = new MemoryStream())
+            {
+                bitmap.Save(ms, ImageFormat.Png);
+                return File(ms.ToArray(), "image/png");
+            }
         }
 
         [HttpPost]
