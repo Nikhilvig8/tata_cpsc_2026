@@ -39,7 +39,11 @@
         <div class="code">@ViewBag.ManualEntryCode</div>
 
         <p>Then enter the 6-digit code the app shows you to confirm setup:</p>
-        @if (ViewBag.SetupError == true)
+        @if (ViewBag.SetupLocked == true)
+        {
+            <p class="msg">Too many failed attempts. Please try again in a few minutes.</p>
+        }
+        else if (ViewBag.SetupError == true)
         {
             <p class="msg">That code didn't match. Double-check the QR scan / setup key and try the current code again.</p>
         }

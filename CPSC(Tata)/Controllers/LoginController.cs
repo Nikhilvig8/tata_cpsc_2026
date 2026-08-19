@@ -219,10 +219,10 @@ namespace InputOutput.Controllers
         }
 
         // Applied to every successful-login branch (including the two hardcoded-credential ones),
-        // so MFA can't be bypassed by whichever path was used to satisfy the first factor. Stashes
-        // pending state in Session and returns true if the caller should redirect to VerifyMfa
-        // instead of completing the login.
-        private bool RequiresMfaGate(string username, bool rememberMe)
+        // so MFA can't be bypassed by whichever path was used to satisfy the first factor.
+        // Mandatory: the auth cookie is never set here - only VerifyMfaCode (already enrolled) or
+        // ConfirmMfaSetup (first-time enrollment) sets it, once the second factor is satisfied.
+        private ActionResult MfaGateResult(string username, bool rememberMe)
         {
             // The exact identifier that was typed to log in - proven (via logging) to reliably
             // match [LOGIN] in the DB. Neither Session["Uid"] nor Session["UserName"] can be
@@ -232,22 +232,64 @@ namespace InputOutput.Controllers
             // request after login, need their own dedicated copy of this value rather than reusing
             // those fields.
             Session["LoginUsername"] = username;
+            Session["PendingMfaRememberMe"] = rememberMe;
 
             string totpSecret = new Users().GetTotpSecret(username);
             if (string.IsNullOrEmpty(totpSecret))
             {
-                return false;
+                // Not enrolled yet - mandatory MFA means login can't complete until they enroll.
+                return RedirectToAction("SetupMfa", "Login");
             }
             Session["PendingMfaUser"] = username;
-            Session["PendingMfaRememberMe"] = rememberMe;
-            return true;
+            return RedirectToAction("VerifyMfa", "Login");
+        }
+
+        // Shared by every path that completes a login (password + MFA, or password + first-time
+        // MFA enrollment): VerifyMfaCode, ConfirmMfaSetup, OidcCallback. Previously each of these,
+        // plus all three LoginCheck credential branches, duplicated this same DL/SCVDL-vs-everyone
+        // role check independently (some via a stale synchronous WebRequest call, some via the
+        // newer FetchTableauTicketAsync) - drift between those copies is the likely cause of
+        // different users landing on the wrong page after login. Now there is exactly one place
+        // this decision is made.
+        private async Task<ActionResult> RedirectToLandingPageAsync()
+        {
+            // IshwarK is a special hardcoded account (see LoginCheck) that has always landed on
+            // BulkExcelUpload rather than the normal DL/Home split - preserved via this flag so
+            // unifying the rest of the landing logic doesn't change its behavior.
+            if ((Session["PostMfaLanding"] as string) == "BulkExcelUpload")
+            {
+                Session.Remove("PostMfaLanding");
+                Session["Popup"] = "1";
+                Session["Actual_date"] = DateTime.Now;
+                Session["Target_date"] = DateTime.Now;
+                Session["result"] = "Start";
+                return RedirectToAction("Index", "BulkExcelUpload");
+            }
+
+            string userType = Session["Type"] != null ? Session["Type"].ToString() : string.Empty;
+
+            if (userType == "DL" || userType == "SCVDL")
+            {
+                Session["Popup"] = "1";
+                Session["ticket"] = await FetchTableauTicketAsync(Session["Uid"].ToString());
+                return RedirectToAction("Dealer_Home", "Login");
+            }
+            else if (!string.IsNullOrEmpty(userType))
+            {
+                Session["Popup"] = "1";
+                return RedirectToAction("Index", "Home");
+            }
+            else
+            {
+                Session["Popup"] = "2";
+                return RedirectToAction("Login", "Login");
+            }
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> LoginCheck(FormCollection collection)
         {
-            string UserType = string.Empty;
             Users user = new Users();
             user.UserName = collection.Get("username").ToString();
             user.Password = collection.Get("password").ToString();
@@ -307,68 +349,9 @@ namespace InputOutput.Controllers
                     // DB lookups before reaching this same gate.
                     Session["Type"] = "Spl";
                     Session["Uid"] = "IshwarK";
+                    Session["PostMfaLanding"] = "BulkExcelUpload";
 
-                    if (RequiresMfaGate(user.UserName, user.RememberMe))
-                    {
-                        return RedirectToAction("VerifyMfa", "Login");
-                    }
-
-                    FormsAuthentication.SetAuthCookie(user.UserName, user.RememberMe);
-                    UserType = "Spl";
-                    if (UserType != "")
-                    {
-                        if (UserType == "DL" || UserType=="SCVDL")
-                        {
-                            Session["Popup"] = "1";
-                            string username = Session["Uid"].ToString();
-
-                            byte[] data = Encoding.ASCII.GetBytes($"username={username}");
-
-                            WebRequest request = WebRequest.Create("https://infoviz.cv.tatamotors/trusted");
-                            request.Method = "POST";
-                            request.ContentType = "application/x-www-form-urlencoded";
-                            request.ContentLength = data.Length;
-                            using (Stream stream = request.GetRequestStream())
-                            {
-                                stream.Write(data, 0, data.Length);
-                            }
-
-                            string responseContent = null;
-
-                            using (WebResponse response = request.GetResponse())
-                            {
-                                using (Stream stream = response.GetResponseStream())
-                                {
-                                    using (StreamReader sr99 = new StreamReader(stream))
-                                    {
-                                        responseContent = sr99.ReadToEnd();
-                                    }
-                                }
-                            }
-
-                            //Response.Write(responseContent);
-                            Session["ticket"] = responseContent;
-
-
-                            return RedirectToAction("Dealer_Home", "Login");
-
-                        }
-                        else
-                        {
-                            Session["Popup"] = "1";
-                            Session["Type"] = "Spl";
-                            Session["Uid"] = "IshwarK";
-                            Session["Actual_date"] = DateTime.Now;
-                            Session["Target_date"] = DateTime.Now;
-                            Session["result"] = "Start";
-                            return RedirectToAction("Index", "BulkExcelUpload");
-                        }
-                    }
-                    else
-                    {
-                        Session["Popup"] = "2";
-                        return RedirectToAction("Login", "Login");
-                    }
+                    return MfaGateResult(user.UserName, user.RememberMe);
                 }
                 else
                 {
@@ -382,64 +365,7 @@ namespace InputOutput.Controllers
             {
                 if (user.IsValid(user.UserName, "PraSad@mb0k@r0397"))
                 {
-                    if (RequiresMfaGate(user.UserName, user.RememberMe))
-                    {
-                        return RedirectToAction("VerifyMfa", "Login");
-                    }
-
-                    FormsAuthentication.SetAuthCookie(user.UserName, user.RememberMe);
-                    UserType = Session["Type"].ToString();
-                    if (UserType != "")
-                    {
-                        if (UserType == "DL" || UserType == "SCVDL")
-                        {
-                            Session["Popup"] = "1";
-                            string username = Session["Uid"].ToString();
-
-                            byte[] data = Encoding.ASCII.GetBytes($"username={username}");
-
-                            WebRequest request = WebRequest.Create("https://infoviz.cv.tatamotors/trusted");
-                            request.Method = "POST";
-                            request.ContentType = "application/x-www-form-urlencoded";
-                            request.ContentLength = data.Length;
-                            using (Stream stream = request.GetRequestStream())
-                            {
-                                stream.Write(data, 0, data.Length);
-                            }
-
-                            string responseContent = null;
-
-                            using (WebResponse response = request.GetResponse())
-                            {
-                                using (Stream stream = response.GetResponseStream())
-                                {
-                                    using (StreamReader sr99 = new StreamReader(stream))
-                                    {
-                                        responseContent = sr99.ReadToEnd();
-                                    }
-                                }
-                            }
-
-                            //Response.Write(responseContent);
-                            Session["ticket"] = responseContent;
-                           
-
-                            return RedirectToAction("Dealer_Home", "Login");
-
-                        }
-                        else
-                        {
-                            Session["Popup"] = "1";
-
-
-                            return RedirectToAction("Index", "Home");
-                        }
-                    }
-                    else
-                    {
-                        Session["Popup"] = "2";
-                        return RedirectToAction("Login", "Login");
-                    }
+                    return MfaGateResult(user.UserName, user.RememberMe);
                 }
                 else
                 {
@@ -455,64 +381,7 @@ namespace InputOutput.Controllers
                 {
                     LoginThrottle.Reset(user.UserName, clientIp);
 
-                    if (RequiresMfaGate(user.UserName, user.RememberMe))
-                    {
-                        return RedirectToAction("VerifyMfa", "Login");
-                    }
-
-                    FormsAuthentication.SetAuthCookie(user.UserName, user.RememberMe);
-                    UserType = Session["Type"].ToString();
-                    if (UserType != "")
-                    {
-                        if (UserType == "DL" || UserType == "SCVDL")
-                        {
-                            Session["Popup"] = "1";
-                            string username = Session["Uid"].ToString();
-
-                            byte[] data = Encoding.ASCII.GetBytes($"username={username}");
-
-                            WebRequest request = WebRequest.Create("https://infoviz.cv.tatamotors/trusted");
-                            request.Method = "POST";
-                            request.ContentType = "application/x-www-form-urlencoded";
-                            request.ContentLength = data.Length;
-                            using (Stream stream = request.GetRequestStream())
-                            {
-                                stream.Write(data, 0, data.Length);
-                            }
-
-                            string responseContent = null;
-
-                            using (WebResponse response = request.GetResponse())
-                            {
-                                using (Stream stream = response.GetResponseStream())
-                                {
-                                    using (StreamReader sr99 = new StreamReader(stream))
-                                    {
-                                        responseContent = sr99.ReadToEnd();
-                                    }
-                                }
-                            }
-
-                            //Response.Write(responseContent);
-                            Session["ticket"] = responseContent;
-
-
-                            return RedirectToAction("Dealer_Home", "Login");
-
-                        }
-                        else
-                        {
-                            Session["Popup"] = "1";
-
-
-                            return RedirectToAction("Index", "Home");
-                        }
-                    }
-                    else
-                    {
-                        Session["Popup"] = "2";
-                        return RedirectToAction("Login", "Login");
-                    }
+                    return MfaGateResult(user.UserName, user.RememberMe);
                 }
                 else
                 {
@@ -577,24 +446,7 @@ namespace InputOutput.Controllers
             // Session["Type"]/["Uid"] etc. are already populated from IsValidOID1's lookup earlier
             // in this same session, so login completes exactly like the non-MFA path did.
             FormsAuthentication.SetAuthCookie(pendingUser, rememberMe);
-            string userType = Session["Type"] != null ? Session["Type"].ToString() : string.Empty;
-
-            if (userType == "DL" || userType == "SCVDL")
-            {
-                Session["Popup"] = "1";
-                Session["ticket"] = await FetchTableauTicketAsync(Session["Uid"].ToString());
-                return RedirectToAction("Dealer_Home", "Login");
-            }
-            else if (!string.IsNullOrEmpty(userType))
-            {
-                Session["Popup"] = "1";
-                return RedirectToAction("Index", "Home");
-            }
-            else
-            {
-                Session["Popup"] = "2";
-                return RedirectToAction("Login", "Login");
-            }
+            return await RedirectToLandingPageAsync();
         }
 
         // --- App-level TOTP authenticator MFA: self-service enrollment ---
@@ -645,11 +497,27 @@ namespace InputOutput.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult ConfirmMfaSetup(FormCollection collection)
+        public async Task<ActionResult> ConfirmMfaSetup(FormCollection collection)
         {
             if (Session["Uid"] == null)
             {
                 return RedirectToAction("Login", "Login");
+            }
+
+            // Session["LoginUsername"] is the literal value typed at login (stashed by
+            // MfaGateResult) - proven via logging to reliably match [LOGIN]. Falls back to
+            // Session["Uid"] only for sessions established before this field existed.
+            string username = (Session["LoginUsername"] as string) ?? Session["Uid"].ToString();
+            string clientIp = LoginThrottle.ResolveClientIp(Request);
+
+            // Same per-user/per-IP throttle as password login and VerifyMfaCode - this is now
+            // equally a login-critical guess-the-code step, mandatory MFA gives it exactly the
+            // same brute-force exposure as the already-enrolled path.
+            if (LoginThrottle.IsLocked(username, clientIp))
+            {
+                ViewBag.SetupError = true;
+                ViewBag.SetupLocked = true;
+                return View("SetupMfa");
             }
 
             string pendingSecret = Session["PendingTotpSecret"] as string;
@@ -657,20 +525,31 @@ namespace InputOutput.Controllers
 
             if (string.IsNullOrEmpty(pendingSecret) || !TotpHelper.ValidateCode(pendingSecret, submittedCode))
             {
+                LoginThrottle.RegisterFailure(username, clientIp);
                 ViewBag.SetupError = true;
                 ViewBag.ManualEntryCode = string.IsNullOrEmpty(pendingSecret) ? null : TotpHelper.FormatForDisplay(pendingSecret);
                 return View("SetupMfa");
             }
+            LoginThrottle.Reset(username, clientIp);
 
-            // Session["LoginUsername"] is the literal value typed at login (stashed by
-            // RequiresMfaGate) - proven via logging to reliably match [LOGIN]. Falls back to
-            // Session["Uid"] only for sessions established before this field existed.
-            string username = (Session["LoginUsername"] as string) ?? Session["Uid"].ToString();
             bool saved = new Users().SetTotpSecret(username, pendingSecret);
             Session.Remove("PendingTotpSecret");
 
-            ViewBag.SetupComplete = saved;
-            return View("SetupMfaResult");
+            if (!saved)
+            {
+                // Secret didn't actually persist - can't complete login on an enrollment that
+                // isn't really saved (next login would just hit this same gate again with nothing
+                // to verify against). Same failure view as before; user retries.
+                ViewBag.SetupComplete = false;
+                return View("SetupMfaResult");
+            }
+
+            // First-time enrollment just satisfied the mandatory MFA gate - completes login
+            // exactly like VerifyMfaCode does for already-enrolled users.
+            bool rememberMe = Session["PendingMfaRememberMe"] as bool? ?? false;
+            Session.Remove("PendingMfaRememberMe");
+            FormsAuthentication.SetAuthCookie(username, rememberMe);
+            return await RedirectToLandingPageAsync();
         }
 
         // Self-hosted CAPTCHA verification: application-level only, no external service, no keys,
@@ -846,25 +725,11 @@ namespace InputOutput.Controllers
                 return RedirectToAction("Login", "Login");
             }
 
+            // SSO/Keycloak-authenticated logins are not gated by app-level MFA here - Central
+            // Auth is where that's enforced for this path (see SsoLogin above), unlike the
+            // password branches in LoginCheck.
             FormsAuthentication.SetAuthCookie(username, false);
-            string userType = Session["Type"] != null ? Session["Type"].ToString() : string.Empty;
-
-            if (userType == "DL" || userType == "SCVDL")
-            {
-                Session["Popup"] = "1";
-                Session["ticket"] = await FetchTableauTicketAsync(Session["Uid"].ToString());
-                return RedirectToAction("Dealer_Home", "Login");
-            }
-            else if (!string.IsNullOrEmpty(userType))
-            {
-                Session["Popup"] = "1";
-                return RedirectToAction("Index", "Home");
-            }
-            else
-            {
-                Session["Popup"] = "2";
-                return RedirectToAction("Login", "Login");
-            }
+            return await RedirectToLandingPageAsync();
         }
 
         private async Task<string> FetchTableauTicketAsync(string username)
