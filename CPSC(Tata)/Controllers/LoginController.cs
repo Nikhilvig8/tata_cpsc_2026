@@ -446,6 +446,11 @@ namespace InputOutput.Controllers
             // Session["Type"]/["Uid"] etc. are already populated from IsValidOID1's lookup earlier
             // in this same session, so login completes exactly like the non-MFA path did.
             FormsAuthentication.SetAuthCookie(pendingUser, rememberMe);
+            // VAPT finding "Concurrent login allowed": this login is now the sole authoritative
+            // session for pendingUser - any earlier session for the same account gets signed out on
+            // its next request (see SingleSessionAttribute).
+            Session["ConcurrentSessionUser"] = pendingUser;
+            Session["ActiveLoginToken"] = ConcurrentSessionGuard.Establish(pendingUser);
             return await RedirectToLandingPageAsync();
         }
 
@@ -549,6 +554,8 @@ namespace InputOutput.Controllers
             bool rememberMe = Session["PendingMfaRememberMe"] as bool? ?? false;
             Session.Remove("PendingMfaRememberMe");
             FormsAuthentication.SetAuthCookie(username, rememberMe);
+            Session["ConcurrentSessionUser"] = username;
+            Session["ActiveLoginToken"] = ConcurrentSessionGuard.Establish(username);
             return await RedirectToLandingPageAsync();
         }
 
@@ -633,6 +640,10 @@ namespace InputOutput.Controllers
         }
         public ActionResult Logout()
         {
+            // Release this user's concurrent-login slot so a subsequent legitimate login doesn't
+            // have to wait out the 25-minute sliding window before it's treated as authoritative.
+            ConcurrentSessionGuard.Clear(Session["ConcurrentSessionUser"] as string);
+
             // Previously only cleared the FormsAuth cookie and left session data (Session["Uid"],
             // Session["Type"], etc.) alive server-side until its 25-minute timeout. A replayed
             // ASP.NET_SessionId cookie captured before logout could still read authenticated state
@@ -729,6 +740,8 @@ namespace InputOutput.Controllers
             // Auth is where that's enforced for this path (see SsoLogin above), unlike the
             // password branches in LoginCheck.
             FormsAuthentication.SetAuthCookie(username, false);
+            Session["ConcurrentSessionUser"] = username;
+            Session["ActiveLoginToken"] = ConcurrentSessionGuard.Establish(username);
             return await RedirectToLandingPageAsync();
         }
 

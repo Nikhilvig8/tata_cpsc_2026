@@ -1,1 +1,8 @@
 .vs/
+
+# VAPT "Information Disclosure": runtime logs and build-output *.dll.config files can contain
+# stack traces, IPs, usernames, and (bin/*.dll.config specifically) plaintext DB credentials copied
+# in by the build - none of that belongs in source control.
+CPSC(Tata)/Logs/*.txt
+CPSC(Tata)/bin/
+CPSC(Tata)/obj/

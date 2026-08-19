@@ -21,6 +21,30 @@ namespace InputOutput
             BundleConfig.RegisterBundles(BundleTable.Bundles);
         }
 
+        // VAPT finding "Secure Cookies not set properly": Web.config's <httpCookies
+        // httpOnlyCookies="true" requireSSL="true" /> already covers HttpOnly + Secure for every
+        // cookie this app sets (session + forms auth). SameSite is the piece that config element
+        // can't express on .NET Framework 4.6 (that attribute wasn't added to HttpCookie/web.config
+        // until later 4.7.2 patches) - so it's added the standard way for this framework version, by
+        // appending it to the cookie's Path here right before the response headers are written. Lax
+        // (not Strict) so a link from an external page can still land the user on an authenticated
+        // page instead of silently dropping the session cookie; the site is 100% same-site POST
+        // forms otherwise, so this closes CSRF-via-cookie exposure without breaking normal use.
+        protected void Application_PreSendRequestHeaders()
+        {
+            HttpResponse response = Response;
+            if (response == null) return;
+
+            foreach (string name in response.Cookies.AllKeys)
+            {
+                HttpCookie cookie = response.Cookies[name];
+                if (cookie != null && cookie.Path.IndexOf("SameSite", StringComparison.OrdinalIgnoreCase) < 0)
+                {
+                    cookie.Path += "; SameSite=Lax";
+                }
+            }
+        }
+
         // TEMPORARY: diagnosing the "Runtime Error - exception occurred while executing the
         // custom error page" seen in production. Application_Error is the true global catch-all -
         // it fires for the original unhandled exception before customErrors' redirect even
