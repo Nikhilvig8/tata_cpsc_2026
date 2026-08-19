@@ -33,7 +33,7 @@ namespace InputOutput
     {
         private const int SaltSize = 16;   // bytes
         private const int HashSize = 32;   // bytes (SHA-256 output size)
-        private const int Iterations = 100_000;
+        private const int Iterations = 100000;
         private const string Prefix = "PBKDF2";
 
         public static string Hash(string password)
@@ -62,7 +62,8 @@ namespace InputOutput
             string[] parts = storedValue.Split('$');
             if (parts.Length != 4 || parts[0] != Prefix) return false;
 
-            if (!int.TryParse(parts[1], out int iterations)) return false;
+            int iterations;
+            if (!int.TryParse(parts[1], out iterations)) return false;
 
             byte[] salt, expectedHash;
             try
