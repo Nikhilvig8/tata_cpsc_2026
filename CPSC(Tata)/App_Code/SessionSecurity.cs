@@ -3,6 +3,14 @@ using System.Web.SessionState;
 
 namespace InputOutput
 {
+    // DEPRECATED / UNUSED - do not call this. RegenerateSessionId's in-request SessionIDManager
+    // swap broke every production login (SaveSessionID() changes the outgoing cookie but doesn't
+    // reliably relocate where SessionStateModule persists THAT request's own Session[...] writes,
+    // so everything set afterward silently vanished). Session-fixation closure now lives in
+    // LoginController.BeginSessionRotation/CompleteLogin, which rotates the ID via a safe
+    // two-request abandon-then-redirect bounce instead. Kept only for its history; not referenced
+    // anywhere in the app.
+    //
     // VAPT finding "Session Fixation": Session.Clear() (already called pre-auth in LoginCheck and
     // OidcCallback) only empties the CURRENT session's stored values - it does not change the
     // ASP.NET_SessionId itself. An attacker who plants a known session ID on a victim (e.g. via a

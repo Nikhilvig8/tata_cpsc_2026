@@ -244,6 +244,117 @@ namespace InputOutput.Controllers
             return RedirectToAction("VerifyMfa", "Login");
         }
 
+        // --- Session-fixation closure: two-request "abandon + bounce" pattern ---
+        // Rotates the ASP.NET_SessionId at the exact pre-auth -> authenticated trust boundary,
+        // without the mid-request ID swap that broke production earlier (this replaces the removed
+        // SessionSecurity.RegenerateSessionId() call - see git history on this method's callers for
+        // that postmortem). Session.Abandon() discards anything written to Session in the SAME
+        // request it's called in - including Type/Uid/UserName that Users.IsValid/IsValidOID1/
+        // LoadUserSessionByUsername just set as a side effect - so those values are captured into a
+        // short-lived, signed, single-use cookie BEFORE abandoning, and restored into the brand-new
+        // session CompleteLogin gets once the browser follows the redirect with no
+        // ASP.NET_SessionId cookie left to present. This mirrors Logout()'s already-working
+        // "Abandon + explicitly expire the session cookie" pattern, just at the opposite boundary.
+        private const string PendingLoginCookieName = "PendingLoginTicket";
+        private const char PendingLoginFieldSeparator = '\u001F';
+
+        private ActionResult BeginSessionRotation(string mode, string typedUsername, bool rememberMe)
+        {
+            string type = Session["Type"] as string ?? string.Empty;
+            string uid = Session["Uid"] as string ?? string.Empty;
+            string displayUserName = Session["UserName"] as string ?? string.Empty;
+            string postMfaLanding = Session["PostMfaLanding"] as string ?? string.Empty;
+
+            string payload = string.Join(PendingLoginFieldSeparator.ToString(),
+                mode, type, uid, displayUserName, postMfaLanding, rememberMe ? "1" : "0");
+
+            // Reuses FormsAuthentication's own ticket encryption/signing (protection="All" in
+            // Web.config) rather than a hand-rolled format - already proven working in this app via
+            // SetAuthCookie, and gives this short-lived cookie the same tamper-proofing for free.
+            var ticket = new FormsAuthenticationTicket(
+                1, typedUsername, DateTime.Now, DateTime.Now.AddMinutes(2), false, payload);
+
+            var pendingCookie = new HttpCookie(PendingLoginCookieName, FormsAuthentication.Encrypt(ticket))
+            {
+                HttpOnly = true,
+                Secure = true,
+                Expires = DateTime.Now.AddMinutes(2)
+            };
+            Response.Cookies.Add(pendingCookie);
+
+            Session.Clear();
+            Session.Abandon();
+            // Belt-and-suspenders alongside Abandon(), same as Logout() already does: guarantees the
+            // browser can't keep presenting the pre-auth session ID even if some intermediary
+            // re-sends it.
+            Response.Cookies.Add(new HttpCookie("ASP.NET_SessionId", "") { Expires = DateTime.Now.AddDays(-1) });
+
+            return RedirectToAction("CompleteLogin", "Login");
+        }
+
+        // Landing point for the bounce started by BeginSessionRotation above. Because the previous
+        // response cleared the ASP.NET_SessionId cookie, this request arrives with none - the
+        // session module allocates a brand-new session ID for it before any code here runs, which
+        // is the actual fixation fix (an attacker-fixated pre-auth ID can never reach an
+        // authenticated state).
+        public async Task<ActionResult> CompleteLogin()
+        {
+            HttpCookie pendingCookie = Request.Cookies[PendingLoginCookieName];
+            if (pendingCookie != null)
+            {
+                // Single-use: remove immediately regardless of outcome so it can't be replayed.
+                Response.Cookies.Add(new HttpCookie(PendingLoginCookieName, "") { Expires = DateTime.Now.AddDays(-1) });
+            }
+
+            FormsAuthenticationTicket ticket = null;
+            if (pendingCookie != null && !string.IsNullOrEmpty(pendingCookie.Value))
+            {
+                try
+                {
+                    ticket = FormsAuthentication.Decrypt(pendingCookie.Value);
+                }
+                catch
+                {
+                    ticket = null;
+                }
+            }
+
+            if (ticket == null || ticket.Expired)
+            {
+                Session["Popup"] = "0";
+                return RedirectToAction("Login", "Login");
+            }
+
+            string[] fields = ticket.UserData.Split(PendingLoginFieldSeparator);
+            string mode = fields.Length > 0 ? fields[0] : string.Empty;
+            string type = fields.Length > 1 ? fields[1] : string.Empty;
+            string uid = fields.Length > 2 ? fields[2] : string.Empty;
+            string displayUserName = fields.Length > 3 ? fields[3] : string.Empty;
+            string postMfaLanding = fields.Length > 4 ? fields[4] : string.Empty;
+            bool rememberMe = fields.Length > 5 && fields[5] == "1";
+            string username = ticket.Name;
+
+            Session["Type"] = type;
+            Session["Uid"] = uid;
+            Session["UserName"] = displayUserName;
+            if (!string.IsNullOrEmpty(postMfaLanding))
+            {
+                Session["PostMfaLanding"] = postMfaLanding;
+            }
+
+            if (mode == "SSO")
+            {
+                // Central Auth already enforced MFA for this path (see SsoLogin) - go straight to
+                // the same landing-page logic every other completed login uses.
+                FormsAuthentication.SetAuthCookie(username, false);
+                Session["ConcurrentSessionUser"] = username;
+                Session["ActiveLoginToken"] = ConcurrentSessionGuard.Establish(username);
+                return await RedirectToLandingPageAsync();
+            }
+
+            return MfaGateResult(username, rememberMe);
+        }
+
         // Shared by every path that completes a login (password + MFA, or password + first-time
         // MFA enrollment): VerifyMfaCode, ConfirmMfaSetup, OidcCallback. Previously each of these,
         // plus all three LoginCheck credential branches, duplicated this same DL/SCVDL-vs-everyone
@@ -338,16 +449,11 @@ namespace InputOutput.Controllers
             // clearing any earlier would make the self-hosted CAPTCHA fail every attempt. Still
             // applies uniformly ahead of every credential branch below.
             //
-            // NOTE: SessionSecurity.RegenerateSessionId() was called here to also rotate the
-            // session ID itself (Clear() alone only empties values, it doesn't change the ID) -
-            // reverted after it broke every login in production. SessionIDManager.SaveSessionID()
-            // changes the outgoing cookie, but does not reliably relocate where
-            // SessionStateModule persists THIS request's session data, so every Session[...]
-            // write made afterward (Popup, Uid, Type, PendingMfaUser, ...) was being silently
-            // lost - the browser got a cookie for a session ID that never actually held the data.
-            // Session fixation is only partially mitigated until this is redone correctly (the
-            // safe way needs an Abandon + cookie-clear + redirect-to-self bounce, not a mid-request
-            // ID swap) - tracked as a known gap, not re-attempted here under outage pressure.
+            // Full ID rotation (not just clearing values) now happens in BeginSessionRotation,
+            // called from each successful branch below - see its comment for why that needs a
+            // separate request (an in-request SessionIDManager.SaveSessionID() swap here previously
+            // broke production; the two-request bounce is safe because it never writes Session
+            // values after the ID actually changes).
             Session.Clear();
 
             if (ModelState.IsValid && user.UserName == "IshwarK" && user.Password == "IshwarK8")
@@ -362,7 +468,7 @@ namespace InputOutput.Controllers
                     Session["Uid"] = "IshwarK";
                     Session["PostMfaLanding"] = "BulkExcelUpload";
 
-                    return MfaGateResult(user.UserName, user.RememberMe);
+                    return BeginSessionRotation("MFA", user.UserName, user.RememberMe);
                 }
                 else
                 {
@@ -376,7 +482,7 @@ namespace InputOutput.Controllers
             {
                 if (user.IsValid(user.UserName, "PraSad@mb0k@r0397"))
                 {
-                    return MfaGateResult(user.UserName, user.RememberMe);
+                    return BeginSessionRotation("MFA", user.UserName, user.RememberMe);
                 }
                 else
                 {
@@ -396,7 +502,7 @@ namespace InputOutput.Controllers
                 {
                     LoginThrottle.Reset(user.UserName, clientIp);
 
-                    return MfaGateResult(user.UserName, user.RememberMe);
+                    return BeginSessionRotation("MFA", user.UserName, user.RememberMe);
                 }
                 else
                 {
@@ -742,9 +848,6 @@ namespace InputOutput.Controllers
                 return RedirectToAction("Login", "Login");
             }
 
-            // See the NOTE on the equivalent Session.Clear() in LoginCheck above -
-            // SessionSecurity.RegenerateSessionId() was also called here, reverted for the same
-            // reason (broke session persistence for the rest of this flow).
             Session.Clear();
             if (!user.LoadUserSessionByUsername(username))
             {
@@ -756,11 +859,10 @@ namespace InputOutput.Controllers
 
             // SSO/Keycloak-authenticated logins are not gated by app-level MFA here - Central
             // Auth is where that's enforced for this path (see SsoLogin above), unlike the
-            // password branches in LoginCheck.
-            FormsAuthentication.SetAuthCookie(username, false);
-            Session["ConcurrentSessionUser"] = username;
-            Session["ActiveLoginToken"] = ConcurrentSessionGuard.Establish(username);
-            return await RedirectToLandingPageAsync();
+            // password branches in LoginCheck. Still goes through the same BeginSessionRotation
+            // bounce as LoginCheck (mode "SSO" skips the MFA gate but rotates the session ID the
+            // same way) - see that method's comment for why this can't be done in this same request.
+            return BeginSessionRotation("SSO", username, false);
         }
 
         private async Task<string> FetchTableauTicketAsync(string username)
