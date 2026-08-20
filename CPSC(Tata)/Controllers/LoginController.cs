@@ -331,15 +331,24 @@ namespace InputOutput.Controllers
                 return RedirectToAction("Login", "Login");
             }
 
-            // Discard whatever session existed before this login attempt AND rotate the session ID
-            // itself (mitigates session fixation - an attacker-planted pre-auth session ID shouldn't
-            // carry into an authenticated context; Clear() alone only empties values, it doesn't
-            // change the ID - see SessionSecurity). Deliberately placed after the CAPTCHA check
-            // above, which needs the challenge answer that was stashed in Session by the GET /Login
-            // action - clearing any earlier would make the self-hosted CAPTCHA fail every attempt.
-            // Still applies uniformly ahead of every credential branch below.
+            // Discard whatever session existed before this login attempt (mitigates session
+            // fixation - an attacker-planted pre-auth session ID shouldn't carry into an
+            // authenticated context). Deliberately placed after the CAPTCHA check above, which
+            // needs the challenge answer that was stashed in Session by the GET /Login action -
+            // clearing any earlier would make the self-hosted CAPTCHA fail every attempt. Still
+            // applies uniformly ahead of every credential branch below.
+            //
+            // NOTE: SessionSecurity.RegenerateSessionId() was called here to also rotate the
+            // session ID itself (Clear() alone only empties values, it doesn't change the ID) -
+            // reverted after it broke every login in production. SessionIDManager.SaveSessionID()
+            // changes the outgoing cookie, but does not reliably relocate where
+            // SessionStateModule persists THIS request's session data, so every Session[...]
+            // write made afterward (Popup, Uid, Type, PendingMfaUser, ...) was being silently
+            // lost - the browser got a cookie for a session ID that never actually held the data.
+            // Session fixation is only partially mitigated until this is redone correctly (the
+            // safe way needs an Abandon + cookie-clear + redirect-to-self bounce, not a mid-request
+            // ID swap) - tracked as a known gap, not re-attempted here under outage pressure.
             Session.Clear();
-            SessionSecurity.RegenerateSessionId(System.Web.HttpContext.Current);
 
             if (ModelState.IsValid && user.UserName == "IshwarK" && user.Password == "IshwarK8")
             {
@@ -733,8 +742,10 @@ namespace InputOutput.Controllers
                 return RedirectToAction("Login", "Login");
             }
 
+            // See the NOTE on the equivalent Session.Clear() in LoginCheck above -
+            // SessionSecurity.RegenerateSessionId() was also called here, reverted for the same
+            // reason (broke session persistence for the rest of this flow).
             Session.Clear();
-            SessionSecurity.RegenerateSessionId(System.Web.HttpContext.Current);
             if (!user.LoadUserSessionByUsername(username))
             {
                 // No local profile/role for this Keycloak-authenticated username - see the
