@@ -7,7 +7,9 @@ namespace InputOutput
     {
         public static void RegisterGlobalFilters(GlobalFilterCollection filters)
         {
-            filters.Add(new HandleErrorAttribute());
+            // Was HandleErrorAttribute() - see LoggingHandleErrorAttribute for why plain
+            // HandleError was silently swallowing every action-level exception unlogged.
+            filters.Add(new LoggingHandleErrorAttribute());
             filters.Add(new NoCacheAttribute());
             filters.Add(new SingleSessionAttribute());
         }
