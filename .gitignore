@@ -6,3 +6,10 @@
 CPSC(Tata)/Logs/*.txt
 CPSC(Tata)/bin/
 CPSC(Tata)/obj/
+
+# NuGet-restored packages: never intentionally tracked (confirmed via git ls-files before adding
+# this line), but packages.config-style restore extracts binaries straight into this folder, and
+# it was never excluded here - so it showed up as 80+ pending "changes" the first time someone
+# actually looked at Git Changes with a fully-restored packages/ present. These are restorable
+# from packages.config, not source - they don't belong in git.
+CPSC(Tata)/packages/
