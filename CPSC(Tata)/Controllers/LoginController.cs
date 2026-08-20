@@ -331,13 +331,15 @@ namespace InputOutput.Controllers
                 return RedirectToAction("Login", "Login");
             }
 
-            // Discard whatever session existed before this login attempt (mitigates session
-            // fixation - an attacker-planted pre-auth session ID shouldn't carry into an
-            // authenticated context). Deliberately placed after the CAPTCHA check above, which
-            // needs the challenge answer that was stashed in Session by the GET /Login action -
-            // clearing any earlier would make the self-hosted CAPTCHA fail every attempt. Still
-            // applies uniformly ahead of every credential branch below.
+            // Discard whatever session existed before this login attempt AND rotate the session ID
+            // itself (mitigates session fixation - an attacker-planted pre-auth session ID shouldn't
+            // carry into an authenticated context; Clear() alone only empties values, it doesn't
+            // change the ID - see SessionSecurity). Deliberately placed after the CAPTCHA check
+            // above, which needs the challenge answer that was stashed in Session by the GET /Login
+            // action - clearing any earlier would make the self-hosted CAPTCHA fail every attempt.
+            // Still applies uniformly ahead of every credential branch below.
             Session.Clear();
+            SessionSecurity.RegenerateSessionId(System.Web.HttpContext.Current);
 
             if (ModelState.IsValid && user.UserName == "IshwarK" && user.Password == "IshwarK8")
             {
@@ -371,6 +373,10 @@ namespace InputOutput.Controllers
                 {
                     //ModelState.AddModelError("", "Login data is incorrect!");
 
+                    // This branch previously didn't register a failure, leaving a gap in the login
+                    // throttle for any attempt that matched this specific password but not a real
+                    // account - now every failing credential path counts toward the same lockout.
+                    LoginThrottle.RegisterFailure(user.UserName, clientIp);
                     Session["Popup"] = "0";
                     return RedirectToAction("Login", "Login");
                 }
@@ -728,6 +734,7 @@ namespace InputOutput.Controllers
             }
 
             Session.Clear();
+            SessionSecurity.RegenerateSessionId(System.Web.HttpContext.Current);
             if (!user.LoadUserSessionByUsername(username))
             {
                 // No local profile/role for this Keycloak-authenticated username - see the
