@@ -424,8 +424,14 @@ $(document).ready(function(){
                 @using System.Globalization;
                 @using System.Configuration;
                 @using System.Web;
-                @{ 
-                    string type1 = Session["Type"].ToString();
+                @{
+                    // Session["Type"] can legitimately be null when this shared layout renders
+                    // for a request that isn't in a fully-authenticated session (session timeout,
+                    // a crawler/scanner hitting a URL without the real session cookie, etc.) -
+                    // every visibility check below compares type1 against specific role names, so
+                    // an empty string here just means "no role-specific menu items match" instead
+                    // of throwing and taking down the whole page.
+                    string type1 = Session["Type"] != null ? Session["Type"].ToString() : string.Empty;
                 }
                 
                 <div class="top-menu">
@@ -434,7 +440,7 @@ $(document).ready(function(){
                         <!-- BEGIN INBOX DROPDOWN -->
                         <!-- DOC: Apply "dropdown-dark" class after below "dropdown-extended" to change the dropdown styte -->
                         @{ 
-                            if (Session["Type"].ToString() == "SuperAdmin")
+                            if (type1 == "SuperAdmin")
                             {
                         @*<li class="dropdown dropdown-extended dropdown-inbox" id="header_inbox_bar">
                             <a href="@Url.Action("ChangeReq_Logs","ChangeReq")" title="Change Request Logs" >
@@ -476,7 +482,7 @@ $(document).ready(function(){
                                     <span class="username username-hide-on-mobile">
                                         Welcome
                                         <b>@CultureInfo.CurrentCulture.TextInfo.ToTitleCase(HttpContext.Current.Session["UserName"].ToString().ToLower())</b>
-                                        - @HttpContext.Current.Session["Type"].ToString()
+                                        - @type1
                                     </span>
                                     <!--i class="fa fa-angle-down"></i-->
                                 </a>
@@ -546,7 +552,7 @@ $(document).ready(function(){
                                         }
                                         <!-- badge -->
                                         <div class="img-circle rank-label-container nav-link nav-toggle">
-                                            <span class="img-circle label label-default rank-label">@Session["Type"].ToString()</span>
+                                            <span class="img-circle label label-default rank-label">@type1</span>
                                         </div>
                                     </div>
                                 </div>
@@ -564,7 +570,7 @@ else
     </li>
 }
                         @{ string tt = string.Empty;
-                            if (Session["Type"].ToString() == "Admin")
+                            if (type1 == "Admin")
                             {
 
                                 <li class="nav-item  ">
