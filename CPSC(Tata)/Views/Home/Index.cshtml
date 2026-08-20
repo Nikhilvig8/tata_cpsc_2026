@@ -25,6 +25,16 @@
         da1.Fill(ds); // Fill the dataset with the query data
         dtfBox = ds.Tables[0];
 
+        // getBoxValue returns zero rows for account types with no dealer/region tie (e.g.
+        // SuperAdmin) - every dtfBox.Rows[0][...] access below assumed a row always exists,
+        // throwing "There is no row at position 0" and crashing the post-login landing page for
+        // exactly those accounts. Add one blank row so the columns still exist but read back as
+        // empty instead of throwing.
+        if (dtfBox.Rows.Count == 0)
+        {
+            dtfBox.Rows.Add(dtfBox.NewRow());
+        }
+
     }
 }
 <div class="row" style="margin-top:-3px;">
