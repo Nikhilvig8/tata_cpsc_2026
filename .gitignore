@@ -12,4 +12,4 @@ CPSC(Tata)/obj/
 # it was never excluded here - so it showed up as 80+ pending "changes" the first time someone
 # actually looked at Git Changes with a fully-restored packages/ present. These are restorable
 # from packages.config, not source - they don't belong in git.
-CPSC(Tata)/packages/
+/packages/
