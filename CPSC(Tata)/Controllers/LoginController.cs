@@ -22,7 +22,10 @@ using QRCoder;
 
 namespace InputOutput.Controllers
 {
-    [HandleError()]
+    // No local [HandleError()] here - a bare (non-logging) HandleErrorAttribute on the
+    // controller runs before the global LoggingHandleErrorAttribute (see FilterConfig.cs) and
+    // marks the exception handled first, so LoggingHandleErrorAttribute's own logging never
+    // fires. Same generic Error page either way; the global filter is what actually logs it.
     public class LoginController : Controller
     {
         // GET: Login

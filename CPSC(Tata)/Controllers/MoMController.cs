@@ -20,8 +20,8 @@ namespace InputOutput.Controllers
         SqlCommand cmdObj;
         DataUtility du = new DataUtility();
 
-        [HandleError()]
-     
+        // No local [HandleError()] - see LoginController.cs for why (it silently blocks the
+        // global LoggingHandleErrorAttribute from logging this action's exceptions).
         public ActionResult Insert_MoM(FormCollection coll)
         {
             Session["sflag"] = 0;

@@ -20,7 +20,8 @@ using Execution;
 
 namespace InputOutput.Controllers
 {
-    [HandleError()]
+    // No local [HandleError()] - see LoginController.cs for why (it silently blocks the global
+    // LoggingHandleErrorAttribute from logging this controller's exceptions).
     public class HomeController : Controller
     {
         string conn = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
