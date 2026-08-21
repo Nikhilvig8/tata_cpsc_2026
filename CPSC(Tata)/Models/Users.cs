@@ -260,9 +260,20 @@ public new  bool IsValid(string _username, string _password)
             }
             else
             {
-                // Log the response content for debugging
+                // Keycloak's actual rejection reason (invalid_grant, disabled account, etc.) -
+                // logged here only for diagnosis; the caller (LoginController.LoginCheck) still
+                // shows the user the same generic "Incorrect Username and Password." regardless
+                // of what this says, so this never becomes a username/account-enumeration vector.
+                // Previously this went to Console.WriteLine, which in an IIS-hosted app has no
+                // attached console and was never actually captured anywhere.
                 var responseContent = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"Error: {response.StatusCode}, Details: {responseContent}");
+                try
+                {
+                    File.AppendAllText(
+                        HttpContext.Current.Server.MapPath("~/Logs/Logs.txt"),
+                        $"\r\n[KEYCLOAK] IsValidOID1(username='{username}') -> {response.StatusCode}: {responseContent} - {DateTime.Now}\r\n");
+                }
+                catch { /* logging must never break the login path */ }
                 return false;
             }
         }
