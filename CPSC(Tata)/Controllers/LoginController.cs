@@ -405,8 +405,23 @@ namespace InputOutput.Controllers
         public async Task<ActionResult> LoginCheck(FormCollection collection)
         {
             Users user = new Users();
-            user.UserName = collection.Get("username").ToString();
-            user.Password = collection.Get("password").ToString();
+            // collection.Get(...) returns null (not "") for a field the request never sent at
+            // all - falling back to string.Empty here avoids a NullReferenceException on a
+            // malformed/missing-field POST, distinct from the ordinary case of the field being
+            // present but left blank.
+            user.UserName = collection.Get("username") ?? string.Empty;
+            user.Password = collection.Get("password") ?? string.Empty;
+
+            // Required-field check: a blank username or password isn't a wrong-credential
+            // guess, so it shouldn't consume a throttle attempt or hit the DB - just tell the
+            // user what's missing before any of that runs. Kept as its own Popup code (7) rather
+            // than folding into the generic "Incorrect Username and Password." (0) so a user who
+            // simply forgot to type something isn't told their credentials were wrong.
+            if (string.IsNullOrWhiteSpace(user.UserName) || string.IsNullOrWhiteSpace(user.Password))
+            {
+                Session["Popup"] = "7";
+                return RedirectToAction("Login", "Login");
+            }
 
             string clientIp = LoginThrottle.ResolveClientIp(Request);
 

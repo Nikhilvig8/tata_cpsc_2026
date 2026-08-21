@@ -173,10 +173,10 @@
                   {
                         @Html.AntiForgeryToken()
                         <div class="form-group form-group-css">
-                            <input class="form-control form-control-solid placeholder-no-fix username" type="text" autocomplete="off" placeholder="Enter Username" name="username" style="background:#3f5caa" />
+                            <input class="form-control form-control-solid placeholder-no-fix username" type="text" autocomplete="off" placeholder="Enter Username" name="username" required style="background:#3f5caa" />
                         </div>
                         <div class="form-group form-group-css">
-                            <input class="form-control form-control-solid placeholder-no-fix pass" id="pass" type="password" autocomplete="off" placeholder="Enter Password" name="password" style="background:#3f5caa" />
+                            <input class="form-control form-control-solid placeholder-no-fix pass" id="pass" type="password" autocomplete="off" placeholder="Enter Password" name="password" required style="background:#3f5caa" />
                         </div>
                         @* Honeypot: off-screen (not display:none - some bots skip fields hidden
                            that way), out of tab order, no autofill hint. A real user never sees or
@@ -217,6 +217,10 @@
                                     else if (Session["Popup"].ToString() == "6")
                                     {
                                         <p style="color:white;"> You were signed out because your account was logged in elsewhere.</p>
+                                    }
+                                    else if (Session["Popup"].ToString() == "7")
+                                    {
+                                        <p style="color:white;"> Please enter both username and password.</p>
                                     }
                                 }
                                 Session["Popup"] = string.Empty;
