@@ -1488,7 +1488,12 @@ else
 
 
 
-        DateTime actual_date = Convert.ToDateTime(Session["Actual_date"].ToString());
+        // Session["Actual_Date"] (capital D) is what login actually sets (see Users.cs); the
+        // lowercase "Actual_date" key is only ever populated on the BulkExcelUpload special-case
+        // path, so it was null - and this threw a NullReferenceException - for every other user.
+        DateTime actual_date = Session["Actual_Date"] != null
+            ? Convert.ToDateTime(Session["Actual_Date"].ToString())
+            : DateTime.Now;
 
         String month_curr_name = actual_date.AddMonths(0).ToString("MMM");/*DateTime.Now.ToString("MMM");*/
         String month_last_name = actual_date.AddMonths(0).ToString("MMM");
@@ -1658,7 +1663,10 @@ else
         string _sqltar = string.Empty;
         string CS_laytar = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
 
-        DateTime target_date = Convert.ToDateTime(Session["Target_date"].ToString());
+        // Same casing mismatch as Actual_Date above - login sets "Target_Date" (capital D).
+        DateTime target_date = Session["Target_Date"] != null
+            ? Convert.ToDateTime(Session["Target_Date"].ToString())
+            : DateTime.Now;
 
         String month_curr_name_target = target_date.AddMonths(0).ToString("MMM");/*DateTime.Now.ToString("MMM");*/
         String month_last_name_target = target_date.AddMonths(0).ToString("MMM");
