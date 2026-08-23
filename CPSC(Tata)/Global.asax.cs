@@ -21,6 +21,29 @@ namespace InputOutput
             BundleConfig.RegisterBundles(BundleTable.Bundles);
         }
 
+        // Cloudflare terminates TLS at its edge and forwards plain HTTP to this origin (see the
+        // "HTTP to HTTPS redirect" rewrite rule in Web.config), so IIS's own {HTTPS} server
+        // variable reads "off" on every request even when the client used https. That variable is
+        // exactly what Request.IsSecureConnection reads, and FormsAuthentication.SetAuthCookie
+        // throws HttpException ("configured to issue secure cookies... not over SSL") when
+        // requireSSL="true" (Web.config) and IsSecureConnection is false - this was crashing
+        // VerifyMfaCode right after a correct password + MFA code, for every user, in production.
+        // ServerVariables is normally read-only; flipping NameValueCollection's protected _readOnly
+        // field is the standard workaround for correcting it behind a TLS-terminating proxy on
+        // .NET Framework (no built-in forwarded-headers middleware exists pre-.NET Core for this).
+        protected void Application_BeginRequest(object sender, EventArgs e)
+        {
+            if (string.Equals(Request.Headers["X-Forwarded-Proto"], "https", StringComparison.OrdinalIgnoreCase))
+            {
+                var serverVariables = Request.ServerVariables;
+                var readOnlyField = typeof(System.Collections.Specialized.NameValueCollection)
+                    .GetField("_readOnly", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+                readOnlyField.SetValue(serverVariables, false);
+                serverVariables.Set("HTTPS", "on");
+                readOnlyField.SetValue(serverVariables, true);
+            }
+        }
+
         // VAPT finding "Secure Cookies not set properly": Web.config's <httpCookies
         // httpOnlyCookies="true" requireSSL="true" /> already covers HttpOnly + Secure for every
         // cookie this app sets (session + forms auth). SameSite is the piece that config element
