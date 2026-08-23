@@ -349,13 +349,47 @@ namespace InputOutput.Controllers
             {
                 // Central Auth already enforced MFA for this path (see SsoLogin) - go straight to
                 // the same landing-page logic every other completed login uses.
-                FormsAuthentication.SetAuthCookie(username, false);
+                IssueAuthCookie(Response, username, false);
                 Session["ConcurrentSessionUser"] = username;
                 Session["ActiveLoginToken"] = ConcurrentSessionGuard.Establish(username);
                 return await RedirectToLandingPageAsync();
             }
 
             return MfaGateResult(username, rememberMe);
+        }
+
+        // Replaces FormsAuthentication.SetAuthCookie at every call site below. That built-in throws
+        // HttpException whenever requireSSL="true" (Web.config) and Request.IsSecureConnection is
+        // false - which behind Cloudflare (TLS terminated at its edge, plain HTTP forwarded to this
+        // origin) is every request, since IsSecureConnection reads IIS's own {HTTPS} server
+        // variable for the origin-facing hop, not the client's actual browser-to-Cloudflare
+        // connection. An IIS URL Rewrite rule attempt to correct that server variable (set HTTPS=on
+        // when X-Forwarded-Proto says https) 500'd the entire site: HTTPS is schema-allowlistable
+        // but still refused at runtime by IIS's native pipeline as a protected/computed variable, a
+        // failure that happens before ASP.NET's own pipeline (and customErrors) ever runs. Building
+        // and issuing the same cookie by hand sidesteps FormsAuthentication's internal check
+        // entirely - Secure=true is still correct here because the client's real connection to
+        // Cloudflare genuinely is https, only the origin-facing hop this app can see isn't.
+        private static void IssueAuthCookie(HttpResponseBase response, string userName, bool createPersistentCookie)
+        {
+            DateTime issueDate = DateTime.Now;
+            DateTime expiration = issueDate.Add(FormsAuthentication.Timeout);
+
+            var ticket = new FormsAuthenticationTicket(
+                2, userName, issueDate, expiration, createPersistentCookie,
+                string.Empty, FormsAuthentication.FormsCookiePath);
+
+            var authCookie = new HttpCookie(FormsAuthentication.FormsCookieName, FormsAuthentication.Encrypt(ticket))
+            {
+                HttpOnly = true,
+                Secure = true,
+                Path = FormsAuthentication.FormsCookiePath
+            };
+            if (createPersistentCookie)
+            {
+                authCookie.Expires = ticket.Expiration;
+            }
+            response.Cookies.Add(authCookie);
         }
 
         // Shared by every path that completes a login (password + MFA, or password + first-time
@@ -584,7 +618,7 @@ namespace InputOutput.Controllers
 
             // Session["Type"]/["Uid"] etc. are already populated from IsValidOID1's lookup earlier
             // in this same session, so login completes exactly like the non-MFA path did.
-            FormsAuthentication.SetAuthCookie(pendingUser, rememberMe);
+            IssueAuthCookie(Response, pendingUser, rememberMe);
             // VAPT finding "Concurrent login allowed": this login is now the sole authoritative
             // session for pendingUser - any earlier session for the same account gets signed out on
             // its next request (see SingleSessionAttribute).
@@ -692,7 +726,7 @@ namespace InputOutput.Controllers
             // exactly like VerifyMfaCode does for already-enrolled users.
             bool rememberMe = Session["PendingMfaRememberMe"] as bool? ?? false;
             Session.Remove("PendingMfaRememberMe");
-            FormsAuthentication.SetAuthCookie(username, rememberMe);
+            IssueAuthCookie(Response, username, rememberMe);
             Session["ConcurrentSessionUser"] = username;
             Session["ActiveLoginToken"] = ConcurrentSessionGuard.Establish(username);
             return await RedirectToLandingPageAsync();
