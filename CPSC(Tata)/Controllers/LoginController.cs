@@ -183,32 +183,45 @@ namespace InputOutput.Controllers
         {
             string username = Session["Uid"].ToString();
 
-            byte[] data = Encoding.ASCII.GetBytes($"username={username}");
-
-            WebRequest request = WebRequest.Create("https://infoviz.cv.tatamotors/trusted");
-            request.Method = "POST";
-            request.ContentType = "application/x-www-form-urlencoded";
-            request.ContentLength = data.Length;
-            using (Stream stream = request.GetRequestStream())
+            // RedirectToLandingPageAsync (LoginController.cs ~line 422) already fetches this, with
+            // a timeout and graceful fallback, right before redirecting here on the normal
+            // post-login path - re-fetching unconditionally on every hit (as this used to) was the
+            // "stale synchronous WebRequest call" flagged in that method's comment: an independent
+            // duplicate of the same call with no timeout at all (WebRequest's default is 100s,
+            // same as HttpClient's), so a slow/unreachable infoviz.cv.tatamotors hung this action
+            // for up to that long - right in the window where Cloudflare's own ~100s edge timeout
+            // gives up first (522/524), turning a Tableau hiccup into what looked like the login
+            // itself timing out, on every single DL/SCVDL login. Only fetch here if nothing's
+            // already in Session (e.g. a direct/bookmarked hit to this action outside the login
+            // flow), and apply the same 10s timeout + graceful fallback either way.
+            if (Session["ticket"] == null)
             {
-                stream.Write(data, 0, data.Length);
-            }
-
-            string responseContent = null;
-
-            using (WebResponse response = request.GetResponse())
-            {
-                using (Stream stream = response.GetResponseStream())
+                try
                 {
+                    byte[] data = Encoding.ASCII.GetBytes($"username={username}");
+
+                    WebRequest request = WebRequest.Create("https://infoviz.cv.tatamotors/trusted");
+                    request.Method = "POST";
+                    request.ContentType = "application/x-www-form-urlencoded";
+                    request.ContentLength = data.Length;
+                    request.Timeout = 10000;
+                    using (Stream stream = request.GetRequestStream())
+                    {
+                        stream.Write(data, 0, data.Length);
+                    }
+
+                    using (WebResponse response = request.GetResponse())
+                    using (Stream stream = response.GetResponseStream())
                     using (StreamReader sr99 = new StreamReader(stream))
                     {
-                        responseContent = sr99.ReadToEnd();
+                        Session["ticket"] = sr99.ReadToEnd();
                     }
                 }
+                catch (Exception)
+                {
+                    Session["ticket"] = string.Empty;
+                }
             }
-
-            //Response.Write(responseContent);
-            Session["ticket"] = responseContent;
 
             Session["dashtype"] = null;
             if(!string.IsNullOrEmpty(dashtype))
@@ -917,13 +930,27 @@ namespace InputOutput.Controllers
             return BeginSessionRotation("SSO", username, false);
         }
 
+        // No timeout was set here before, so a slow/unreachable infoviz.cv.tatamotors held the
+        // whole login request open for HttpClient's 100s default - right in the window where
+        // Cloudflare's own edge gives up first (522/524), turning a Tableau hiccup into a login
+        // failure. 10s is generous for a same-datacenter trusted-ticket call but well clear of
+        // that race. Failure here (timeout or any other exception) no longer blocks login -
+        // Dealer_Home just renders without an embedded dashboard ticket that request; the rest of
+        // the page and the user's session are unaffected.
         private async Task<string> FetchTableauTicketAsync(string username)
         {
-            using (var client = new HttpClient())
+            try
             {
-                var values = new Dictionary<string, string> { { "username", username } };
-                var response = await client.PostAsync("https://infoviz.cv.tatamotors/trusted", new FormUrlEncodedContent(values));
-                return await response.Content.ReadAsStringAsync();
+                using (var client = new HttpClient { Timeout = TimeSpan.FromSeconds(10) })
+                {
+                    var values = new Dictionary<string, string> { { "username", username } };
+                    var response = await client.PostAsync("https://infoviz.cv.tatamotors/trusted", new FormUrlEncodedContent(values));
+                    return await response.Content.ReadAsStringAsync();
+                }
+            }
+            catch (Exception)
+            {
+                return string.Empty;
             }
         }
     }
