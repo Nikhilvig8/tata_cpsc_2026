@@ -14,6 +14,17 @@ namespace InputOutput
     {
         protected void Application_Start()
         {
+            // .NET Framework 4.5.2 defaults ServicePointManager.SecurityProtocol to Ssl3/Tls
+            // (TLS 1.0) only - confirmed on the production server via
+            // [System.Net.ServicePointManager]::SecurityProtocol returning "Ssl3, Tls". Every
+            // outbound HTTPS call this app makes to Keycloak (sso.tatamotors.com, fronted by
+            // Cloudflare) needs TLS 1.2: Cloudflare rejects SSL3/TLS1.0 handshakes outright, which
+            // is what was surfacing as IsValidOID1's "Local Security Authority cannot be
+            // contacted" crash (AppErrors.txt, 2026-08-28 19:45:08) - the TLS handshake fails
+            // before Keycloak is ever reached, not a network/firewall issue (TCP connect and ping
+            // to sso.tatamotors.com both succeed).
+            System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12;
+
             MvcHandler.DisableMvcResponseHeader = true;
             AreaRegistration.RegisterAllAreas();
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
