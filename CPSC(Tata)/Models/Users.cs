@@ -216,44 +216,64 @@ public new  bool IsValid(string _username, string _password)
                 string res_time = span.Hours.ToString("00") + ":" + span.Minutes.ToString("00") + ":" + span.Seconds.ToString("00");
 
                 OIDLogs(username, IPAddress, res_time);
-                using (var cn = new SqlConnection(conn))
+                try
                 {
-                    string _sql = @"ValidateUser @u, @p";
-                    var cmd = new SqlCommand(_sql, cn);
-                    cmd.Parameters
-                        .Add(new SqlParameter("@u", SqlDbType.NVarChar))
-                        .Value = username;
-                    cmd.Parameters
-                        .Add(new SqlParameter("@p", SqlDbType.NVarChar))
-                        .Value = password;
-                    cn.Open();
-                    var reader = cmd.ExecuteReader();
-                    if (reader.HasRows)
+                    using (var cn = new SqlConnection(conn))
                     {
-                        while (reader.Read())
+                        string _sql = @"ValidateUser @u, @p";
+                        var cmd = new SqlCommand(_sql, cn);
+                        cmd.Parameters
+                            .Add(new SqlParameter("@u", SqlDbType.NVarChar))
+                            .Value = username;
+                        cmd.Parameters
+                            .Add(new SqlParameter("@p", SqlDbType.NVarChar))
+                            .Value = password;
+                        cn.Open();
+                        var reader = cmd.ExecuteReader();
+                        if (reader.HasRows)
                         {
-                            Session["Type"] = reader["Type"].ToString();
-                            Session["UserName"] = reader["Username"].ToString();
-                            Session["Uid"] = reader["Uid"].ToString();
+                            while (reader.Read())
+                            {
+                                Session["Type"] = reader["Type"].ToString();
+                                Session["UserName"] = reader["Username"].ToString();
+                                Session["Uid"] = reader["Uid"].ToString();
+                                Session["Target_Date"] = Target_Date();
+                                Session["Actual_Date"] = Actual_Date();
+                            }
+                            reader.Dispose();
+                            cmd.Dispose();
+
+                        }
+                        else
+                        {
+                            Session["Type"] = string.Empty;
+
+                            Session["UserName"] = string.Empty;
+                            Session["Uid"] = string.Empty;
                             Session["Target_Date"] = Target_Date();
                             Session["Actual_Date"] = Actual_Date();
+                            reader.Dispose();
+                            cmd.Dispose();
+
                         }
-                        reader.Dispose();
-                        cmd.Dispose();
-
                     }
-                    else
+                }
+                catch (Exception ex)
+                {
+                    // Keycloak already accepted these credentials by this point - a failure here
+                    // is a local DB/role-lookup problem (bad connection, missing proc, etc.), not
+                    // a bad password. Previously unhandled: it crashed LoginCheck outright instead
+                    // of failing the login cleanly (surfaced as an aspxerrorpath redirect to the
+                    // Login page with a fresh CAPTCHA, rather than the normal "Incorrect Username
+                    // and Password." popup).
+                    try
                     {
-                        Session["Type"] = string.Empty;
-
-                        Session["UserName"] = string.Empty;
-                        Session["Uid"] = string.Empty;
-                        Session["Target_Date"] = Target_Date();
-                        Session["Actual_Date"] = Actual_Date();
-                        reader.Dispose();
-                        cmd.Dispose();
-
+                        File.AppendAllText(
+                            HttpContext.Current.Server.MapPath("~/Logs/Logs.txt"),
+                            $"\r\n[LOCAL-DB] IsValidOID1(username='{username}') local ValidateUser lookup threw: {ex} - {DateTime.Now}\r\n");
                     }
+                    catch { /* logging must never break the login path */ }
+                    return false;
                 }
 
                 return true; // Authentication succeeded
