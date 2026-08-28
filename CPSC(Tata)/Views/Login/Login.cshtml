@@ -34,6 +34,17 @@
     <link rel="shortcut icon" href="favicon.ico" />
 
     <script type="text/javascript">
+   function toggleLoginPasswordVisibility() {
+       var field = document.getElementById('pass');
+       var icon = document.getElementById('pass-eye-icon');
+       if (field.type === 'password') {
+           field.type = 'text';
+           icon.className = 'fa fa-eye-slash';
+       } else {
+           field.type = 'password';
+           icon.className = 'fa fa-eye';
+       }
+   }
    function preventBack(){window.history.forward();}
     setTimeout("preventBack()", 0);
     window.onunload = function () { null };
@@ -175,8 +186,11 @@
                         <div class="form-group form-group-css">
                             <input class="form-control form-control-solid placeholder-no-fix username" type="text" autocomplete="off" placeholder="Enter Username" name="username" required style="background:#3f5caa" />
                         </div>
-                        <div class="form-group form-group-css">
-                            <input class="form-control form-control-solid placeholder-no-fix pass" id="pass" type="password" autocomplete="off" placeholder="Enter Password" name="password" required style="background:#3f5caa" />
+                        <div class="form-group form-group-css" style="position:relative;">
+                            <input class="form-control form-control-solid placeholder-no-fix pass" id="pass" type="password" autocomplete="off" placeholder="Enter Password" name="password" required style="background:#3f5caa; padding-right:36px;" />
+                            <span onclick="toggleLoginPasswordVisibility()" style="position:absolute; right:12px; top:0; height:45px; display:flex; align-items:center; cursor:pointer; color:#fff;">
+                                <i id="pass-eye-icon" class="fa fa-eye"></i>
+                            </span>
                         </div>
                         @* Honeypot: off-screen (not display:none - some bots skip fields hidden
                            that way), out of tab order, no autofill hint. A real user never sees or
