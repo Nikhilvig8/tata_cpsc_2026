@@ -203,7 +203,26 @@ public new  bool IsValid(string _username, string _password)
             var content = new FormUrlEncodedContent(requestBody);
 
             // Make the POST request
-            var response = await _httpClient.PostAsync(_tokenUrl, content);
+            HttpResponseMessage response;
+            try
+            {
+                response = await _httpClient.PostAsync(_tokenUrl, content);
+            }
+            catch (Exception ex)
+            {
+                // Network/TLS failure reaching Keycloak itself - e.g. the "Local Security
+                // Authority cannot be contacted" TLS-handshake crash diagnosed 2026-08-28 (see
+                // Global.asax.cs's SecurityProtocol fix). Previously unhandled here, crashing
+                // LoginCheck outright instead of failing the login cleanly.
+                try
+                {
+                    File.AppendAllText(
+                        HttpContext.Current.Server.MapPath("~/Logs/Logs.txt"),
+                        $"\r\n[NETWORK] IsValidOID1(username='{username}') POST to Keycloak threw: {ex} - {DateTime.Now}\r\n");
+                }
+                catch { /* logging must never break the login path */ }
+                return false;
+            }
 
             if (response.IsSuccessStatusCode)
             {
@@ -349,7 +368,27 @@ public new  bool IsValid(string _username, string _password)
             };
 
             var content = new FormUrlEncodedContent(requestBody);
-            var response = await _httpClient.PostAsync(_tokenUrl, content);
+            HttpResponseMessage response;
+            try
+            {
+                response = await _httpClient.PostAsync(_tokenUrl, content);
+            }
+            catch (Exception ex)
+            {
+                // Same class of network/TLS failure as IsValidOID1's POST above - the caller
+                // (OidcCallback) already wraps this whole call in a try/catch that swallows any
+                // exception silently, so without logging here a failure like this leaves no
+                // trace to diagnose from.
+                try
+                {
+                    File.AppendAllText(
+                        HttpContext.Current.Server.MapPath("~/Logs/Logs.txt"),
+                        $"\r\n[NETWORK] ExchangeAuthorizationCodeAsync POST to Keycloak threw: {ex} - {DateTime.Now}\r\n");
+                }
+                catch { /* logging must never break the login path */ }
+                return null;
+            }
+
             if (!response.IsSuccessStatusCode)
             {
                 return null;
