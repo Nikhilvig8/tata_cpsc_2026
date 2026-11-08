@@ -43,7 +43,7 @@ namespace InputOutput.Controllers
             return View();
         }
 
-        public bool InsertintoData(string dash, string feed)
+        private bool InsertintoData(string dash, string feed)
         {
             cmdObj = new SqlCommand();
             cmdObj.CommandText = "Insert_Feedback_Data";

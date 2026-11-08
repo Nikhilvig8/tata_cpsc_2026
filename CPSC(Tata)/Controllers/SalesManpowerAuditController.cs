@@ -24,6 +24,7 @@ namespace InputOutput.Controllers
             return View();
         }
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult SalesManpowerAuditDetails(String DealerCode)
         {
             try
@@ -68,6 +69,7 @@ namespace InputOutput.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult SalesManpowerAuditForDisable(string json)
         {
             XmlDocument XmlDoc;
@@ -76,7 +78,7 @@ namespace InputOutput.Controllers
             System.Web.Script.Serialization.JavaScriptSerializer serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
             return Json(serializer.Serialize("Record has been submitted Successfully"), JsonRequestBehavior.AllowGet);
         }
-        public void UpdateSalesManpowerAuditForDisable(string dataEntry)
+        private void UpdateSalesManpowerAuditForDisable(string dataEntry)
         {
             SqlCommand cmd = new SqlCommand("UpdateSalesManpowerAuditForDisable", con);
             cmd.CommandType = CommandType.StoredProcedure;

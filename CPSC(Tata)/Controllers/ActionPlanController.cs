@@ -30,7 +30,11 @@ namespace CPAS.Controllers
             string Date = "";
             var Model = new List<ActionPlanModel>();
 
-            SqlCommand cmd = new SqlCommand("GetActionPlanData '" + LoginID + "', '" + DealerCode + "','" + Date + "'", con);
+            SqlCommand cmd = new SqlCommand("EXEC GetActionPlanData @LoginId, @DealerCode, @Date", con);
+            // Checkmarx "SQL_Injection": values were concatenated into the EXEC text; now bound parameters.
+            cmd.Parameters.Add("@LoginId", SqlDbType.NVarChar, 100).Value = (object)LoginID ?? DBNull.Value;
+            cmd.Parameters.Add("@DealerCode", SqlDbType.NVarChar, 100).Value = (object)DealerCode ?? DBNull.Value;
+            cmd.Parameters.Add("@Date", SqlDbType.NVarChar, 50).Value = (object)Date ?? DBNull.Value;
             SqlDataAdapter sda = new SqlDataAdapter(cmd);
             DataTable dt = new DataTable();
             sda.Fill(dt);
@@ -61,7 +65,7 @@ namespace CPAS.Controllers
 
             return View(Model);
         }
-        public DataTable DealerDetails()
+        private DataTable DealerDetails()
         {
             SqlCommand cmd = new SqlCommand();
             SqlDataAdapter da = new SqlDataAdapter();
@@ -83,7 +87,7 @@ namespace CPAS.Controllers
             }
             return dt;
         }
-        public DataTable Status()
+        private DataTable Status()
         {
             SqlCommand cmd = new SqlCommand();
             SqlDataAdapter da = new SqlDataAdapter();
@@ -111,7 +115,11 @@ namespace CPAS.Controllers
             string Date = "";
             var Model = new List<ActionPlanModel>();
 
-            SqlCommand cmd = new SqlCommand("GetActionPlanDataUpdate '" + LoginID + "', '" + DealerCode + "','" + Date + "'", con);
+            SqlCommand cmd = new SqlCommand("EXEC GetActionPlanDataUpdate @LoginId, @DealerCode, @Date", con);
+            // Checkmarx "SQL_Injection": values were concatenated into the EXEC text; now bound parameters.
+            cmd.Parameters.Add("@LoginId", SqlDbType.NVarChar, 100).Value = (object)LoginID ?? DBNull.Value;
+            cmd.Parameters.Add("@DealerCode", SqlDbType.NVarChar, 100).Value = (object)DealerCode ?? DBNull.Value;
+            cmd.Parameters.Add("@Date", SqlDbType.NVarChar, 50).Value = (object)Date ?? DBNull.Value;
             SqlDataAdapter sda = new SqlDataAdapter(cmd);
             DataTable dt = new DataTable();
             sda.Fill(dt);
@@ -156,7 +164,7 @@ namespace CPAS.Controllers
             return View(Model);
 
         }
-        public List<SelectListItem> ToSelectList(DataTable table, string valueField)
+        private List<SelectListItem> ToSelectList(DataTable table, string valueField)
         {
             List<SelectListItem> list = new List<SelectListItem>();
 
@@ -181,7 +189,11 @@ namespace CPAS.Controllers
             string Dealer = DealerCode;
             var Model = new List<ActionPlanModel>();
 
-            SqlCommand cmd = new SqlCommand("GetActionPlanData '" + LoginID + "', '" + Dealer + "','" + date + "'", con);
+            SqlCommand cmd = new SqlCommand("EXEC GetActionPlanData @LoginId, @DealerCode, @Date", con);
+            // Checkmarx "SQL_Injection": values were concatenated into the EXEC text; now bound parameters.
+            cmd.Parameters.Add("@LoginId", SqlDbType.NVarChar, 100).Value = (object)LoginID ?? DBNull.Value;
+            cmd.Parameters.Add("@DealerCode", SqlDbType.NVarChar, 100).Value = (object)Dealer ?? DBNull.Value;
+            cmd.Parameters.Add("@Date", SqlDbType.NVarChar, 50).Value = (object)date ?? DBNull.Value;
             SqlDataAdapter sda = new SqlDataAdapter(cmd);
             DataTable dt = new DataTable();
             sda.Fill(dt);
@@ -246,7 +258,11 @@ namespace CPAS.Controllers
             System.Web.Script.Serialization.JavaScriptSerializer serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
             return Json(serializer.Serialize(Model), JsonRequestBehavior.AllowGet);
         }
-        [HttpGet]
+        // Checkmarx "CSRF": was [HttpGet] with the payload in the query string, so any page could
+        // trigger an insert with an <img src=...>. Now POST-only with an anti-forgery token
+        // (Views/ActionPlan/EnterActionPlan.cshtml posts it; Scripts/csrf-guard.js adds the token).
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult InsertActionPlan(string json)
         {
             XmlDocument XmlDoc;
@@ -256,7 +272,7 @@ namespace CPAS.Controllers
             TempData["Message"] = "Record has been Insert Successfully";
             return RedirectToAction("EnterActionPlan", "ActionPlan");
         }
-        public void InsertActionPlanDetails(string dataEntry)
+        private void InsertActionPlanDetails(string dataEntry)
         {
             SqlCommand cmd = new SqlCommand("InsertActionPlanData", con);
             cmd.CommandType = CommandType.StoredProcedure;
@@ -272,7 +288,11 @@ namespace CPAS.Controllers
             string LoginID = Session["Uid"].ToString();
             var Model = new List<ActionPlanModel>();
 
-            SqlCommand cmd = new SqlCommand("GetActionPlanDataUpdate '" + LoginID + "', '" + DealerCode + "','" + Date + "'", con);
+            SqlCommand cmd = new SqlCommand("EXEC GetActionPlanDataUpdate @LoginId, @DealerCode, @Date", con);
+            // Checkmarx "SQL_Injection": values were concatenated into the EXEC text; now bound parameters.
+            cmd.Parameters.Add("@LoginId", SqlDbType.NVarChar, 100).Value = (object)LoginID ?? DBNull.Value;
+            cmd.Parameters.Add("@DealerCode", SqlDbType.NVarChar, 100).Value = (object)DealerCode ?? DBNull.Value;
+            cmd.Parameters.Add("@Date", SqlDbType.NVarChar, 50).Value = (object)Date ?? DBNull.Value;
             SqlDataAdapter sda = new SqlDataAdapter(cmd);
             DataTable dt = new DataTable();
             sda.Fill(dt);
@@ -315,6 +335,9 @@ namespace CPAS.Controllers
             return Json(serializer.Serialize(Model), JsonRequestBehavior.AllowGet);
 
         }
+        // Checkmarx "CSRF": POST-only + anti-forgery token (see InsertActionPlan).
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult PostUpdateActionPlan(string json)
         {
             XmlDocument XmlDoc;
@@ -324,7 +347,7 @@ namespace CPAS.Controllers
             TempData["Message"] = "Record has been update successfully";
             return RedirectToAction("EnterActionPlan", "ActionPlan");
         }
-        public void UpdateActionPlanDetails(string dataEntry)
+        private void UpdateActionPlanDetails(string dataEntry)
         {
             SqlCommand cmd = new SqlCommand("UpdateActionPlanData", con);
             cmd.CommandType = CommandType.StoredProcedure;

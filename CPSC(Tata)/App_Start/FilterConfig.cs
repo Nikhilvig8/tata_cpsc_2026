@@ -12,6 +12,9 @@ namespace InputOutput
             filters.Add(new LoggingHandleErrorAttribute());
             filters.Add(new NoCacheAttribute());
             filters.Add(new SingleSessionAttribute());
+            // Checkmarx "CSRF": every POST must carry a valid anti-forgery token (see
+            // AntiForgeryOnPostAttribute.cs and Scripts/csrf-guard.js).
+            filters.Add(new AntiForgeryOnPostAttribute());
         }
     }
 }

@@ -26,6 +26,12 @@ namespace InputOutput
             System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12;
 
             MvcHandler.DisableMvcResponseHeader = true;
+
+            // Web.config already sends X-Frame-Options: SAMEORIGIN for every response; without this
+
+            // @Html.AntiForgeryToken() would append a second copy of the same header.
+
+            System.Web.Helpers.AntiForgeryConfig.SuppressXFrameOptionsHeader = true;
             AreaRegistration.RegisterAllAreas();
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);

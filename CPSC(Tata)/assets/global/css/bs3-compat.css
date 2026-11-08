@@ -1,0 +1,209 @@
+/*
+ * Bootstrap 3 -> Bootstrap 5 compatibility layer
+ * ------------------------------------------------
+ * Checkmarx SCA (CVE-2024-6485, CVE-2025-1647): Bootstrap 3.x has no fixed open-source release,
+ * so the app now runs on Bootstrap 5.3.8. The Metronic theme and ~100 legacy views were written
+ * against Bootstrap 3 markup; this sheet (loaded right after bootstrap.min.css, before the theme
+ * CSS) restores the Bootstrap 3 classes/behaviours that Bootstrap 5 removed or renamed, so the
+ * existing markup keeps rendering the same way.
+ *
+ * New markup should use Bootstrap 5 classes directly; this file only exists for legacy pages.
+ */
+
+/* ---- Base / reboot differences ---------------------------------------------------------- */
+a { text-decoration: none; }
+a:hover, a:focus { text-decoration: underline; }
+.row { --bs-gutter-x: 30px; }
+.sr-only { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; border: 0 !important; }
+.clearfix::after { display: block; clear: both; content: ""; }
+
+/* ---- Grid: col-xs-*, offsets, push/pull ---------------------------------------------------- */
+.col-xs-1, .col-xs-2, .col-xs-3, .col-xs-4, .col-xs-5, .col-xs-6, .col-xs-7, .col-xs-8, .col-xs-9, .col-xs-10, .col-xs-11, .col-xs-12 { flex: 0 0 auto; position: relative; min-height: 1px; padding-right: calc(var(--bs-gutter-x, 30px) * .5); padding-left: calc(var(--bs-gutter-x, 30px) * .5); }
+.col-xs-1 { width: 8.33333333%; } .col-xs-2 { width: 16.66666667%; } .col-xs-3 { width: 25%; } .col-xs-4 { width: 33.33333333%; }
+.col-xs-5 { width: 41.66666667%; } .col-xs-6 { width: 50%; } .col-xs-7 { width: 58.33333333%; } .col-xs-8 { width: 66.66666667%; }
+.col-xs-9 { width: 75%; } .col-xs-10 { width: 83.33333333%; } .col-xs-11 { width: 91.66666667%; } .col-xs-12 { width: 100%; }
+@media (min-width: 768px) {
+  .col-sm-offset-1 { margin-left: 8.33333333%; } .col-sm-offset-2 { margin-left: 16.66666667%; } .col-sm-offset-3 { margin-left: 25%; } .col-sm-offset-4 { margin-left: 33.33333333%; } .col-sm-offset-5 { margin-left: 41.66666667%; } .col-sm-offset-6 { margin-left: 50%; } .col-sm-offset-7 { margin-left: 58.33333333%; } .col-sm-offset-8 { margin-left: 66.66666667%; } .col-sm-offset-9 { margin-left: 75%; } .col-sm-offset-10 { margin-left: 83.33333333%; } .col-sm-offset-11 { margin-left: 91.66666667%; }
+}
+@media (min-width: 992px) {
+  .col-md-offset-1 { margin-left: 8.33333333%; } .col-md-offset-2 { margin-left: 16.66666667%; } .col-md-offset-3 { margin-left: 25%; } .col-md-offset-4 { margin-left: 33.33333333%; } .col-md-offset-5 { margin-left: 41.66666667%; } .col-md-offset-6 { margin-left: 50%; } .col-md-offset-7 { margin-left: 58.33333333%; } .col-md-offset-8 { margin-left: 66.66666667%; } .col-md-offset-9 { margin-left: 75%; } .col-md-offset-10 { margin-left: 83.33333333%; } .col-md-offset-11 { margin-left: 91.66666667%; }
+}
+@media (min-width: 1200px) {
+  .col-lg-offset-1 { margin-left: 8.33333333%; } .col-lg-offset-2 { margin-left: 16.66666667%; } .col-lg-offset-3 { margin-left: 25%; } .col-lg-offset-4 { margin-left: 33.33333333%; } .col-lg-offset-5 { margin-left: 41.66666667%; } .col-lg-offset-6 { margin-left: 50%; } .col-lg-offset-7 { margin-left: 58.33333333%; } .col-lg-offset-8 { margin-left: 66.66666667%; } .col-lg-offset-9 { margin-left: 75%; } .col-lg-offset-10 { margin-left: 83.33333333%; } .col-lg-offset-11 { margin-left: 91.66666667%; }
+}
+
+/* ---- Floats / visibility ------------------------------------------------------------------- */
+.pull-right { float: right !important; }
+.pull-left { float: left !important; }
+.center-block { display: block; margin-right: auto; margin-left: auto; }
+.hidden { display: none !important; }
+.text-left { text-align: left !important; }
+.text-right { text-align: right !important; }
+@media (max-width: 767.98px) { .hidden-xs { display: none !important; } }
+@media (min-width: 768px) and (max-width: 991.98px) { .hidden-sm { display: none !important; } }
+@media (min-width: 992px) and (max-width: 1199.98px) { .hidden-md { display: none !important; } }
+@media (min-width: 1200px) { .hidden-lg { display: none !important; } }
+.visible-xs, .visible-sm, .visible-md, .visible-lg { display: none !important; }
+@media (max-width: 767.98px) { .visible-xs { display: block !important; } }
+@media (min-width: 768px) and (max-width: 991.98px) { .visible-sm { display: block !important; } }
+@media (min-width: 992px) and (max-width: 1199.98px) { .visible-md { display: block !important; } }
+@media (min-width: 1200px) { .visible-lg { display: block !important; } }
+@media print { .hidden-print { display: none !important; } }
+
+/* ---- Transitions: Bootstrap 3 used ".in", Bootstrap 5 uses ".show" ------------------------- */
+.fade.in { opacity: 1; }
+.collapse.in { display: block; }
+.modal.in .modal-dialog { transform: none; }
+.modal-backdrop.in { opacity: .5; }
+.tooltip.in { opacity: .9; }
+
+/* ---- Images -------------------------------------------------------------------------------- */
+.img-responsive { display: block; max-width: 100%; height: auto; }
+.img-circle { border-radius: 50%; }
+.img-rounded { border-radius: 6px; }
+
+/* ---- Forms --------------------------------------------------------------------------------- */
+.form-group { margin-bottom: 15px; }
+.help-block { display: block; margin-top: 5px; margin-bottom: 10px; color: #737373; }
+.control-label { font-weight: 400; }
+.form-control { height: auto; min-height: 34px; }
+textarea.form-control { height: auto; }
+/* BS5 strips the native arrow from <select class="form-control"> (it expects .form-select). */
+select.form-control { -webkit-appearance: menulist; -moz-appearance: menulist; appearance: auto; }
+select.form-control[multiple], select.form-control[size] { appearance: none; }
+.input-sm { height: 30px; padding: 5px 10px; font-size: 12px; line-height: 1.5; border-radius: 3px; }
+.input-lg { height: 46px; padding: 10px 16px; font-size: 18px; line-height: 1.3333333; border-radius: 6px; }
+.form-inline .form-group, .form-inline .form-control { display: inline-block; vertical-align: middle; width: auto; margin-bottom: 0; }
+/* BS3 .form-horizontal .form-group behaved like a .row of floated columns (not a flex row). */
+.form-horizontal .form-group { margin-right: -15px; margin-left: -15px; }
+.form-horizontal .form-group::after { display: block; clear: both; content: ""; }
+.form-horizontal .form-group > [class*="col-"] { position: relative; min-height: 1px; padding-right: 15px; padding-left: 15px; }
+.form-horizontal .form-group > [class*="col-xs-"] { float: left; }
+@media (min-width: 576px) { .form-horizontal .form-group > [class*="col-sm-"] { float: left; } }
+@media (min-width: 768px) { .form-horizontal .form-group > [class*="col-md-"] { float: left; } .form-horizontal .control-label { padding-top: 7px; margin-bottom: 0; text-align: right; } }
+@media (min-width: 992px) { .form-horizontal .form-group > [class*="col-lg-"] { float: left; } }
+.checkbox, .radio { position: relative; display: block; margin-top: 10px; margin-bottom: 10px; }
+.checkbox label, .radio label { min-height: 20px; padding-left: 20px; margin-bottom: 0; cursor: pointer; }
+.checkbox input[type=checkbox], .radio input[type=radio] { position: absolute; margin-left: -20px; margin-top: 4px; }
+.checkbox-inline, .radio-inline { position: relative; display: inline-block; padding-left: 20px; margin-bottom: 0; cursor: pointer; }
+.has-error .help-block, .has-error .control-label { color: #a94442; }
+.has-error .form-control { border-color: #a94442; }
+.has-success .help-block, .has-success .control-label { color: #3c763d; }
+.has-success .form-control { border-color: #3c763d; }
+.input-group-addon { display: flex; align-items: center; padding: 6px 12px; font-size: 14px; font-weight: 400; line-height: 1; color: #555; text-align: center; white-space: nowrap; background-color: #eee; border: 1px solid #ccc; }
+.input-group-addon:first-child { border-right: 0; border-radius: 4px 0 0 4px; }
+.input-group-addon:last-child { border-left: 0; border-radius: 0 4px 4px 0; }
+.input-group-btn { display: flex; }
+.input-group-btn > .btn { position: relative; }
+
+/* ---- Buttons ------------------------------------------------------------------------------- */
+.btn-default { color: #333; background-color: #fff; border-color: #ccc; }
+.btn-default:hover, .btn-default:focus, .btn-default.active, .open > .dropdown-toggle.btn-default { color: #333; background-color: #e6e6e6; border-color: #adadad; }
+.btn-xs { padding: 1px 5px; font-size: 12px; line-height: 1.5; border-radius: 3px; }
+.btn-block { display: block; width: 100%; }
+.btn-group-justified { display: table; width: 100%; table-layout: fixed; border-collapse: separate; }
+.btn-group-justified > .btn, .btn-group-justified > .btn-group { display: table-cell; float: none; width: 1%; }
+.caret { display: inline-block; width: 0; height: 0; margin-left: 2px; vertical-align: middle; border-top: 4px dashed; border-right: 4px solid transparent; border-left: 4px solid transparent; }
+/* BS5 draws its own caret on .dropdown-toggle; the legacy markup already has <i>/<span class="caret">. */
+.dropdown-toggle::after { display: none; }
+
+/* ---- Close button (BS5 renamed it .btn-close) ---------------------------------------------- */
+.close { float: right; padding: 0; font-size: 21px; font-weight: 700; line-height: 1; color: #000; text-shadow: 0 1px 0 #fff; opacity: .2; background: transparent; border: 0; cursor: pointer; }
+.close:hover, .close:focus { color: #000; text-decoration: none; opacity: .5; }
+
+/* ---- Modals: BS3 put the close button before the title in a block header ------------------- */
+.modal-header { display: block; }
+.modal-header::after { display: block; clear: both; content: ""; }
+.modal-header .close { margin-top: -2px; }
+.modal-footer { display: block; text-align: right; }
+.modal-footer > * { margin: 0; }
+.modal-footer .btn + .btn { margin-left: 5px; }
+
+/* ---- Dropdowns: BS3 markup uses <li><a>, BS5 expects .dropdown-item -------------------------- */
+.open > .dropdown-menu { display: block; }
+.dropdown-menu > li > a { display: block; padding: 3px 20px; clear: both; font-weight: 400; line-height: 1.42857143; color: #333; white-space: nowrap; }
+.dropdown-menu > li > a:hover, .dropdown-menu > li > a:focus { color: #262626; text-decoration: none; background-color: #f5f5f5; }
+.dropdown-menu-right { right: 0; left: auto; }
+.dropdown-menu .divider { height: 1px; margin: 9px 0; overflow: hidden; background-color: #e5e5e5; }
+
+/* ---- Navs / tabs (BS3: li.active > a) -------------------------------------------------------- */
+.nav > li { position: relative; display: block; }
+.nav > li > a { position: relative; display: block; padding: 10px 15px; }
+.nav-tabs > li { float: left; margin-bottom: -1px; }
+.nav-tabs > li > a { margin-right: 2px; line-height: 1.42857143; border: 1px solid transparent; border-radius: 4px 4px 0 0; }
+.nav-tabs > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus { color: #555; cursor: default; background-color: #fff; border: 1px solid #ddd; border-bottom-color: transparent; }
+.nav-pills > li { float: left; }
+.nav-pills > li + li { margin-left: 2px; }
+.nav-pills > li > a { border-radius: 4px; }
+.nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus { color: #fff; background-color: #337ab7; }
+.nav-stacked > li { float: none; }
+.list-inline { padding-left: 0; margin-left: -5px; list-style: none; }
+.list-inline > li { display: inline-block; padding-right: 5px; padding-left: 5px; }
+
+/* ---- Navbar (Metronic header) ---------------------------------------------------------------- */
+.navbar-fixed-top, .navbar-fixed-bottom { position: fixed; right: 0; left: 0; z-index: 1030; }
+.navbar-fixed-top { top: 0; }
+.navbar-fixed-bottom { bottom: 0; }
+.page-header.navbar { display: block; padding: 0; flex-wrap: nowrap; }
+.page-header.navbar .navbar-nav { flex-direction: row; }
+.navbar-nav > li { float: left; }
+.navbar-header { float: left; }
+@media (min-width: 768px) { .navbar-collapse.collapse { display: block !important; } }
+.page-header:not(.navbar) { padding-bottom: 9px; margin: 40px 0 20px; border-bottom: 1px solid #eee; }
+
+/* ---- Panels / wells / labels / badges / media / thumbnails ---------------------------------- */
+.panel { margin-bottom: 20px; background-color: #fff; border: 1px solid transparent; border-radius: 4px; box-shadow: 0 1px 1px rgba(0, 0, 0, .05); }
+.panel-body { padding: 15px; }
+.panel-body::after { display: block; clear: both; content: ""; }
+.panel-heading { padding: 10px 15px; border-bottom: 1px solid transparent; border-top-left-radius: 3px; border-top-right-radius: 3px; }
+.panel-title { margin-top: 0; margin-bottom: 0; font-size: 16px; color: inherit; }
+.panel-footer { padding: 10px 15px; background-color: #f5f5f5; border-top: 1px solid #ddd; border-bottom-right-radius: 3px; border-bottom-left-radius: 3px; }
+.panel-default { border-color: #ddd; } .panel-default > .panel-heading { color: #333; background-color: #f5f5f5; border-color: #ddd; }
+.panel-primary { border-color: #337ab7; } .panel-primary > .panel-heading { color: #fff; background-color: #337ab7; border-color: #337ab7; }
+.panel-success { border-color: #d6e9c6; } .panel-success > .panel-heading { color: #3c763d; background-color: #dff0d8; border-color: #d6e9c6; }
+.panel-info { border-color: #bce8f1; } .panel-info > .panel-heading { color: #31708f; background-color: #d9edf7; border-color: #bce8f1; }
+.panel-warning { border-color: #faebcc; } .panel-warning > .panel-heading { color: #8a6d3b; background-color: #fcf8e3; border-color: #faebcc; }
+.panel-danger { border-color: #ebccd1; } .panel-danger > .panel-heading { color: #a94442; background-color: #f2dede; border-color: #ebccd1; }
+.well { min-height: 20px; padding: 19px; margin-bottom: 20px; background-color: #f5f5f5; border: 1px solid #e3e3e3; border-radius: 4px; box-shadow: inset 0 1px 1px rgba(0, 0, 0, .05); }
+.well-sm { padding: 9px; border-radius: 3px; } .well-lg { padding: 24px; border-radius: 6px; }
+.label { display: inline; padding: .2em .6em .3em; font-size: 75%; font-weight: 700; line-height: 1; color: #fff; text-align: center; white-space: nowrap; vertical-align: baseline; border-radius: .25em; }
+.label-default { background-color: #777; } .label-primary { background-color: #337ab7; } .label-success { background-color: #5cb85c; }
+.label-info { background-color: #5bc0de; } .label-warning { background-color: #f0ad4e; } .label-danger { background-color: #d9534f; }
+.badge { background-color: #777; }
+.thumbnail { display: block; padding: 4px; margin-bottom: 20px; line-height: 1.42857143; background-color: #fff; border: 1px solid #ddd; border-radius: 4px; }
+.media { display: flex; align-items: flex-start; margin-top: 15px; }
+.media-body { flex: 1; }
+.media-left, .media-right { padding-right: 10px; }
+.progress-bar-success { background-color: #5cb85c; } .progress-bar-info { background-color: #5bc0de; }
+.progress-bar-warning { background-color: #f0ad4e; } .progress-bar-danger { background-color: #d9534f; }
+.table-condensed > thead > tr > th, .table-condensed > tbody > tr > th, .table-condensed > tfoot > tr > th,
+.table-condensed > thead > tr > td, .table-condensed > tbody > tr > td, .table-condensed > tfoot > tr > td { padding: 5px; }
+
+/* ---- Glyphicons -> Font Awesome 4 (already loaded by every layout) --------------------------- */
+.glyphicon { position: relative; top: 1px; display: inline-block; font: normal normal normal 14px/1 FontAwesome; font-size: inherit; text-rendering: auto; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+.glyphicon-home:before { content: "\f015"; } .glyphicon-envelope:before { content: "\f0e0"; } .glyphicon-lock:before { content: "\f023"; }
+.glyphicon-off:before { content: "\f011"; } .glyphicon-bell:before { content: "\f0f3"; } .glyphicon-dashboard:before { content: "\f0e4"; }
+.glyphicon-th:before { content: "\f00a"; } .glyphicon-th-list:before { content: "\f00b"; } .glyphicon-list-alt:before { content: "\f022"; }
+.glyphicon-list:before { content: "\f03a"; } .glyphicon-bold:before { content: "\f032"; } .glyphicon-italic:before { content: "\f033"; }
+.glyphicon-header:before { content: "\f1dc"; } .glyphicon-picture:before { content: "\f03e"; } .glyphicon-link:before { content: "\f0c1"; }
+.glyphicon-eye-open:before { content: "\f06e"; } .glyphicon-search:before { content: "\f002"; } .glyphicon-comment:before { content: "\f075"; }
+.glyphicon-fullscreen:before { content: "\f0b2"; } .glyphicon-user:before { content: "\f007"; } .glyphicon-cog:before { content: "\f013"; }
+.glyphicon-chevron-left:before { content: "\f053"; } .glyphicon-chevron-right:before { content: "\f054"; } .glyphicon-chevron-up:before { content: "\f077"; }
+.glyphicon-chevron-down:before { content: "\f078"; } .glyphicon-calendar:before { content: "\f073"; } .glyphicon-time:before { content: "\f017"; }
+.glyphicon-remove:before { content: "\f00d"; } .glyphicon-ok:before { content: "\f00c"; } .glyphicon-plus:before { content: "\f067"; }
+.glyphicon-minus:before { content: "\f068"; } .glyphicon-trash:before { content: "\f1f8"; } .glyphicon-pencil:before { content: "\f040"; }
+.glyphicon-edit:before { content: "\f044"; } .glyphicon-refresh:before { content: "\f021"; } .glyphicon-download:before { content: "\f019"; }
+.glyphicon-upload:before { content: "\f093"; } .glyphicon-arrow-up:before { content: "\f062"; } .glyphicon-arrow-down:before { content: "\f063"; }
+.glyphicon-arrow-left:before { content: "\f060"; } .glyphicon-arrow-right:before { content: "\f061"; } .glyphicon-triangle-bottom:before { content: "\f0d7"; }
+.glyphicon-triangle-top:before { content: "\f0d8"; } .glyphicon-menu-hamburger:before { content: "\f0c9"; } .glyphicon-info-sign:before { content: "\f05a"; }
+.glyphicon-warning-sign:before { content: "\f071"; } .glyphicon-exclamation-sign:before { content: "\f06a"; } .glyphicon-question-sign:before { content: "\f059"; }
+.glyphicon-star:before { content: "\f005"; } .glyphicon-file:before { content: "\f15b"; } .glyphicon-folder-open:before { content: "\f07c"; }
+.glyphicon-print:before { content: "\f02f"; } .glyphicon-filter:before { content: "\f0b0"; } .glyphicon-sort:before { content: "\f0dc"; }
+.glyphicon-log-out:before { content: "\f08b"; } .glyphicon-log-in:before { content: "\f090"; } .glyphicon-stats:before { content: "\f080"; }
+.glyphicon-save:before, .glyphicon-floppy-disk:before { content: "\f0c7"; } .glyphicon-check:before { content: "\f046"; } .glyphicon-unchecked:before { content: "\f096"; }
+.glyphicon-phone:before { content: "\f095"; } .glyphicon-map-marker:before { content: "\f041"; } .glyphicon-globe:before { content: "\f0ac"; }
+.glyphicon-tag:before { content: "\f02b"; } .glyphicon-tags:before { content: "\f02c"; } .glyphicon-flag:before { content: "\f024"; }
+.glyphicon-wrench:before { content: "\f0ad"; } .glyphicon-inbox:before { content: "\f01c"; } .glyphicon-zoom-in:before { content: "\f00e"; }
+.glyphicon-zoom-out:before { content: "\f010"; } .glyphicon-resize-full:before { content: "\f065"; } .glyphicon-resize-small:before { content: "\f066"; }
+.glyphicon-align-left:before { content: "\f036"; } .glyphicon-align-center:before { content: "\f037"; } .glyphicon-align-right:before { content: "\f038"; }
+.glyphicon-export:before { content: "\f14d"; } .glyphicon-share:before { content: "\f064"; } .glyphicon-briefcase:before { content: "\f0b1"; }

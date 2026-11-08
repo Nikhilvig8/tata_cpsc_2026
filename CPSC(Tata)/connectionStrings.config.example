@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copy to connectionStrings.config (which is git-ignored) and fill in real values. -->
+<connectionStrings>
+    <add name="ApplicationServices" connectionString="REPLACE_WITH_REAL_CONNECTION_STRING" providerName="System.Data.SqlClient" />
+    <add name="constr" connectionString="REPLACE_WITH_REAL_CONNECTION_STRING" />
+    <add name="constrOLAP" connectionString="REPLACE_WITH_REAL_CONNECTION_STRING" />
+</connectionStrings>

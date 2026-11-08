@@ -742,8 +742,9 @@
             $("#wait").css("display", "block");
             $.ajax
                 ({
-                    url: "/ActionPlan/InsertActionPlan?json=" + json + "",
-                    type: "Get",
+                    url: "/ActionPlan/InsertActionPlan",
+                    type: "POST",
+                    data: { json: json },
                     success: function (drr) {
                         alert('Record has been update successfully.');
                         var url = "/ActionPlan/EnterActionPlan";

@@ -189,7 +189,9 @@ namespace InputOutput.Models
         public DataTable Approved_Data(string _Unique_Id)
         {
             cmdObj = new SqlCommand();
-            cmdObj.CommandText = "Select * from tblTransaction where [Unique_Id]='"+_Unique_Id+"'";
+            // Checkmarx "SQL_Injection": bound parameter instead of string concatenation.
+            cmdObj.CommandText = "Select * from tblTransaction where [Unique_Id]=@UniqueId";
+            cmdObj.Parameters.Add("@UniqueId", SqlDbType.NVarChar, 200).Value = _Unique_Id ?? string.Empty;
 
             
             DataTable dt = new DataTable();
@@ -411,28 +413,75 @@ namespace InputOutput.Models
         }
 
 
+        private static void AddApprovalKeys(SqlCommand cmd, string uniqueId, string type, string divisionId, string lobId, string fromWhom, string notificationId)
+
+
+        {
+
+
+            // Empty string (not NULL) for missing values: the old literal SQL compared against '' in that case.
+
+
+            cmd.Parameters.Add("@UniqueId", SqlDbType.NVarChar, 200).Value = uniqueId ?? string.Empty;
+
+
+            cmd.Parameters.Add("@Type", SqlDbType.NVarChar, 50).Value = type ?? string.Empty;
+
+
+            cmd.Parameters.Add("@DivisionId", SqlDbType.NVarChar, 50).Value = divisionId ?? string.Empty;
+
+
+            cmd.Parameters.Add("@LobId", SqlDbType.NVarChar, 50).Value = lobId ?? string.Empty;
+
+
+            cmd.Parameters.Add("@FromWhom", SqlDbType.NVarChar, 200).Value = fromWhom ?? string.Empty;
+
+
+            cmd.Parameters.Add("@NotificationId", SqlDbType.NVarChar, 50).Value = notificationId ?? string.Empty;
+
+
+        }
+
+
+
         /* For update Approval status in Target_Actual_Approvels */
         public bool Update_Flag(string _Unique_id,string _Flag,string _Division_Id,string _LOB_Id,string flag,string fromwhom,string remarks,string notif_Id)
         {
             SqlCommand cmdObj2 = new SqlCommand();
             cmdObj = new SqlCommand();
-           
+
+            // Checkmarx "SQL_Injection": every value used to be concatenated into the UPDATE text
+            // (remarks, fromwhom, ids all come from the request). Same statements, bound parameters.
+            string approvedStatus;
+            string appRejected;
+            int hasBeenSeen;
             if (flag == "reject")
             {
-                cmdObj.CommandText = "Update ttaa set [Approved_Status]='0',[App/rejected]='reject',Remarks='"+ remarks + "' from tblTarget_Actual_Approvels ttaa inner join tblNotifications tn on (ttaa.[Notification_id]=tn.[Notification_id]) where ttaa.[Unique_Id]='" + _Unique_id + "' and ttaa.[Type]='" + _Flag + "' and ttaa.Division_Id='" + _Division_Id + "' and ttaa.LOB_Id ='" + _LOB_Id + "'and tn.FromWhom ='" + fromwhom + "' and tn.[Notification_id]='"+notif_Id+"'";
-                cmdObj2.CommandText = "Update tn set tn.Hasbeenseen=0 from tblTarget_Actual_Approvels ttaa inner join tblNotifications tn on (ttaa.[Notification_id]=tn.[Notification_id]) where ttaa.[Unique_Id]='" + _Unique_id + "' and ttaa.[Type]='" + _Flag + "' and ttaa.Division_Id='" + _Division_Id + "' and ttaa.LOB_Id ='" + _LOB_Id + "'and tn.FromWhom ='" + fromwhom + "'and tn.[Notification_id]='" + notif_Id + "'";
-
+                approvedStatus = "0"; appRejected = "reject"; hasBeenSeen = 0;
             }
             else if (flag == "Rejectaccept")
             {
-                cmdObj.CommandText = "Update ttaa set [Approved_Status]='0',[App/rejected]='accept',Remarks='" + remarks + "' from tblTarget_Actual_Approvels ttaa inner join tblNotifications tn on (ttaa.[Notification_id]=tn.[Notification_id]) where ttaa.[Unique_Id]='" + _Unique_id + "' and ttaa.[Type]='" + _Flag + "' and ttaa.Division_Id='" + _Division_Id + "' and ttaa.LOB_Id ='" + _LOB_Id + "' and tn.FromWhom ='" + fromwhom + "'and tn.[Notification_id]='" + notif_Id + "'";
-                cmdObj2.CommandText = "Update tn set tn.Hasbeenseen=0 from tblTarget_Actual_Approvels ttaa inner join tblNotifications tn on (ttaa.[Notification_id]=tn.[Notification_id]) where ttaa.[Unique_Id]='" + _Unique_id + "' and ttaa.[Type]='" + _Flag + "' and ttaa.Division_Id='" + _Division_Id + "' and ttaa.LOB_Id ='" + _LOB_Id + "'and tn.FromWhom ='" + fromwhom + "'and tn.[Notification_id]='" + notif_Id + "'";
+                approvedStatus = "0"; appRejected = "accept"; hasBeenSeen = 0;
             }
             else
             {
-                cmdObj.CommandText = "Update ttaa set ttaa.[Approved_Status]='1',ttaa.[App/rejected]='accept',Remarks='" + remarks + "' from tblTarget_Actual_Approvels ttaa inner join tblNotifications tn on (ttaa.[Notification_id]=tn.[Notification_id]) where ttaa.[Unique_Id]='" + _Unique_id + "' and ttaa.[Type]='" + _Flag + "' and ttaa.Division_Id='" + _Division_Id + "' and ttaa.LOB_Id ='" + _LOB_Id + "' and tn.FromWhom ='" + fromwhom + "'and tn.[Notification_id]='" + notif_Id + "'";
-                cmdObj2.CommandText = "Update tn set tn.Hasbeenseen=1 from tblTarget_Actual_Approvels ttaa inner join tblNotifications tn on (ttaa.[Notification_id]=tn.[Notification_id]) where ttaa.[Unique_Id]='" + _Unique_id + "' and ttaa.[Type]='" + _Flag + "' and ttaa.Division_Id='" + _Division_Id + "' and ttaa.LOB_Id ='" + _LOB_Id + "'and tn.FromWhom ='" + fromwhom + "' and tn.[Notification_id]='" + notif_Id + "'";
+                approvedStatus = "1"; appRejected = "accept"; hasBeenSeen = 1;
             }
+
+            const string approvalJoin = " from tblTarget_Actual_Approvels ttaa inner join tblNotifications tn on (ttaa.[Notification_id]=tn.[Notification_id])"
+                + " where ttaa.[Unique_Id]=@UniqueId and ttaa.[Type]=@Type and ttaa.Division_Id=@DivisionId and ttaa.LOB_Id=@LobId"
+                + " and tn.FromWhom=@FromWhom and tn.[Notification_id]=@NotificationId";
+
+            cmdObj.CommandText = "Update ttaa set ttaa.[Approved_Status]=@ApprovedStatus,ttaa.[App/rejected]=@AppRejected,Remarks=@Remarks" + approvalJoin;
+            AddApprovalKeys(cmdObj, _Unique_id, _Flag, _Division_Id, _LOB_Id, fromwhom, notif_Id);
+            cmdObj.Parameters.Add("@ApprovedStatus", SqlDbType.NVarChar, 10).Value = approvedStatus;
+            cmdObj.Parameters.Add("@AppRejected", SqlDbType.NVarChar, 20).Value = appRejected;
+            cmdObj.Parameters.Add("@Remarks", SqlDbType.NVarChar, -1).Value = remarks ?? string.Empty;
+
+            cmdObj2.CommandText = "Update tn set tn.Hasbeenseen=@HasBeenSeen" + approvalJoin;
+            AddApprovalKeys(cmdObj2, _Unique_id, _Flag, _Division_Id, _LOB_Id, fromwhom, notif_Id);
+            cmdObj2.Parameters.Add("@HasBeenSeen", SqlDbType.Int).Value = hasBeenSeen;
+
 
 
 
@@ -453,12 +502,14 @@ namespace InputOutput.Models
 
             if (_Flag == "Target")
             {
-                cmdObj.CommandText = "Update tblTransaction set [Approved]=1 where [Unique_Id]='" + _Unique_id + "'";
+                cmdObj.CommandText = "Update tblTransaction set [Approved]=1 where [Unique_Id]=@UniqueId";
+                cmdObj.Parameters.Add("@UniqueId", SqlDbType.NVarChar, 200).Value = _Unique_id ?? string.Empty;
 
             }
             else
             {
-                cmdObj.CommandText = "Update tblTransaction set [Approved]=1 where [Unique_Id]='" + _Unique_id + "'";
+                cmdObj.CommandText = "Update tblTransaction set [Approved]=1 where [Unique_Id]=@UniqueId";
+                cmdObj.Parameters.Add("@UniqueId", SqlDbType.NVarChar, 200).Value = _Unique_id ?? string.Empty;
 
             }
 
@@ -601,14 +652,17 @@ namespace InputOutput.Models
             {
                 MailMessage objeto_mail = new MailMessage();
                 SmtpClient client = new SmtpClient();
-                client.Port = 25;
-                //client.Port = 587;
-                client.Host = "172.31.70.147";
+                // Checkmarx "Use_Of_Hardcoded_Password": SMTP host/port/credentials now come from
+                // appSettings (SmtpHost, SmtpPort, SmtpUser, SmtpPassword), kept in the untracked
+                // secrets.config referenced by Web.config <appSettings file="...">.
+                int smtpPort;
+                client.Port = int.TryParse(ConfigurationManager.AppSettings["SmtpPort"], out smtpPort) ? smtpPort : 25;
+                client.Host = ConfigurationManager.AppSettings["SmtpHost"];
                 client.Timeout = 20000;
                 client.DeliveryMethod = SmtpDeliveryMethod.Network;
                 client.UseDefaultCredentials = false;
                 client.EnableSsl = false;
-                client.Credentials = new System.Net.NetworkCredential("cpsc@tatamotors.com", "Welcome@123");
+                client.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["SmtpUser"], ConfigurationManager.AppSettings["SmtpPassword"]);
                 objeto_mail.From = new MailAddress(frommail_id, "Alert-CPSC");
                 objeto_mail.To.Add(new MailAddress(tomail_id));
                 objeto_mail.Subject = flag + "Sheet";

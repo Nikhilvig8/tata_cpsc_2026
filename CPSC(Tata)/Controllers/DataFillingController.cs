@@ -93,6 +93,9 @@ namespace InputOutput.Controllers
 
         }
 
+        // Checkmarx "CSRF": POST-only + anti-forgery token (Views/DataFilling/DataFilling.cshtml already POSTs).
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult DataFillingInsert(string json)
         {
             XmlDocument XmlDoc;
@@ -102,7 +105,7 @@ namespace InputOutput.Controllers
             System.Web.Script.Serialization.JavaScriptSerializer serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
             return Json(serializer.Serialize("Record has been submitted Successfully"), JsonRequestBehavior.AllowGet);
         }
-        public void DataFillingInsertDetails(string dataEntry)
+        private void DataFillingInsertDetails(string dataEntry)
         {
             SqlConnection con = new SqlConnection(conn);
             SqlCommand cmd = new SqlCommand("StatewiseDataFillingInsert", con);
@@ -153,7 +156,7 @@ namespace InputOutput.Controllers
             return Json(serializer.Serialize(model), JsonRequestBehavior.AllowGet);
         }
 
-        public bool IsLocked()
+        private bool IsLocked()
         {
             string Login = Session["Uid"].ToString();
             string conn = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;

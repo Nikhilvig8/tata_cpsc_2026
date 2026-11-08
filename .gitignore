@@ -13,3 +13,11 @@ CPSC(Tata)/obj/
 # actually looked at Git Changes with a fully-restored packages/ present. These are restorable
 # from packages.config, not source - they don't belong in git.
 /packages/
+
+# Checkmarx Secret Detection: real credentials are kept OUT of source control.
+# Templates (committed): CPSC(Tata)/connectionStrings.config.example, CPSC(Tata)/secrets.config.example
+CPSC(Tata)/connectionStrings.config
+CPSC(Tata)/secrets.config
+
+# Temporary Excel uploads (UploadGuard.SaveExcelToTemp) - deleted after processing.
+CPSC(Tata)/App_Data/Uploads/

@@ -54,7 +54,7 @@ namespace InputOutput.Controllers
             DataTable dt = new DataTable("Report");
             string CS1 = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
             string _sql2 = string.Empty;
-            _sql2 = Proc;
+            _sql2 = SqlGuard.ResolveProcedure(Proc);
             using (SqlConnection cn = new SqlConnection(CS1))
             {
 
@@ -86,7 +86,7 @@ namespace InputOutput.Controllers
                 wb.Worksheets.Add(dt);
               
                 string path = AppDomain.CurrentDomain.BaseDirectory + "Reports";
-                filename = path + "\\" + filename;
+                filename = path + "\\" + SqlGuard.SafeReportFileName(filename);
                 wb.SaveAs(filename);
 
             }
@@ -103,6 +103,7 @@ namespace InputOutput.Controllers
         public ActionResult Download(string file)
         {
             //get the temp folder and file path in server
+            file = SqlGuard.SafeReportFileName(file); // Path traversal: only a bare, sanitized file name inside ~/Reports
             string fullPath = Path.Combine(Server.MapPath("~/Reports"), file);
 
             //return the file for download, this is an Excel 
@@ -112,6 +113,7 @@ namespace InputOutput.Controllers
 
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult BulkUploadTargetIndex(UploadFile UploadFile)
         {
             //DataTable dt = new DataTable();
@@ -181,7 +183,7 @@ namespace InputOutput.Controllers
             return View();
         }
 
-        public DataTable ExceltoDatatable(IXLWorksheet _WorkSheet)
+        private DataTable ExceltoDatatable(IXLWorksheet _WorkSheet)
         {
             DataTable _dt = new DataTable();
             bool firstRow = true;
@@ -215,7 +217,7 @@ namespace InputOutput.Controllers
             return _dt;
         }
 
-        public string validatedatatable(DataTable datatab)
+        private string validatedatatable(DataTable datatab)
         {
             string msg = string.Empty;
 
@@ -256,7 +258,7 @@ namespace InputOutput.Controllers
                     //test for null here
                     if (row[col] == DBNull.Value || string.IsNullOrEmpty(row[col].ToString()) || row[col].ToString() == string.Empty)
                     {
-                        msg = "Please Check Row " + i + " found Empty or Null value in Column " + col.ColumnName.ToString() + ".";
+                        msg = "Please Check Row " + i + " found Empty or Null value in Column " + HttpUtility.HtmlEncode(col.ColumnName) + ".";
 
                         return msg;
                     }
@@ -623,13 +625,13 @@ namespace InputOutput.Controllers
             return dtAll;
         }
 
-        public DataTable GetDataForValidation(string Proc, string flag)
+        private DataTable GetDataForValidation(string Proc, string flag)
         {
             //filename = filename + DateTime.Now.ToShortDateString()+".xlsx";
             DataTable dt = new DataTable();
             string CS1 = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
             string _sql2 = string.Empty;
-            _sql2 = Proc;
+            _sql2 = SqlGuard.ResolveProcedure(Proc);
             using (SqlConnection cn = new SqlConnection(CS1))
             {
 
@@ -654,13 +656,13 @@ namespace InputOutput.Controllers
             return dt;
         }
 
-        public DataTable GetSamiriddhiDataForValidation(string Proc, string flag)
+        private DataTable GetSamiriddhiDataForValidation(string Proc, string flag)
         {
             //filename = filename + DateTime.Now.ToShortDateString()+".xlsx";
             DataTable dt = new DataTable();
             string CS1 = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
             string _sql2 = string.Empty;
-            _sql2 = Proc;
+            _sql2 = SqlGuard.ResolveProcedure(Proc);
             using (SqlConnection cn = new SqlConnection(CS1))
             {
 
@@ -675,13 +677,13 @@ namespace InputOutput.Controllers
         }
 
         //final update tahe excel into DB
-        public string UpdateBulkupload(DataTable dt,string Proc)
+        private string UpdateBulkupload(DataTable dt,string Proc)
         {
             //filename = filename + DateTime.Now.ToShortDateString()+".xlsx";
             string flag = string.Empty;
             string CS1 = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
             string _sql2 = string.Empty;
-            _sql2 = Proc;
+            _sql2 = SqlGuard.ResolveProcedure(Proc);
             using (SqlConnection cn = new SqlConnection(CS1))
             {
 
@@ -716,6 +718,7 @@ namespace InputOutput.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult BulkUploadActualIndex(UploadFile UploadFile)
         {
             //DataTable dt = new DataTable();
@@ -786,6 +789,7 @@ namespace InputOutput.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult SamiriddhiBulkUpload(UploadFile UploadFile)
         {
             //DataTable dt = new DataTable();
@@ -855,7 +859,7 @@ namespace InputOutput.Controllers
             return View();
         }
 
-        public string validatedatatable_actual(DataTable datatab)
+        private string validatedatatable_actual(DataTable datatab)
         {
             string msg = string.Empty;
 
@@ -896,7 +900,7 @@ namespace InputOutput.Controllers
                     //test for null here
                     if (row[col] == DBNull.Value || string.IsNullOrEmpty(row[col].ToString()) || row[col].ToString() == string.Empty)
                     {
-                        msg = "Please Check Row " + i + " found Empty or Null value in Column " + col.ColumnName.ToString() + ".";
+                        msg = "Please Check Row " + i + " found Empty or Null value in Column " + HttpUtility.HtmlEncode(col.ColumnName) + ".";
 
                         return msg;
                     }
@@ -933,7 +937,7 @@ namespace InputOutput.Controllers
             return msg;
         }
 
-        public string validatedatatable_Samiriddhi(DataTable datatab)
+        private string validatedatatable_Samiriddhi(DataTable datatab)
         {
             string msg = string.Empty;
 
@@ -974,7 +978,7 @@ namespace InputOutput.Controllers
                     //test for null here
                     if (row[col] == DBNull.Value || string.IsNullOrEmpty(row[col].ToString()) || row[col].ToString() == string.Empty)
                     {
-                        msg = "Please Check Row " + i + " found Empty or Null value in Column " + col.ColumnName.ToString() + ".";
+                        msg = "Please Check Row " + i + " found Empty or Null value in Column " + HttpUtility.HtmlEncode(col.ColumnName) + ".";
 
                         return msg;
                     }

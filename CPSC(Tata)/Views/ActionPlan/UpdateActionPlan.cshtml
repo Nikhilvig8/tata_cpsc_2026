@@ -609,8 +609,9 @@
             $("#wait").css("display", "block");
             $.ajax
                 ({
-                    url: "/ActionPlan/PostUpdateActionPlan?json=" + json + "",
-                    type: "Get",
+                    url: "/ActionPlan/PostUpdateActionPlan",
+                    type: "POST",
+                    data: { json: json },
                     success: function (drr) {
                         alert('Record has been update successfully.');
                         var url = "/ActionPlan/UpdateActionPlan";

@@ -114,7 +114,7 @@ namespace InputOutput.Controllers
             return Json(sites, JsonRequestBehavior.AllowGet);
         }
 
-        public bool Insertintoheader(string tod,string date,string venue,string dealer_code,string tml_team,string dealer_team,string key)
+        private bool Insertintoheader(string tod,string date,string venue,string dealer_code,string tml_team,string dealer_team,string key)
         {
             cmdObj = new SqlCommand();
             cmdObj.CommandText = "Insert_MoM_Header";
@@ -155,7 +155,7 @@ namespace InputOutput.Controllers
         
         }
 
-        public bool InsertintoData(string sno, string topic, string target, string resp, string plan, string tfc,string cs,string key)
+        private bool InsertintoData(string sno, string topic, string target, string resp, string plan, string tfc,string cs,string key)
         {
             cmdObj = new SqlCommand();
             cmdObj.CommandText = "Insert_MoM_Data";
@@ -195,7 +195,7 @@ namespace InputOutput.Controllers
 
         }
 
-        public bool Modifyintoheader(string tod, string date, string venue, string dealer_code, string tml_team, string dealer_team, string key)
+        private bool Modifyintoheader(string tod, string date, string venue, string dealer_code, string tml_team, string dealer_team, string key)
         {
             cmdObj = new SqlCommand();
             cmdObj.CommandText = "Modify_MoM_Header";
@@ -236,7 +236,7 @@ namespace InputOutput.Controllers
 
         }
 
-        public bool ModifyintoData(string sno, string topic, string target, string resp, string plan, string tfc, string cs, string key)
+        private bool ModifyintoData(string sno, string topic, string target, string resp, string plan, string tfc, string cs, string key)
         {
             cmdObj = new SqlCommand();
             cmdObj.CommandText = "Modify_MoM_Data";
@@ -306,7 +306,7 @@ namespace InputOutput.Controllers
             return Json(sites, JsonRequestBehavior.AllowGet);
         }
 
-        public string DataTableToJSONWithJavaScriptSerializer(DataTable table)
+        private string DataTableToJSONWithJavaScriptSerializer(DataTable table)
         {
             JavaScriptSerializer jsSerializer = new JavaScriptSerializer();
             List<Dictionary<string, object>> parentRow = new List<Dictionary<string, object>>();

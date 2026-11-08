@@ -26,12 +26,12 @@ namespace InputOutput
             bundles.Add(new ScriptBundle("~/bundles/modernizr").Include(
                         "~/Scripts/modernizr-*"));
 
+            // Bootstrap 3 (Scripts/bootstrap.js) was removed - Checkmarx SCA CVE-2024-6485 / CVE-2025-1647.
+            // The app uses Bootstrap 5 from assets/global/plugins/bootstrap (see bs3-compat.css/js).
             bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
-                      "~/Scripts/bootstrap.js",
                       "~/Scripts/respond.js"));
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
-                      "~/Content/bootstrap.css",
                       "~/Content/site.css"));
         }
     }

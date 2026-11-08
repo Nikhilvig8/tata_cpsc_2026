@@ -688,7 +688,19 @@ return View();
             }
         }
 
-        public ActionResult Notification(string Uid,string fromwhom,string Flag,string dealer,string month,string LOB, string o,string dealer_name, string LOB_name,string o_name,string monthdesc ,FormCollection coll)
+        // Checkmarx "CSRF": this action used to serve both the GET display link (from
+        // ShowAllNotification) and the POST approval form, so no anti-forgery check was possible.
+        // GET now only ever reaches the read-only NotificationView; writes require POST + token.
+        [HttpGet]
+        public ActionResult Notification(string Uid,string fromwhom,string Flag,string dealer,string month,string LOB, string o,string dealer_name, string LOB_name,string o_name,string monthdesc)
+        {
+            return NotificationView(Uid, fromwhom, Flag, dealer, month, LOB, o, dealer_name, LOB_name, o_name, monthdesc);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [ActionName("Notification")]
+        public ActionResult NotificationSubmit(string Uid,string fromwhom,string Flag,string dealer,string month,string LOB, string o,string dealer_name, string LOB_name,string o_name,string monthdesc ,FormCollection coll)
         {
 
             string s;
@@ -790,7 +802,14 @@ return View();
                 }
                 return RedirectToAction("ShowAllNotification", "KPI", new { Uid = Session["Uid"].ToString() });
             }
-            else
+            return NotificationView(Uid, fromwhom, Flag, dealer, month, LOB, o, dealer_name, LOB_name, o_name, monthdesc);
+        }
+
+        private ActionResult NotificationView(string Uid,string fromwhom,string Flag,string dealer,string month,string LOB, string o,string dealer_name, string LOB_name,string o_name,string monthdesc)
+        {
+            Transaction t1 = new Transaction();
+            TransactionViewModel tvm = new TransactionViewModel();
+            DataTable dt;
             {
                 using (var cn = new SqlConnection(cs))
                 {
@@ -881,6 +900,8 @@ return View();
 
 
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult AllNotificationSubmission(FormCollection coll)
         {
 
@@ -953,7 +974,18 @@ return View();
         }
 
         //[Execution_Logs]
-        public ActionResult BULKNotification(string Uid, string fromwhom, string Flag, string dealer, string month, string LOB, string o, string dealer_name, string LOB_name, string o_name, string monthdesc,string Notification_id,string remarks_out,string year,FormCollection coll)
+        // Checkmarx "CSRF": split exactly like Notification above - GET is display-only,
+        // approve / reject / submit require POST + anti-forgery token.
+        [HttpGet]
+        public ActionResult BULKNotification(string Uid, string fromwhom, string Flag, string dealer, string month, string LOB, string o, string dealer_name, string LOB_name, string o_name, string monthdesc,string Notification_id,string remarks_out,string year)
+        {
+            return BULKNotificationView(Uid, fromwhom, Flag, dealer, month, LOB, o, dealer_name, LOB_name, o_name, monthdesc, Notification_id, remarks_out, year);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [ActionName("BULKNotification")]
+        public ActionResult BULKNotificationSubmit(string Uid, string fromwhom, string Flag, string dealer, string month, string LOB, string o, string dealer_name, string LOB_name, string o_name, string monthdesc,string Notification_id,string remarks_out,string year,FormCollection coll)
         {
 
             string s;
@@ -1270,7 +1302,16 @@ return View();
                 t1.updateActualBulk_UserId(t1.Month, t1.Dealer,t1.year);
                 return RedirectToAction("ShowAllNotification", "KPI", new { Uid = Session["Uid"].ToString() });
             }
-            else
+            return BULKNotificationView(Uid, fromwhom, Flag, dealer, month, LOB, o, dealer_name, LOB_name, o_name, monthdesc, Notification_id, remarks_out, year);
+        }
+
+        private ActionResult BULKNotificationView(string Uid, string fromwhom, string Flag, string dealer, string month, string LOB, string o, string dealer_name, string LOB_name, string o_name, string monthdesc,string Notification_id,string remarks_out,string year)
+        {
+            string notification_id = "NULL";
+            string remarks = string.Empty;
+            Transaction t1 = new Transaction();
+            TransactionViewModel tvm = new TransactionViewModel();
+            DataTable dt;
             {
                 using (var cn = new SqlConnection(cs))
                 {

@@ -28,7 +28,7 @@ namespace InputOutput.Controllers
 {
     public class BulkExcelUploadController : Controller
     {
-        public static string GetFinancialYear(DateTime curDate)
+        private static string GetFinancialYear(DateTime curDate)
         {
             int CurrentYear = curDate.Year;
             int PreviousYear = (curDate.Year - 1);
@@ -47,7 +47,7 @@ namespace InputOutput.Controllers
             }
             return FinYear;
         }
-        public static string GetFinancialStartYear(DateTime curDate)
+        private static string GetFinancialStartYear(DateTime curDate)
         {
             int CurrentYear = curDate.Year;
             int PreviousYear = (curDate.Year - 1);
@@ -66,7 +66,7 @@ namespace InputOutput.Controllers
             }
             return FinYear;
         }
-        public static string GetFinancialEndYear(DateTime curDate)
+        private static string GetFinancialEndYear(DateTime curDate)
         {
             int CurrentYear = curDate.Year;
             int PreviousYear = (curDate.Year - 1);
@@ -610,20 +610,27 @@ namespace InputOutput.Controllers
 
         //}
 
-        private readonly string storageDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult Index(HttpPostedFileBase file)
         {
             if (Session["Type"] != null && file != null && file.ContentLength > 0)
             {
                 string filename = file.FileName;
-                string filePath = Path.Combine(storageDirectory, Path.GetFileName(filename));
+                // Checkmarx "Dangerous_File_Extension": the upload used to be saved under its
+                // client-supplied name on the server's Desktop. UploadGuard only accepts a real
+                // .xlsx/.xls (extension + file signature + size cap) and stores it under a random
+                // name in App_Data (never served by IIS); it is deleted again in the finally below.
+                string filePath = UploadGuard.SaveExcelToTemp(file);
+                if (filePath == null)
+                {
+                    ModelState.AddModelError(string.Empty, "Only .xlsx or .xls Excel files can be uploaded.");
+                    return View();
+                }
 
                 try
                 {
-                    // Save the uploaded file to the specified path
-                    file.SaveAs(filePath);
 
                     // Now the file is saved, you can proceed with your logic
                     DataTable dt_Orignal = new DataTable();
@@ -685,7 +692,9 @@ namespace InputOutput.Controllers
 
                     if (err_msg == "True")
                     {
-                        err_msg = UpdateBulkupload(dt_Orignal, $"SpInsert{filename.Replace(" ", string.Empty)}", filename);
+                        // Checkmarx "SQL_Injection": the procedure name is derived from the upload's
+                        // file name, so it is resolved against the fixed allow-list in SqlGuard.
+                        err_msg = UpdateBulkupload(dt_Orignal, SqlGuard.ResolveProcedure("SpInsert" + filename.Replace(" ", string.Empty)), filename);
                         if (err_msg != "succ")
                         {
                             Session["result"] = err_msg;
@@ -706,6 +715,10 @@ namespace InputOutput.Controllers
                     ModelState.AddModelError(string.Empty, $"An error occurred: {ex.Message}");
                     return View();
                 }
+                finally
+                {
+                    try { System.IO.File.Delete(filePath); } catch { /* best effort temp cleanup */ }
+                }
 
                 return View();
             }
@@ -716,7 +729,7 @@ namespace InputOutput.Controllers
             }
         }
 
-        public DataTable ExceltoDatatable(string csvFilePath)
+        private DataTable ExceltoDatatable(string csvFilePath)
         {
             DataTable csvData = new DataTable();
             using (StreamReader sr = new StreamReader(csvFilePath))
@@ -740,7 +753,7 @@ namespace InputOutput.Controllers
             return csvData;
         }
 
-        public string validatedatatable(DataTable datatab, string filename)
+        private string validatedatatable(DataTable datatab, string filename)
         {
             if (filename.Contains("Activities Done And Open"))
             {
@@ -783,7 +796,7 @@ namespace InputOutput.Controllers
                         //test for null here
                         if (row[col] == DBNull.Value || string.IsNullOrEmpty(row[col].ToString()) || row[col].ToString() == string.Empty)
                         {
-                            msg = "Please Check Row " + i + " found Empty or Null value in Column " + col.ColumnName.ToString() + ".";
+                            msg = "Please Check Row " + i + " found Empty or Null value in Column " + HttpUtility.HtmlEncode(col.ColumnName) + ".";
 
                             return msg;
                         }
@@ -846,7 +859,7 @@ namespace InputOutput.Controllers
                         //test for null here
                         if (row[col] == DBNull.Value || string.IsNullOrEmpty(row[col].ToString()) || row[col].ToString() == string.Empty)
                         {
-                            msg = "Please Check Row " + i + " found Empty or Null value in Column " + col.ColumnName.ToString() + ".";
+                            msg = "Please Check Row " + i + " found Empty or Null value in Column " + HttpUtility.HtmlEncode(col.ColumnName) + ".";
 
                             return msg;
                         }
@@ -890,7 +903,7 @@ namespace InputOutput.Controllers
                         //test for null here
                         if (row[col] == DBNull.Value || string.IsNullOrEmpty(row[col].ToString()) || row[col].ToString() == string.Empty)
                         {
-                            msg = "Please Check Row " + i + " found Empty or Null value in Column " + col.ColumnName.ToString() + ".";
+                            msg = "Please Check Row " + i + " found Empty or Null value in Column " + HttpUtility.HtmlEncode(col.ColumnName) + ".";
 
                             return msg;
                         }
@@ -940,7 +953,7 @@ namespace InputOutput.Controllers
                         //test for null here
                         if (row[col] == DBNull.Value || string.IsNullOrEmpty(row[col].ToString()) || row[col].ToString() == string.Empty)
                         {
-                            msg = "Please Check Row " + i + " found Empty or Null value in Column " + col.ColumnName.ToString() + ".";
+                            msg = "Please Check Row " + i + " found Empty or Null value in Column " + HttpUtility.HtmlEncode(col.ColumnName) + ".";
 
                             return msg;
                         }
@@ -990,7 +1003,7 @@ namespace InputOutput.Controllers
                         //test for null here
                         if (row[col] == DBNull.Value || string.IsNullOrEmpty(row[col].ToString()) || row[col].ToString() == string.Empty)
                         {
-                            msg = "Please Check Row " + i + " found Empty or Null value in Column " + col.ColumnName.ToString() + ".";
+                            msg = "Please Check Row " + i + " found Empty or Null value in Column " + HttpUtility.HtmlEncode(col.ColumnName) + ".";
 
                             return msg;
                         }
@@ -1034,7 +1047,7 @@ namespace InputOutput.Controllers
                         //test for null here
                         if (row[col] == DBNull.Value || string.IsNullOrEmpty(row[col].ToString()) || row[col].ToString() == string.Empty)
                         {
-                            msg = "Please Check Row " + i + " found Empty or Null value in Column " + col.ColumnName.ToString() + ".";
+                            msg = "Please Check Row " + i + " found Empty or Null value in Column " + HttpUtility.HtmlEncode(col.ColumnName) + ".";
 
                             return msg;
                         }
@@ -1085,7 +1098,7 @@ namespace InputOutput.Controllers
                         //test for null here
                         if (row[col] == DBNull.Value || string.IsNullOrEmpty(row[col].ToString()) || row[col].ToString() == string.Empty)
                         {
-                            msg = "Please Check Row " + i + " found Empty or Null value in Column " + col.ColumnName.ToString() + ".";
+                            msg = "Please Check Row " + i + " found Empty or Null value in Column " + HttpUtility.HtmlEncode(col.ColumnName) + ".";
 
                             return msg;
                         }
@@ -1136,7 +1149,7 @@ namespace InputOutput.Controllers
                         //test for null here
                         if (row[2] == DBNull.Value || string.IsNullOrEmpty(row[2].ToString()) || row[2].ToString() == string.Empty)
                         {
-                            msg = "Please Check Row " + i + " found Empty or Null value in Column " + col.ColumnName.ToString() + ".";
+                            msg = "Please Check Row " + i + " found Empty or Null value in Column " + HttpUtility.HtmlEncode(col.ColumnName) + ".";
 
                             return msg;
                         }
@@ -1180,7 +1193,7 @@ namespace InputOutput.Controllers
                         //test for null here
                         if (row[0] == DBNull.Value || string.IsNullOrEmpty(row[0].ToString()) || row[0].ToString() == string.Empty)
                         {
-                            msg = "Please Check Row " + i + " found Empty or Null value in Column " + col.ColumnName.ToString() + ".";
+                            msg = "Please Check Row " + i + " found Empty or Null value in Column " + HttpUtility.HtmlEncode(col.ColumnName) + ".";
 
                             return msg;
                         }
@@ -1218,7 +1231,7 @@ namespace InputOutput.Controllers
                         //test for null here
                         if (row[0] == DBNull.Value || string.IsNullOrEmpty(row[0].ToString()) || row[0].ToString() == string.Empty)
                         {
-                            msg = "Please Check Row " + i + " found Empty or Null value in Column " + col.ColumnName.ToString() + ".";
+                            msg = "Please Check Row " + i + " found Empty or Null value in Column " + HttpUtility.HtmlEncode(col.ColumnName) + ".";
 
                             return msg;
                         }
@@ -1256,7 +1269,7 @@ namespace InputOutput.Controllers
                         //test for null here
                         if (row[2] == DBNull.Value || string.IsNullOrEmpty(row[2].ToString()) || row[2].ToString() == string.Empty)
                         {
-                            msg = "Please Check Row " + i + " found Empty or Null value in Column " + col.ColumnName.ToString() + ".";
+                            msg = "Please Check Row " + i + " found Empty or Null value in Column " + HttpUtility.HtmlEncode(col.ColumnName) + ".";
 
                             return msg;
                         }
@@ -1301,7 +1314,7 @@ namespace InputOutput.Controllers
             //            //test for null here
             //            if (row[col] == DBNull.Value || string.IsNullOrEmpty(row[col].ToString()) || row[col].ToString() == string.Empty)
             //            {
-            //                msg = "Please Check Row " + i + " found Empty or Null value in Column " + col.ColumnName.ToString() + ".";
+            //                msg = "Please Check Row " + i + " found Empty or Null value in Column " + HttpUtility.HtmlEncode(col.ColumnName) + ".";
 
             //                return msg;
             //            }
@@ -1315,7 +1328,7 @@ namespace InputOutput.Controllers
             //}
         }
 
-        public string UpdateBulkupload(DataTable dt, string Proc, string filename)
+        private string UpdateBulkupload(DataTable dt, string Proc, string filename)
         {
             if (filename == "Activities Done And Open")
             {
@@ -1323,7 +1336,7 @@ namespace InputOutput.Controllers
                 string flag = string.Empty;
                 string CS1 = ConfigurationManager.ConnectionStrings["constrOLAP"].ConnectionString;
                 string _sql2 = string.Empty;
-                _sql2 = Proc;
+                _sql2 = SqlGuard.ResolveProcedure(Proc);
                 using (SqlConnection cn = new SqlConnection(CS1))
                 {
                     try
@@ -1368,7 +1381,7 @@ namespace InputOutput.Controllers
                 string flag = string.Empty;
                 string CS1 = ConfigurationManager.ConnectionStrings["constrOLAP"].ConnectionString;
                 string _sql2 = string.Empty;
-                _sql2 = Proc;
+                _sql2 = SqlGuard.ResolveProcedure(Proc);
                 using (SqlConnection cn = new SqlConnection(CS1))
                 {
                     try
@@ -1413,7 +1426,7 @@ namespace InputOutput.Controllers
                 string flag = string.Empty;
                 string CS1 = ConfigurationManager.ConnectionStrings["constrOLAP"].ConnectionString;
                 string _sql2 = string.Empty;
-                _sql2 = Proc;
+                _sql2 = SqlGuard.ResolveProcedure(Proc);
                 using (SqlConnection cn = new SqlConnection(CS1))
                 {
                     try
@@ -1458,7 +1471,7 @@ namespace InputOutput.Controllers
                 string flag = string.Empty;
                 string CS1 = ConfigurationManager.ConnectionStrings["constrOLAP"].ConnectionString;
                 string _sql2 = string.Empty;
-                _sql2 = Proc;
+                _sql2 = SqlGuard.ResolveProcedure(Proc);
                 using (SqlConnection cn = new SqlConnection(CS1))
                 {
                     try
@@ -1503,7 +1516,7 @@ namespace InputOutput.Controllers
                 string flag = string.Empty;
                 string CS1 = ConfigurationManager.ConnectionStrings["constrOLAP"].ConnectionString;
                 string _sql2 = string.Empty;
-                _sql2 = Proc;
+                _sql2 = SqlGuard.ResolveProcedure(Proc);
                 using (SqlConnection cn = new SqlConnection(CS1))
                 {
                     try
@@ -1548,7 +1561,7 @@ namespace InputOutput.Controllers
                 string flag = string.Empty;
                 string CS1 = ConfigurationManager.ConnectionStrings["constrOLAP"].ConnectionString;
                 string _sql2 = string.Empty;
-                _sql2 = Proc;
+                _sql2 = SqlGuard.ResolveProcedure(Proc);
                 using (SqlConnection cn = new SqlConnection(CS1))
                 {
                     try
@@ -1593,7 +1606,7 @@ namespace InputOutput.Controllers
                 string flag = string.Empty;
                 string CS1 = ConfigurationManager.ConnectionStrings["constrOLAP"].ConnectionString;
                 string _sql2 = string.Empty;
-                _sql2 = Proc;
+                _sql2 = SqlGuard.ResolveProcedure(Proc);
                 using (SqlConnection cn = new SqlConnection(CS1))
                 {
                     try
@@ -1638,7 +1651,7 @@ namespace InputOutput.Controllers
                 string flag = string.Empty;
                 string CS1 = ConfigurationManager.ConnectionStrings["constrOLAP"].ConnectionString;
                 string _sql2 = string.Empty;
-                _sql2 = Proc;
+                _sql2 = SqlGuard.ResolveProcedure(Proc);
                 using (SqlConnection cn = new SqlConnection(CS1))
                 {
                     try
@@ -1683,7 +1696,7 @@ namespace InputOutput.Controllers
                 string flag = string.Empty;
                 string CS1 = ConfigurationManager.ConnectionStrings["constrOLAP"].ConnectionString;
                 string _sql2 = string.Empty;
-                _sql2 = Proc;
+                _sql2 = SqlGuard.ResolveProcedure(Proc);
                 using (SqlConnection cn = new SqlConnection(CS1))
                 {
                     try
@@ -1728,7 +1741,7 @@ namespace InputOutput.Controllers
                 string flag = string.Empty;
                 string CS1 = ConfigurationManager.ConnectionStrings["constrOLAP"].ConnectionString;
                 string _sql2 = string.Empty;
-                _sql2 = Proc;
+                _sql2 = SqlGuard.ResolveProcedure(Proc);
                 using (SqlConnection cn = new SqlConnection(CS1))
                 {
                     try
@@ -1773,7 +1786,7 @@ namespace InputOutput.Controllers
                 string flag = string.Empty;
                 string CS1 = ConfigurationManager.ConnectionStrings["constrOLAP"].ConnectionString;
                 string _sql2 = string.Empty;
-                _sql2 = Proc;
+                _sql2 = SqlGuard.ResolveProcedure(Proc);
                 using (SqlConnection cn = new SqlConnection(CS1))
                 {
                     try
@@ -1857,6 +1870,7 @@ namespace InputOutput.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
 
         public ActionResult Importexcel1()
         {
@@ -1877,6 +1891,12 @@ namespace InputOutput.Controllers
             }
             DateTime now = DateTime.Today;
             string filename = Request.Form["filename"].ToString();
+            // Path traversal: "filename" becomes part of the on-disk path under App_Data below - only
+            // the plain category names the upload page sends (letters, digits, "_" and spaces) are accepted.
+            if (!System.Text.RegularExpressions.Regex.IsMatch(filename, @"^[A-Za-z0-9_ ]{1,80}$"))
+            {
+                return this.Content("Invalid file category");
+            }
             string CurrentMonth = now.ToString("MMM");
             string CurrnetYear = now.ToString("yyyy");
             string PreviousMonth = now.AddMonths(-1).ToString("MMM");
@@ -5644,7 +5664,7 @@ namespace InputOutput.Controllers
         //    return View();
         //}
 
-        public bool IsNumeric(string value)
+        private bool IsNumeric(string value)
         {
             double retNum;
 
@@ -5716,6 +5736,9 @@ namespace InputOutput.Controllers
             }
             return cValue;
         }
+        // Must stay public: Hangfire's BackgroundJob.Enqueue only runs public methods. [NonAction] keeps
+        // MVC from exposing it as a URL-reachable controller action.
+        [NonAction]
         public void excelexporttosql(string filename, string CurrentMonth, string CurrnetYear, string Timespan, string toemail)
         {
 
@@ -6339,7 +6362,7 @@ namespace InputOutput.Controllers
             return dt;
         }
 
-        public string Filter1(string str, List<string> charsToRemove)
+        private string Filter1(string str, List<string> charsToRemove)
         {
             foreach (string c in charsToRemove)
             {
@@ -6352,7 +6375,7 @@ namespace InputOutput.Controllers
 
 
 
-        public void uploadsendmail(string tomail, string filename, DateTime current)
+        private void uploadsendmail(string tomail, string filename, DateTime current)
         {
             try
             {
@@ -6365,7 +6388,9 @@ namespace InputOutput.Controllers
                     MailMessage mail = new MailMessage();
 
                     string Sender = "apikey";
-                    string Password = "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";
+                    // Checkmarx Secret Detection: the SendGrid API key is read from appSettings (untracked
+                    // secrets.config) instead of being compiled in. ROTATE the old key - it is in git history.
+                    string Password = System.Configuration.ConfigurationManager.AppSettings["SendGridApiKey"];
                     string EmailFrom = "ibcpsc@tatamotors.com";
                     client.UseDefaultCredentials = false;
                     client.Credentials = new System.Net.NetworkCredential(Sender, Password);
