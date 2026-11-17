@@ -166,6 +166,11 @@ select.form-control[multiple], select.form-control[size] { appearance: none; }
 .navbar-fixed-top { top: 0; }
 .navbar-fixed-bottom { bottom: 0; }
 .page-header.navbar { display: block; padding: 0; flex-wrap: nowrap; }
+/* Every legacy (BS3) navbar was a block whose children float; BS5's flex/space-between navbar
+   ignores the floats and spreads them across the bar (TDashboard / Dealer_Home header icons).
+   BS5-native navbars always carry a navbar-expand* class, so they are left alone. */
+.navbar:not(.navbar-expand):not([class*="navbar-expand-"]) { display: block; padding: 0; flex-wrap: nowrap; }
+.navbar:not(.navbar-expand):not([class*="navbar-expand-"])::after { content: ""; display: table; clear: both; }
 .page-header.navbar .navbar-nav { flex-direction: row; }
 .navbar-nav > li { float: left; }
 .navbar-header { float: left; }

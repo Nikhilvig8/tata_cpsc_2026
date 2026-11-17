@@ -17,7 +17,7 @@
     <meta content="" name="author" />
     <!-- BEGIN GLOBAL MANDATORY STYLES -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700&subset=all" rel="stylesheet" type="text/css" />
-    <link href="../assets/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <link href="../assets/global/plugins/font-awesome/css/font-awesome.min.css?v=@System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/assets/global/plugins/font-awesome/css/font-awesome.min.css")).Ticks" rel="stylesheet" type="text/css" />
     <link href="../assets/global/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css" />
     <link href="../assets/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
     <link href="../assets/global/css/bs3-compat.css?v=@System.IO.File.GetLastWriteTimeUtc(Server.MapPath("~/assets/global/css/bs3-compat.css")).Ticks" rel="stylesheet" type="text/css" />
@@ -50,7 +50,6 @@
    }
    function preventBack(){window.history.forward();}
     setTimeout("preventBack()", 0);
-    window.onunload = function () { null };
     history.pushState(null, null, document.URL);
     window.addEventListener('popstate', function () {
         history.pushState(null, null, document.URL);
