@@ -101,13 +101,40 @@
         if (p && p.classList) p.classList.remove('open');
     });
 
-    // jQuery plugin shims (Bootstrap 5 registers $.fn.modal/tooltip/... when jQuery is present).
+    // jQuery plugin shims.
+    //
+    // Bootstrap 5 only attaches $.fn.tooltip/modal/... from its own DOMContentLoaded listener, which
+    // is registered AFTER jQuery's (jQuery loads first). jQuery therefore runs the page's ready
+    // handlers first: App.init() called $(..).tooltip() before it existed, threw, and the ready
+    // handlers queued after it - including Layout.init(), which wires the sidebar menu - never ran.
+    // So the plugins are registered here synchronously, as soon as this file loads.
+    var PLUGINS = {
+        tooltip: 'Tooltip', popover: 'Popover', modal: 'Modal', collapse: 'Collapse',
+        dropdown: 'Dropdown', tab: 'Tab', alert: 'Alert', button: 'Button',
+        carousel: 'Carousel', scrollspy: 'ScrollSpy', toast: 'Toast', offcanvas: 'Offcanvas'
+    };
+    var WRAPPED = ['tooltip', 'popover', 'modal', 'collapse', 'dropdown', 'tab', 'alert', 'button'];
+
+    function registerPlugins() {
+        var $ = window.jQuery, bs = window.bootstrap;
+        if (!$ || !$.fn || !bs) return;
+        Object.keys(PLUGINS).forEach(function (name) {
+            var Cls = bs[PLUGINS[name]];
+            if (typeof $.fn[name] === 'function' || !Cls || typeof Cls.jQueryInterface !== 'function') return;
+            $.fn[name] = Cls.jQueryInterface;
+            $.fn[name].Constructor = Cls;
+        });
+    }
+
+    // Wraps each plugin to accept Bootstrap 3 option names. Idempotent per function, so it can run
+    // again after Bootstrap's own DOMContentLoaded registration replaces $.fn[name].
     function patchJQuery() {
         var $ = window.jQuery;
-        if (!$ || !$.fn || $.fn.__bs3CompatPatched) return;
-        ['tooltip', 'popover', 'modal', 'collapse', 'dropdown', 'tab', 'alert', 'button'].forEach(function (name) {
+        if (!$ || !$.fn) return;
+        registerPlugins();
+        WRAPPED.forEach(function (name) {
             var original = $.fn[name];
-            if (typeof original !== 'function') return;
+            if (typeof original !== 'function' || original.__bs3CompatWrapped) return;
             var wrapped = function (option) {
                 this.each(function () { mirrorTree(this); });
                 if (option === 'destroy') option = 'dispose';
@@ -119,14 +146,15 @@
             for (var key in original) {
                 if (Object.prototype.hasOwnProperty.call(original, key)) wrapped[key] = original[key];
             }
+            wrapped.__bs3CompatWrapped = true;
             $.fn[name] = wrapped;
         });
-        $.fn.__bs3CompatPatched = true;
     }
-    // Bootstrap 5 attaches its jQuery plugins on DOMContentLoaded; patch right after that.
+
+    // Now (before any ready handler runs), and again after Bootstrap's DOMContentLoaded
+    // registration has replaced the functions with its unwrapped ones.
+    patchJQuery();
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function () { setTimeout(patchJQuery, 0); patchJQuery(); });
-    } else {
-        patchJQuery();
+        document.addEventListener('DOMContentLoaded', function () { patchJQuery(); setTimeout(patchJQuery, 0); });
     }
 })();
