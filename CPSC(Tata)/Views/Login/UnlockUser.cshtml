@@ -1,0 +1,40 @@
+@{
+    ViewBag.Title = "Unlock User";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="row">
+    <div class="col-md-6 col-sm-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption"><span class="caption-subject bold uppercase">Unlock User Login</span></div>
+            </div>
+            <div class="portlet-body">
+                <p>A user is locked for 15 minutes after 5 failed login attempts. Unlock them here instead of waiting.</p>
+
+                @if (!string.IsNullOrEmpty(ViewBag.Message as string))
+                {
+                    <div class="alert alert-info">@ViewBag.Message</div>
+                }
+
+                @using (Html.BeginForm("UnlockUser", "Login", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    <div class="form-group">
+                        <label for="unlock-username">Username</label>
+                        <input id="unlock-username" name="username" type="text" class="form-control" autocomplete="off" placeholder="Login username" />
+                    </div>
+                    <button type="submit" name="action" value="user" class="btn blue">Unlock user</button>
+                }
+
+                <hr />
+
+                @using (Html.BeginForm("UnlockUser", "Login", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    <p>Clears every lockout, including office-wide (per-IP) locks.</p>
+                    <button type="submit" name="action" value="all" class="btn red">Clear all lockouts</button>
+                }
+            </div>
+        </div>
+    </div>
+</div>

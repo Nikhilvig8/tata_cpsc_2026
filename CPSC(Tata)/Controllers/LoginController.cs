@@ -287,9 +287,14 @@ namespace InputOutput.Controllers
             string uid = Session["Uid"] as string ?? string.Empty;
             string displayUserName = Session["UserName"] as string ?? string.Empty;
             string postMfaLanding = Session["PostMfaLanding"] as string ?? string.Empty;
+            // Users.IsValid also stores the current reporting-period dates; Session.Abandon() below
+            // would drop them like everything else, and ~35 views read them with .ToString()
+            // (e.g. KPI/BulkDataSheetTarget threw NullReferenceException -> HTTP 500).
+            string actualDate = Session["Actual_Date"] as string ?? string.Empty;
+            string targetDate = Session["Target_Date"] as string ?? string.Empty;
 
             string payload = string.Join(PendingLoginFieldSeparator.ToString(),
-                mode, type, uid, displayUserName, postMfaLanding, rememberMe ? "1" : "0");
+                mode, type, uid, displayUserName, postMfaLanding, rememberMe ? "1" : "0", actualDate, targetDate);
 
             // Reuses FormsAuthentication's own ticket encryption/signing (protection="All" in
             // Web.config) rather than a hand-rolled format - already proven working in this app via
@@ -320,6 +325,24 @@ namespace InputOutput.Controllers
         // session module allocates a brand-new session ID for it before any code here runs, which
         // is the actual fixation fix (an attacker-fixated pre-auth ID can never reach an
         // authenticated state).
+        // Puts Actual_Date / Target_Date back after the session rotation. Login paths that never
+        // ran the DB lookup (SSO callback, special bulk-upload login) carry empty values, so fall
+        // back to the same stored procedures Users.IsValid uses, then to today.
+        private void RestoreReportingDates(string actualDate, string targetDate)
+        {
+            var users = new Users();
+            if (string.IsNullOrEmpty(actualDate))
+            {
+                try { actualDate = users.Actual_Date(); } catch { actualDate = null; }
+            }
+            if (string.IsNullOrEmpty(targetDate))
+            {
+                try { targetDate = users.Target_Date(); } catch { targetDate = null; }
+            }
+            Session["Actual_Date"] = string.IsNullOrEmpty(actualDate) ? DateTime.Today.ToString() : actualDate;
+            Session["Target_Date"] = string.IsNullOrEmpty(targetDate) ? DateTime.Today.ToString() : targetDate;
+        }
+
         public async Task<ActionResult> CompleteLogin()
         {
             HttpCookie pendingCookie = Request.Cookies[PendingLoginCookieName];
@@ -360,6 +383,7 @@ namespace InputOutput.Controllers
             Session["Type"] = type;
             Session["Uid"] = uid;
             Session["UserName"] = displayUserName;
+            RestoreReportingDates(fields.Length > 6 ? fields[6] : string.Empty, fields.Length > 7 ? fields[7] : string.Empty);
             if (!string.IsNullOrEmpty(postMfaLanding))
             {
                 Session["PostMfaLanding"] = postMfaLanding;
@@ -828,6 +852,49 @@ namespace InputOutput.Controllers
                 System.Diagnostics.Trace.TraceWarning("Profile image upload failed: " + ex.GetType().Name);
             }
         }
+        // Admin screen to lift login lockouts (LoginThrottle) without recycling the app pool.
+        private bool IsLockoutAdmin()
+        {
+            string type = Session["Type"] as string;
+            return type == "SuperAdmin" || type == "Admin";
+        }
+
+        [HttpGet]
+        public ActionResult UnlockUser()
+        {
+            if (!IsLockoutAdmin()) return RedirectToAction("Login", "Login");
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult UnlockUser(FormCollection collection)
+        {
+            if (!IsLockoutAdmin()) return RedirectToAction("Login", "Login");
+
+            if (collection.Get("action") == "all")
+            {
+                int removed = LoginThrottle.ClearAll();
+                ViewBag.Message = "All login lockouts cleared (" + removed + " active lock(s) removed).";
+            }
+            else
+            {
+                string username = (collection.Get("username") ?? string.Empty).Trim();
+                if (username.Length == 0)
+                {
+                    ViewBag.Message = "Please enter a username.";
+                }
+                else
+                {
+                    bool wasLocked = LoginThrottle.UnlockUser(username);
+                    ViewBag.Message = wasLocked
+                        ? "User '" + username + "' has been unlocked."
+                        : "User '" + username + "' was not locked; failed-attempt count reset.";
+                }
+            }
+            return View();
+        }
+
         public ActionResult CreateUser()
         {
             return View();

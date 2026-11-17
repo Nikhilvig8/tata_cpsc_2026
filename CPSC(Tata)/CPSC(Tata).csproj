@@ -3169,6 +3169,7 @@
     <Content Include="Views\Login\Login.cshtml" />
     <Content Include="Views\Shared\_LayoutAdmin.cshtml" />
     <Content Include="Views\Login\CreateUser.cshtml" />
+    <Content Include="Views\Login\UnlockUser.cshtml" />
     <Content Include="Views\KPI\AMTarget.cshtml" />
     <Content Include="Views\KPI\AMActual.cshtml" />
     <Content Include="Views\KPI\AMIndex.cshtml" />

@@ -573,6 +573,15 @@ else
         </a>
     </li>
 }
+                        @if (type1 == "SuperAdmin" || type1 == "Admin")
+                        {
+                            <li class="nav-item  ">
+                                <a href="@Url.Action("UnlockUser", "Login")" class="nav-link nav-toggle">
+                                    <i class="icon-lock"></i>
+                                    <span class="title">Unlock User</span>
+                                </a>
+                            </li>
+                        }
                         @{ string tt = string.Empty;
                             if (type1 == "Admin")
                             {
