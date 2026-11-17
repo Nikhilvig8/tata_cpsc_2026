@@ -1,0 +1,14 @@
+# OpenSSF Scorecard "Dependency-Update-Tool": Dependabot opens PRs for outdated or vulnerable
+# NuGet packages (packages.config) and, once any exist, GitHub Actions workflows.
+version: 2
+updates:
+  - package-ecosystem: "nuget"
+    directory: "/CPSC(Tata)"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"

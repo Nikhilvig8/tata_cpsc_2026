@@ -33,3 +33,27 @@ The same changes were applied to both repositories (CPSC and TASS).
 
 ## Must be tested before release
 The UI after the Bootstrap 5 change: menus/dropdowns, modals, tabs, tooltips/popovers, forms and grids on every page. Also: bulk uploads, report Excel/PDF export, notification approval, ActionPlan insert/update, and DataFilling.
+
+## Follow-up after the 2026-11-13 rescan
+SCA and Secret Detection: 0 findings. Remaining: 2 SAST, 10 RPH (repository posture / OpenSSF Scorecard).
+
+### SAST: Use_Of_Hardcoded_Password (LoginController)
+The special logins no longer compare against string literals. They read `secrets.config` through `App_Code/ConfiguredLogin.cs`, using a constant-time comparison. A missing key turns that login off.
+- `SpecialLoginUser`, `SpecialLoginPassword` (bulk-upload login), `MasterLoginPassword`.
+
+**Deploy:** add these keys to `secrets.config` on each server, or the logins will stop working. **Rotate them:** the old values are in git history. These are backdoors, so consider removing them altogether.
+
+### Bootstrap 5 / jQuery 3 regressions (sidebar not working, layout broken)
+- `Scripts/jquery-migrate-3.5.2.min.js` now loads after each jQuery include in `_Layout` and `_LayoutAdmin`. Metronic `app.js`/`layout.js` call `.size()`, which jQuery 3 removed, and the resulting error stopped the sidebar from starting.
+- `bs3-compat.css`: the unscoped `.col-xs-*` widths loaded after Bootstrap and overrode `.col-sm/md/lg/xl-*` at every screen size, so every grid stacked to full width. The responsive widths are now set again after them.
+
+### RPH (repository settings; most cannot be fixed in code)
+| Check | Action |
+|---|---|
+| Security-Policy | `SECURITY.md` added. Also enable *Settings → Code security → Private vulnerability reporting*. |
+| Dependency-Update-Tool | `.github/dependabot.yml` added (NuGet + GitHub Actions). Also enable *Dependabot alerts / security updates*. |
+| Branch-Protection | *Settings → Branches → Add rule* for `main`: require a pull request, at least 1 approval, dismiss stale approvals, block force pushes and deletion, and include administrators. |
+| Code-Review | Merge changes through PRs that someone other than the author approves (the score uses recent commits). |
+| Token-Permissions, Pinned-Dependencies | The repo has no workflows. Open each finding in Checkmarx to see the file it flags. Any future workflow must set `permissions: contents: read` and pin actions by commit SHA. |
+| Maintained | Improves on its own with recent commits and issue activity (repo age ≥ 90 days). |
+| Fuzzing, CII-Best-Practices | Not applicable to this web app (OSS-Fuzz / OpenSSF badge). Mark as *Not Exploitable / Accepted risk* in Checkmarx. |

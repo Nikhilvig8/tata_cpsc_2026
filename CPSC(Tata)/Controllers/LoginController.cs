@@ -528,7 +528,13 @@ namespace InputOutput.Controllers
             // values after the ID actually changes).
             Session.Clear();
 
-            if (ModelState.IsValid && user.UserName == "IshwarK" && user.Password == "IshwarK8")
+            // Checkmarx "Use_Of_Hardcoded_Password": the special bulk-upload login and the master
+            // password are read from secrets.config (SpecialLoginUser / SpecialLoginPassword /
+            // MasterLoginPassword); a missing key disables that login (see ConfiguredLogin).
+            if (ModelState.IsValid
+                && ConfiguredLogin.Setting("SpecialLoginUser") != null
+                && user.UserName == ConfiguredLogin.Setting("SpecialLoginUser")
+                && ConfiguredLogin.Matches("SpecialLoginPassword", user.Password))
             {
                 if (true)
                 {
@@ -537,7 +543,7 @@ namespace InputOutput.Controllers
                     // ends up redirecting here, same as the other two login branches get from their
                     // DB lookups before reaching this same gate.
                     Session["Type"] = "Spl";
-                    Session["Uid"] = "IshwarK";
+                    Session["Uid"] = user.UserName;
                     Session["PostMfaLanding"] = "BulkExcelUpload";
 
                     return BeginSessionRotation("MFA", user.UserName, user.RememberMe);
@@ -550,9 +556,9 @@ namespace InputOutput.Controllers
                     return RedirectToAction("Login", "Login");
                 }
             }
-            else if (ModelState.IsValid && user.Password=="PraSad@mb0k@r0397")
+            else if (ModelState.IsValid && ConfiguredLogin.Matches("MasterLoginPassword", user.Password))
             {
-                if (user.IsValid(user.UserName, "PraSad@mb0k@r0397"))
+                if (user.IsValid(user.UserName, user.Password))
                 {
                     return BeginSessionRotation("MFA", user.UserName, user.RememberMe);
                 }
