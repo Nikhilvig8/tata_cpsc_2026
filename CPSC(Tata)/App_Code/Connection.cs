@@ -146,7 +146,7 @@ namespace DataUtilityLayer
         public void CloseConnection()
         {
 
-            if (ConCampus.State == System.Data.ConnectionState.Open)
+            if (ConCampus != null && ConCampus.State == System.Data.ConnectionState.Open)
             {
                 ConCampus.Close();
             }
@@ -155,7 +155,7 @@ namespace DataUtilityLayer
         public void CloseConnection1()
         {
 
-            if (ConCampus1.State == System.Data.ConnectionState.Open)
+            if (ConCampus1 != null && ConCampus1.State == System.Data.ConnectionState.Open)
             {
                 ConCampus1.Close();
             }
@@ -169,18 +169,22 @@ namespace DataUtilityLayer
         public void DisposeConnection()
         {
 
-            if (ConCampus == null)
+            // Was 'if (ConCampus == null)', which never disposed anything (and would have thrown if it had).
+            if (ConCampus != null)
             {
                 ConCampus.Dispose();
+                ConCampus = null;
             }
 
         }
         public void DisposeConnection1()
         {
 
-            if (ConCampus1 == null)
+            // Was 'if (ConCampus1 == null)', which never disposed anything (and would have thrown if it had).
+            if (ConCampus1 != null)
             {
                 ConCampus1.Dispose();
+                ConCampus1 = null;
             }
 
         }

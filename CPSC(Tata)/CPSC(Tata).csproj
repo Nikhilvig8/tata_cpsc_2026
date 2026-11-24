@@ -232,6 +232,7 @@
     <Compile Include="App_Code\PkceHelper.cs" />
     <Compile Include="App_Code\TotpHelper.cs" />
     <Compile Include="App_Code\ConcurrentSessionGuard.cs" />
+    <Compile Include="App_Code\DashboardTileCache.cs" />
     <Compile Include="App_Code\SingleSessionAttribute.cs" />
     <Compile Include="App_Code\PasswordHasher.cs" />
     <Compile Include="App_Code\SqlGuard.cs" />

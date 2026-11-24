@@ -40,13 +40,17 @@ namespace DataUtilityLayer
                 cmdCampus.CommandTimeout = 1000;
                 cmdCampus.CommandType = System.Data.CommandType.StoredProcedure;
                 cmdCampus.ExecuteNonQuery();
-                CloseConnection();
-                DisposeConnection();
                 return true;
             }
             catch (Exception ex )
             {
                 return false;
+            }
+            finally
+            {
+                // Always return the connection to the pool, also when the query fails or times out.
+                CloseConnection();
+                DisposeConnection();
             }
 
         }
@@ -59,14 +63,18 @@ namespace DataUtilityLayer
                 cmdCampus.CommandTimeout = 1000;
                 cmdCampus.CommandType = System.Data.CommandType.StoredProcedure;
                 cmdCampus.ExecuteNonQuery();
-                CloseConnection1();
-                DisposeConnection1();
 
                 return true;
             }
             catch (Exception)
             {
                 return false;
+            }
+            finally
+            {
+                // Always return the connection to the pool, also when the query fails or times out.
+                CloseConnection1();
+                DisposeConnection1();
             }
 
         }
@@ -79,14 +87,18 @@ namespace DataUtilityLayer
                 cmdCampus.CommandTimeout = 1000;
                 cmdCampus.CommandType = System.Data.CommandType.StoredProcedure;
                 cmdCampus.ExecuteNonQuery();
-                CloseConnection();
-                DisposeConnection();
 
                 return "Saved";
             }
             catch (Exception ex)
             {
                 return ex.ToString();
+            }
+            finally
+            {
+                // Always return the connection to the pool, also when the query fails or times out.
+                CloseConnection();
+                DisposeConnection();
             }
 
         }
@@ -106,14 +118,18 @@ namespace DataUtilityLayer
                 cmdCampus.CommandTimeout = 120;
                 cmdCampus.CommandType = System.Data.CommandType.Text;
                 cmdCampus.ExecuteNonQuery();
-                CloseConnection();
-                DisposeConnection();
 
                 return true;
             }
             catch(Exception ex )
             {
                 return false;
+            }
+            finally
+            {
+                // Always return the connection to the pool, also when the query fails or times out.
+                CloseConnection();
+                DisposeConnection();
             }
 
         }
@@ -135,13 +151,17 @@ namespace DataUtilityLayer
                 dtCampus = new DataTable();
                 daCampus.SelectCommand = cmdCampus;
                 daCampus.Fill(dtCampus);
-                CloseConnection();
-                DisposeConnection();
                 return dtCampus;
             }
             catch (Exception ex)
             {
                 return null;
+            }
+            finally
+            {
+                // Always return the connection to the pool, also when the query fails or times out.
+                CloseConnection();
+                DisposeConnection();
             }
 
         }
@@ -163,13 +183,17 @@ namespace DataUtilityLayer
                 dtCampus = new DataTable();
                 daCampus.SelectCommand = cmdCampus;
                 daCampus.Fill(dtCampus);
-                CloseConnection();
-                DisposeConnection();
                 return dtCampus;
             }
             catch (Exception)
             {
                 return null;
+            }
+            finally
+            {
+                // Always return the connection to the pool, also when the query fails or times out.
+                CloseConnection();
+                DisposeConnection();
             }
 
         }
@@ -191,13 +215,17 @@ namespace DataUtilityLayer
                 dsCampus = new DataSet();
                 daCampus.SelectCommand = cmdCampus;
                 daCampus.Fill(dsCampus);
-                CloseConnection();
-                DisposeConnection();
                 return dsCampus;
             }
             catch(Exception)
             {
                 return null;
+            }
+            finally
+            {
+                // Always return the connection to the pool, also when the query fails or times out.
+                CloseConnection();
+                DisposeConnection();
             }
 
         }
@@ -219,13 +247,17 @@ namespace DataUtilityLayer
                 dsCampus = new DataSet();
                 daCampus.SelectCommand = cmdCampus;
                 daCampus.Fill(dsCampus);
-                CloseConnection();
-                DisposeConnection();
                 return dsCampus;
             }
             catch(Exception )
             {
                 return null;
+            }
+            finally
+            {
+                // Always return the connection to the pool, also when the query fails or times out.
+                CloseConnection();
+                DisposeConnection();
             }
 
         }
@@ -245,13 +277,17 @@ namespace DataUtilityLayer
                 cmdCampus.CommandTimeout = 60;
                 cmdCampus.CommandType = System.Data.CommandType.StoredProcedure;
                 drCampus = cmdCampus.ExecuteReader();
-                CloseConnection();
-                DisposeConnection();
                 return drCampus;
             }
             catch
             {
                 return null;
+            }
+            finally
+            {
+                // Always return the connection to the pool, also when the query fails or times out.
+                CloseConnection();
+                DisposeConnection();
             }
         }
 
@@ -269,13 +305,17 @@ namespace DataUtilityLayer
                 cmdCampus.CommandTimeout = 60;
                 cmdCampus.CommandType = System.Data.CommandType.Text;
                 drCampus = cmdCampus.ExecuteReader();
-                CloseConnection();
-                DisposeConnection();
                 return drCampus;
             }
             catch(Exception )
             {
                 return null;
+            }
+            finally
+            {
+                // Always return the connection to the pool, also when the query fails or times out.
+                CloseConnection();
+                DisposeConnection();
             }
         }
         public void sendMail(string Subject, string Name, string Body, string To)

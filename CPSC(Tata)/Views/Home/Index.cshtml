@@ -14,27 +14,16 @@
     string _sqlPI = string.Empty;
     string CS_index = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
 
-    using (SqlConnection cnPI = new SqlConnection(CS_index))
+    // Loaded (and cached per user) by HomeController.Index - see App_Code/DashboardTileCache.cs.
+    dtfBox = (DataTable)ViewBag.BoxValues;
+    // getBoxValue returns zero rows for account types with no dealer/region tie (e.g.
+    // SuperAdmin) - every dtfBox.Rows[0][...] access below assumed a row always exists,
+    // throwing "There is no row at position 0" and crashing the post-login landing page for
+    // exactly those accounts. Add one blank row so the columns still exist but read back as
+    // empty instead of throwing.
+    if (dtfBox.Rows.Count == 0)
     {
-        SqlDataAdapter da1 = new SqlDataAdapter("getBoxValue", cnPI); // Using a Store Procedure.
-                                                                      //SqlDataAdapter da = new SqlDataAdapter("SELECT 'this is a test text' as test", con); To use a hard coded query.
-        da1.SelectCommand.CommandType = CommandType.StoredProcedure; // Comment if using hard coded query.
-        DataSet ds = new DataSet(); // Definition: Memory representation of the database.
-        da1.SelectCommand.Parameters.AddWithValue("@uid", uidPI); // Repeat for each parameter present in the Store Procedure.
-
-        da1.Fill(ds); // Fill the dataset with the query data
-        dtfBox = ds.Tables[0];
-
-        // getBoxValue returns zero rows for account types with no dealer/region tie (e.g.
-        // SuperAdmin) - every dtfBox.Rows[0][...] access below assumed a row always exists,
-        // throwing "There is no row at position 0" and crashing the post-login landing page for
-        // exactly those accounts. Add one blank row so the columns still exist but read back as
-        // empty instead of throwing.
-        if (dtfBox.Rows.Count == 0)
-        {
-            dtfBox.Rows.Add(dtfBox.NewRow());
-        }
-
+        dtfBox.Rows.Add(dtfBox.NewRow());
     }
 }
 <div class="row" style="margin-top:-3px;">

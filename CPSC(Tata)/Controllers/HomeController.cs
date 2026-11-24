@@ -30,6 +30,25 @@ namespace InputOutput.Controllers
         //[Execution_Logs]
         public ActionResult Index()
         {
+            // Performance: getBoxValue (the dashboard's top tiles) takes ~11 s on production and
+            // ran on every visit. Its result depends only on the user id, so it is cached per user
+            // for 5 minutes (App_Code/DashboardTileCache.cs). Queried here rather than in
+            // Index.cshtml so the view never references an App_Code type directly (App_Code is
+            // also compiled at runtime on the server, which would make the type ambiguous there).
+            string uid = Session["Uid"].ToString();
+            string connectionString = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
+            ViewBag.BoxValues = DashboardTileCache.GetBoxValues(uid, () =>
+            {
+                using (SqlConnection cn = new SqlConnection(connectionString))
+                {
+                    SqlDataAdapter da = new SqlDataAdapter("getBoxValue", cn);
+                    da.SelectCommand.CommandType = CommandType.StoredProcedure;
+                    da.SelectCommand.Parameters.AddWithValue("@uid", uid);
+                    DataSet ds = new DataSet();
+                    da.Fill(ds);
+                    return ds.Tables[0];
+                }
+            });
             return View();
         }
         public ActionResult AdminIndex()
