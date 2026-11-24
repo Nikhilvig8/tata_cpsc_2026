@@ -36,10 +36,10 @@ namespace InputOutput.Controllers
             // VAPT "Password Transmitted Without Client-Side Encryption": only the RSA PUBLIC key
             // and a single-use nonce go to the page; the private key never leaves the server. See
             // LoginPasswordCipher.cs.
-            var pwKey = LoginPasswordCipher.PrepareLoginPage(Session);
-            ViewBag.PwKeyN = pwKey.ModulusB64Url;
-            ViewBag.PwKeyE = pwKey.ExponentB64Url;
-            ViewBag.PwNonce = pwKey.Nonce;
+            var loginPage = LoginPasswordCipher.PrepareLoginPage(Session);
+            ViewBag.RsaN = loginPage.ModulusB64Url;
+            ViewBag.RsaE = loginPage.ExponentB64Url;
+            ViewBag.PwNonce = loginPage.Nonce;
             return View();
         }
 

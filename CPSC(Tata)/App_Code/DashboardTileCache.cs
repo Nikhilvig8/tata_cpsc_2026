@@ -13,16 +13,16 @@ namespace InputOutput
     // that must show immediately.
     public static class DashboardTileCache
     {
-        private const string KeyPrefix = "dashboard_boxvalue_";
+        private const string CachePrefix = "dashboard_boxvalue_";
         private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(5);
 
         // Returns a private copy of the cached table (callers may modify it); calls load() on a miss.
         // A null or failed load is never cached.
         public static DataTable GetBoxValues(string uid, Func<DataTable> load)
         {
-            string key = KeyPrefix + (uid ?? string.Empty).Trim().ToLowerInvariant();
+            string cacheName = CachePrefix + (uid ?? string.Empty).Trim().ToLowerInvariant();
 
-            var cached = MemoryCache.Default.Get(key) as DataTable;
+            var cached = MemoryCache.Default.Get(cacheName) as DataTable;
             if (cached != null)
             {
                 return cached.Copy();
@@ -31,14 +31,14 @@ namespace InputOutput
             DataTable fresh = load();
             if (fresh != null)
             {
-                MemoryCache.Default.Set(key, fresh.Copy(), DateTimeOffset.UtcNow.Add(CacheDuration));
+                MemoryCache.Default.Set(cacheName, fresh.Copy(), DateTimeOffset.UtcNow.Add(CacheDuration));
             }
             return fresh;
         }
 
         public static void Invalidate(string uid)
         {
-            MemoryCache.Default.Remove(KeyPrefix + (uid ?? string.Empty).Trim().ToLowerInvariant());
+            MemoryCache.Default.Remove(CachePrefix + (uid ?? string.Empty).Trim().ToLowerInvariant());
         }
     }
 }
