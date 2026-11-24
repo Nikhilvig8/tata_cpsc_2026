@@ -33,6 +33,13 @@ namespace InputOutput.Controllers
         
         public ActionResult Login()
         {
+            // VAPT "Password Transmitted Without Client-Side Encryption": only the RSA PUBLIC key
+            // and a single-use nonce go to the page; the private key never leaves the server. See
+            // LoginPasswordCipher.cs.
+            var pwKey = LoginPasswordCipher.PrepareLoginPage(Session);
+            ViewBag.PwKeyN = pwKey.ModulusB64Url;
+            ViewBag.PwKeyE = pwKey.ExponentB64Url;
+            ViewBag.PwNonce = pwKey.Nonce;
             return View();
         }
 
@@ -535,6 +542,18 @@ namespace InputOutput.Controllers
             {
                 LoginThrottle.RegisterFailure(user.UserName, clientIp);
                 Session["Popup"] = "5";
+                return RedirectToAction("Login", "Login");
+            }
+
+            // VAPT "Password Transmitted Without Client-Side Encryption": the password field
+            // arrives RSA-OAEP encrypted (see LoginPasswordCipher.cs and Login.cshtml). No
+            // plaintext fallback - a value that does not decrypt with the server's private key and
+            // this session's single-use nonce is rejected. Must run before Session.Clear() below,
+            // which would discard the nonce.
+            user.Password = LoginPasswordCipher.TryDecrypt(user.Password, Session);
+            if (user.Password == null)
+            {
+                Session["Popup"] = "8";
                 return RedirectToAction("Login", "Login");
             }
 
