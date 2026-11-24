@@ -131,7 +131,11 @@ namespace InputOutput
         {
             if (_current != null && DateTime.UtcNow - _currentCreatedUtc < RotationInterval) return;
 
-            var fresh = new RSACryptoServiceProvider(KeySizeBits) { PersistKeyInCsp = false };
+            // UseMachineKeyStore: IIS app pools usually run without a loaded user profile, where
+            // the default (user) key store is unavailable and key generation throws - which
+            // surfaced as HTTP 500 on the login page.
+            var csp = new CspParameters { Flags = CspProviderFlags.UseMachineKeyStore };
+            var fresh = new RSACryptoServiceProvider(KeySizeBits, csp) { PersistKeyInCsp = false };
             if (_previous != null) _previous.Dispose();
             _previous = _current;
             _current = fresh;
