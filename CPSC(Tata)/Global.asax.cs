@@ -78,6 +78,21 @@ namespace InputOutput
         // cause is found.
         protected void Application_Error(object sender, EventArgs e)
         {
+            // VAPT: a missing page must answer "404 Not Found". customErrors' defaultRedirect turned
+            // every 404 into a 302 redirect to the login page. Handled here first - a missing page is
+            // not an application error, so it is not logged below either.
+            var notFound = Server.GetLastError() as HttpException;
+            if (notFound != null && notFound.GetHttpCode() == 404)
+            {
+                Server.ClearError();
+                Response.Clear();
+                Response.StatusCode = 404;
+                Response.TrySkipIisCustomErrors = true;
+                Response.ContentType = "text/html";
+                try { Response.WriteFile(Server.MapPath("~/NotFound.html")); }
+                catch { Response.Write("<h1>404 - Page not found</h1>"); }
+                return;
+            }
             string message;
             try
             {

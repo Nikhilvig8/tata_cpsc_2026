@@ -2677,6 +2677,7 @@
     <Content Include="bin\System.Web.WebPages.xml" />
     <Content Include="bin\WebGrease.dll" />
     <Content Include="favicon.ico" />
+    <Content Include="NotFound.html" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
     <Content Include="Logs\Logs.txt" />
